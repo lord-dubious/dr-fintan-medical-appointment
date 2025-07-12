@@ -3,10 +3,13 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [App\Http\Controllers\frontend\HomeController::class, 'index'])->name('home');
+Route::get('/about', [App\Http\Controllers\frontend\HomeController::class, 'about'])->name('about');
+Route::get('/contact', [App\Http\Controllers\frontend\HomeController::class, 'contact'])->name('contact');
 Route::get('/appointment', [App\Http\Controllers\auth\AppointmentController::class, 'index'])->name('appointment');
 Route::post('/appointment/store', [App\Http\Controllers\auth\AppointmentController::class, 'store'])->name('appointment.store');
 Route::get('/login', [App\Http\Controllers\auth\LoginController::class, 'index'])->name('login');
 Route::post('/login/auth', [App\Http\Controllers\auth\LoginController::class, 'login'])->name('login.auth');
+Route::get('/register', [App\Http\Controllers\auth\LoginController::class, 'register'])->name('register');
 Route::get('/logout', [App\Http\Controllers\auth\LoginController::class, 'logout'])->name('logout');
 Route::get('/check-doctor-availability', [App\Http\Controllers\auth\AppointmentController::class, 'checkAvailability'])
     ->name('check.doctor.availability');

@@ -9,10 +9,18 @@ class HomeController extends Controller
 {
     //
         public function index(){
-         
+
             $doctors = Doctor::all();
-    
+
             // Pass the data to the view
             return view('frontend.home', compact('doctors'));
+        }
+
+        public function about(){
+            return view('frontend.about');
+        }
+
+        public function contact(){
+            return view('frontend.contact');
         }
 }

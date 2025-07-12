@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -16,16 +17,16 @@ return new class extends Migration
             $table->unsignedBigInteger('patient_id');
             $table->unsignedBigInteger('doctor_id');
             $table->date('appointment_date');
-            $table->string('appointment_time');
+            $table->string('appointment_time', 255);
             $table->text('message')->nullable();
-            $table->enum('status', ['pending', 'confirmed', 'cancelled'])->default('pending');
+            $table->string('status', 50)->default('pending');
             $table->timestamps();
-            $table->softDeletes(); // Add this line
-            
+            $table->softDeletes();
+
             // Foreign key constraints
             $table->foreign('patient_id')->references('id')->on('patients')->onDelete('cascade');
             $table->foreign('doctor_id')->references('id')->on('doctors')->onDelete('cascade');
-            
+
             // Indexes
             $table->index('patient_id');
             $table->index('doctor_id');
