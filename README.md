@@ -1,95 +1,94 @@
-# Medical Appointment System
+# 🏥 Medical Appointment System
 
-A comprehensive medical appointment management system built with Laravel 12, featuring multi-role authentication and complete appointment lifecycle management.
+A comprehensive medical appointment management system built with **Laravel 12**, featuring multi-role authentication, complete appointment lifecycle management, and modern responsive design.
+
+![Laravel](https://img.shields.io/badge/Laravel-12-red?style=flat-square&logo=laravel)
+![PHP](https://img.shields.io/badge/PHP-8.2-blue?style=flat-square&logo=php)
+![MySQL](https://img.shields.io/badge/Database-MySQL-orange?style=flat-square&logo=mysql)
+![Tailwind](https://img.shields.io/badge/CSS-Tailwind-38B2AC?style=flat-square&logo=tailwind-css)
 
 ## 🚀 Features
 
-### **Multi-Role Authentication**
-- **Admin Dashboard**: Complete system management
-- **Doctor Portal**: Appointment management and patient interaction
-- **Patient Portal**: Appointment booking and history
+### **🔐 Multi-Role Authentication**
+- **👨‍💼 Admin Dashboard**: Complete system management and oversight
+- **👨‍⚕️ Doctor Portal**: Appointment management and patient interaction
+- **🏥 Patient Portal**: Appointment booking and medical history
 
-### **Core Functionality**
-- ✅ **Appointment Booking System** with availability checking
-- ✅ **Real-time Status Management** (confirmed, pending, cancelled)
+### **📅 Core Functionality**
+- ✅ **Smart Appointment Booking** with real-time availability checking
+- ✅ **Status Management** (pending, confirmed, cancelled)
 - ✅ **SMS Notifications** via Twilio integration
-- ✅ **Doctor Availability Management**
-- ✅ **Patient Management System**
-- ✅ **Department-based Organization**
-- ✅ **Responsive UI** with Tailwind CSS
+- ✅ **Doctor Availability Management** with scheduling
+- ✅ **Patient Management System** with medical records
+- ✅ **Department-based Organization** (15+ specializations)
+- ✅ **Image Upload** for patient profiles
 
-### **Technical Features**
-- ✅ **RESTful API** endpoints
-- ✅ **Database Migrations** with sample data
+### **⚡ Technical Features**
+- ✅ **RESTful API** endpoints for external integration
+- ✅ **Database Migrations** with comprehensive sample data
 - ✅ **Role-based Middleware** protection
 - ✅ **Soft Deletes** for data integrity
 - ✅ **Modern Frontend** with Vite build system
+- ✅ **Responsive Design** for all devices
 
 ## 🛠️ Tech Stack
 
-- **Backend**: Laravel 12 + PHP 8.2
-- **Database**: SQLite (default) / MySQL compatible
-- **Frontend**: Tailwind CSS 4.0 + Vite
-- **SMS**: Twilio SDK
-- **Package Manager**: PNPM
+| Component | Technology |
+|-----------|------------|
+| **Backend** | Laravel 12 + PHP 8.2 |
+| **Database** | MySQL (Aiven Cloud) |
+| **Frontend** | Tailwind CSS 4.0 + Vite |
+| **SMS** | Twilio SDK |
+| **Package Manager** | PNPM |
+| **Authentication** | Laravel Sanctum |
 
 ## 📋 Prerequisites
 
-- PHP 8.2+
-- Composer
-- Node.js 18+
-- PNPM
-- SQLite extension for PHP
+- **PHP 8.2+** with extensions: `mysql`, `sqlite3`, `mbstring`, `xml`
+- **Composer** for PHP dependency management
+- **Node.js 18+** for frontend assets
+- **PNPM** for package management
+- **MySQL** database (cloud or local)
 
-## ⚡ Quick Setup
+## ⚡ Quick Start
 
-The system is already configured and ready to run! Just start the server:
-
+### **1. Clone & Install**
 ```bash
-# Start the development server
-php artisan serve --host=0.0.0.0 --port=8000
+git clone https://github.com/lord-dubious/fintan-new.git
+cd fintan-new
+composer install
+pnpm install
 ```
 
-Visit: `http://localhost:8000`
+### **2. Environment Setup**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+### **3. Database Setup**
+```bash
+# Configure your database in .env file
+php artisan migrate --seed
+```
+
+### **4. Build & Run**
+```bash
+pnpm run build
+php artisan serve
+```
+
+Visit: **http://localhost:8000**
 
 ## 🔐 Default Login Credentials
 
-### Admin Access
-- **Email**: `admin@medical.com`
-- **Password**: `password123`
+| Role | Email | Password | Access Level |
+|------|-------|----------|--------------|
+| **👨‍💼 Admin** | `admin@medical.com` | `password123` | Full system access |
+| **👨‍⚕️ Doctor** | `doctor1@medical.com` | `doctor123` | Appointment management |
+| **🏥 Patient** | `patient@medical.com` | `password123` | Booking & history |
 
-### Doctor Access
-- **Email**: `doctor1@medical.com` to `doctor5@medical.com`
-- **Password**: `doctor123`
-
-### Patient Access
-- **Email**: `patient@medical.com`
-- **Password**: `password123`
-
-## 🏗️ Manual Setup (if needed)
-
-If you need to set up from scratch:
-
-```bash
-# 1. Install PHP dependencies
-php composer.phar install
-
-# 2. Setup environment
-cp .env.example .env
-php artisan key:generate
-
-# 3. Setup database
-touch database/database.sqlite
-php artisan migrate
-php artisan db:seed
-
-# 4. Install frontend dependencies
-pnpm install
-pnpm run build
-
-# 5. Start server
-php artisan serve
-```
+*Note: 10 doctor accounts available (doctor1-doctor10@medical.com)*
 
 ## 🎯 System Overview
 
