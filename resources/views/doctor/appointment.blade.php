@@ -382,6 +382,7 @@ document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
             const callStatus = document.getElementById('callStatus');
 
             videoModal.style.display = 'block';
+            videoModal.setAttribute('data-appointment-id', appointmentId);
             callStatus.textContent = 'Creating consultation room...';
 
             // Create consultation room via API
@@ -567,8 +568,12 @@ document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
 
     // Helper function to get current appointment ID
     function getCurrentAppointmentId() {
-        // This should be set based on the current appointment context
-        return document.querySelector('[data-appointment-id]')?.getAttribute('data-appointment-id') || null;
+        const videoModal = document.getElementById('videoCallModal');
+        if (!videoModal) {
+            console.warn('Video call modal not found');
+            return null;
+        }
+        return videoModal.getAttribute('data-appointment-id') || null;
     }
 
     // Message modal functions

@@ -308,7 +308,7 @@
             callStatus.textContent = 'Creating consultation room...';
 
             await createAndJoinConsultation(appointmentId, 'video');
-            console.log('Successfully joined Daily.co room:', data.room_name);
+            console.log('Video call initiated successfully');
             
         } catch (err) {
             console.error('Call initiation failed:', err);
@@ -331,7 +331,7 @@
             callStatus.textContent = 'Creating audio consultation...';
 
             await createAndJoinConsultation(appointmentId, 'audio');
-            console.log('Successfully joined audio consultation:', data.room_name);
+            console.log('Audio call initiated successfully');
 
         } catch (err) {
             console.error('Audio call failed:', err);
@@ -485,8 +485,12 @@
 
     // Helper function to get current appointment ID
     function getCurrentAppointmentId() {
-        // This should be set based on the current appointment context
-        return document.querySelector('[data-appointment-id]')?.getAttribute('data-appointment-id') || null;
+        const videoModal = document.getElementById('videoCallModal');
+        if (!videoModal) {
+            console.warn('Video call modal not found');
+            return null;
+        }
+        return videoModal.getAttribute('data-appointment-id') || null;
     }
 </script>
 </body>
