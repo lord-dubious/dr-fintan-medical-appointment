@@ -269,8 +269,8 @@
     </div>
 </div>
 
-<!-- PeerJS for video calls -->
-<script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+<!-- Daily.co JavaScript SDK -->
+<script src="https://unpkg.com/@daily-co/daily-js"></script>
 
 <!-- In your doctor dashboard, update the JavaScript section: -->
 <script>

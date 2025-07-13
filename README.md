@@ -17,7 +17,7 @@ A comprehensive medical appointment management system built with **Laravel 12**,
 ### **📅 Core Functionality**
 - ✅ **Smart Appointment Booking** with real-time availability checking
 - ✅ **Status Management** (pending, confirmed, cancelled)
-- ✅ **SMS Notifications** via Twilio integration
+- ✅ **Video & Audio Consultations** via Daily.co integration
 - ✅ **Doctor Availability Management** with scheduling
 - ✅ **Patient Management System** with medical records
 - ✅ **Department-based Organization** (15+ specializations)
@@ -38,7 +38,7 @@ A comprehensive medical appointment management system built with **Laravel 12**,
 | **Backend** | Laravel 12 + PHP 8.2 |
 | **Database** | MySQL (Aiven Cloud) |
 | **Frontend** | Tailwind CSS 4.0 + Vite |
-| **SMS** | Twilio SDK |
+| **Video/Audio** | Daily.co SDK |
 | **Package Manager** | PNPM |
 | **Authentication** | Laravel Sanctum |
 
@@ -181,26 +181,27 @@ pnpm run dev     # Development with hot reload
 pnpm run build   # Production build
 ```
 
-## 📱 SMS Integration (Twilio)
+## 📹 Video Consultation Integration (Daily.co)
 
-To enable SMS notifications:
+To enable video and audio consultations:
 
-1. **Get Twilio Credentials**
-   - Sign up at [Twilio](https://www.twilio.com)
-   - Get Account SID, Auth Token, and Phone Number
+1. **Get Daily.co Credentials**
+   - Sign up at [Daily.co](https://www.daily.co)
+   - Get API Key and Domain from your dashboard
 
 2. **Configure Environment**
    ```bash
    # Add to .env file
-   TWILIO_SID=your_account_sid
-   TWILIO_TOKEN=your_auth_token
-   TWILIO_FROM=your_twilio_phone_number
+   DAILY_API_KEY=your_daily_api_key
+   DAILY_DOMAIN=your_daily_domain
    ```
 
-3. **SMS Features**
-   - Appointment confirmations
-   - Reminder notifications
-   - Status change alerts
+3. **Video Consultation Features**
+   - HD Video calling between doctors and patients
+   - Audio-only consultations
+   - Secure, private consultation rooms
+   - Real-time communication during appointments
+   - Automatic room cleanup after consultations
 
 ## 🔧 Configuration
 

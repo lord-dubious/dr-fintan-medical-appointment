@@ -155,13 +155,14 @@
                                             <span class="text-warning">Pending</span>
                                         @elseif($appointment->status === 'confirmed' && $appointment->appointment_date >= now()->toDateString())
                                             <!-- Action buttons for upcoming confirmed appointments -->
-                                            <button class="voice_call_btn" title="Voice Call" onclick="initiateVoiceCall()">
-                                                <i class="fas fa-phone"></i> Call
+                                            <button class="voice_call_btn" title="Audio Call"
+                                                onclick="initiateAudioCall('{{ $appointment->doctor->id }}', '{{ $appointment->id }}')">
+                                                <i class="fas fa-phone"></i> Audio Call
                                             </button>
-                                            <button class="video_call_btn" title="Video Call" 
-                                                onclick="initiateVideoCall('{{ $appointment->doctor->id }}')">
-                                            <i class="fas fa-video"></i> Video
-                                        </button>
+                                            <button class="video_call_btn" title="Video Call"
+                                                onclick="initiateVideoCall('{{ $appointment->doctor->id }}', '{{ $appointment->id }}')">
+                                                <i class="fas fa-video"></i> Video Call
+                                            </button>
                                             <button class="email_btn" title="Send Email" onclick="sendEmail()">
                                                 <i class="fas fa-envelope"></i> Email
                                             </button>
@@ -187,7 +188,7 @@
 ==============================-->
 
 <!-- Video Call Modal -->
-<div id="videoCallModal">
+<div id="videoCallModal" data-appointment-id="">
     <div class="video-call-container">
         <span class="close-btn" onclick="endCall()">&times;</span>
         <div class="call-status" id="callStatus">Connecting to doctor...</div>
@@ -207,97 +208,81 @@
     </div>
 </div>
 
-<!-- Include Twilio Video JS -->
-<!-- Remove this line -->
-<script src="https://sdk.twilio.com/js/video/releases/2.23.0/twilio-video.min.js"></script>
-
-<!-- Add this to your patient dashboard -->
-<script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+<!-- Include Daily.co JavaScript SDK -->
+<script src="https://unpkg.com/@daily-co/daily-js"></script>
 <script>
-    // PeerJS variables
-    let peer;
-    let currentCall;
-    let localStream;
+    // Daily.co variables
+    let dailyCall;
+    let currentRoom;
     let isMuted = false;
     let isVideoOff = false;
-    
-    // Initialize PeerJS when page loads
+
+    // Initialize Daily.co when page loads
     document.addEventListener('DOMContentLoaded', function() {
         try {
-            console.log('Initializing PeerJS for patient-{{ $patient->id }}');
-            
-            peer = new Peer(`patient-{{ $patient->id }}`, {
-                debug: 3,
-                config: {
-                    iceServers: [
-                        { urls: 'stun:stun.l.google.com:19302' },
-                        { urls: 'stun:stun1.l.google.com:19302' },
-                        { urls: 'stun:stun2.l.google.com:19302' }
-                    ]
-                }
-            });
-            
-            peer.on('open', (id) => {
-                console.log('Patient PeerJS ready with ID:', id);
-            });
-            
-            peer.on('error', (err) => {
-                console.error('PeerJS error:', err);
-                alert('Connection error: ' + err.message);
-            });
+            console.log('Initializing Daily.co for patient-{{ $patient->id }}');
+
+            // Create Daily call object
+            dailyCall = DailyIframe.createCallObject();
+
+            // Set up event listeners
+            dailyCall
+                .on('joined-meeting', handleJoinedMeeting)
+                .on('participant-joined', handleParticipantJoined)
+                .on('participant-left', handleParticipantLeft)
+                .on('participant-updated', handleParticipantUpdated)
+                .on('left-meeting', handleLeftMeeting)
+                .on('error', handleError);
+
+            console.log('Daily.co initialized successfully');
         } catch (err) {
-            console.error('PeerJS initialization failed:', err);
+            console.error('Daily.co initialization failed:', err);
             alert('Failed to initialize video call system');
         }
     });
-    
-    // Video call function - UPDATED
-    async function initiateVideoCall(doctorId) {
+
+    // Video call function - Daily.co implementation
+    async function initiateVideoCall(doctorId, appointmentId) {
         try {
-            console.log(`Attempting to call doctor-${doctorId}`);
-            
-            // Show call modal
+            console.log(`Attempting to call doctor-${doctorId} for appointment-${appointmentId}`);
+
+            // Show call modal and set appointment ID
             const videoModal = document.getElementById('videoCallModal');
             const callStatus = document.getElementById('callStatus');
-            
+
             videoModal.style.display = 'block';
-            callStatus.textContent = 'Calling doctor...';
-            
-            // Get local media
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: true, 
-                audio: true 
+            videoModal.setAttribute('data-appointment-id', appointmentId);
+            callStatus.textContent = 'Creating consultation room...';
+
+            // Create consultation room via API
+            const response = await fetch('/api/consultation/create-room', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
+                },
+                body: JSON.stringify({
+                    appointment_id: appointmentId
+                })
             });
-            
-            console.log('Patient obtained local media stream');
-            
-            // Show local video
-            document.getElementById('localVideo').srcObject = stream;
-            localStream = stream;
-            
-            // Call the doctor
-            const call = peer.call(`doctor-${doctorId}`, stream);
-            currentCall = call;
-            console.log('Call initiated to doctor');
-            
-            // Handle remote stream
-            call.on('stream', (remoteStream) => {
-                console.log('Received remote stream from doctor');
-                document.getElementById('remoteVideo').srcObject = remoteStream;
-                callStatus.textContent = 'Call connected';
+
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to create consultation room');
+            }
+
+            callStatus.textContent = 'Joining consultation...';
+
+            // Join the Daily.co room
+            await dailyCall.join({
+                url: data.room_url,
+                token: data.tokens.patient_token
             });
-            
-            // Handle call ending
-            call.on('close', () => {
-                console.log('Call ended by doctor');
-                endCall();
-            });
-            
-            call.on('error', (err) => {
-                console.error('Call error:', err);
-                callStatus.textContent = 'Call failed: ' + err.message;
-                setTimeout(endCall, 3000);
-            });
+
+            currentRoom = data.room_name;
+            console.log('Successfully joined Daily.co room:', data.room_name);
             
         } catch (err) {
             console.error('Call initiation failed:', err);
@@ -306,55 +291,205 @@
             setTimeout(endCall, 3000);
         }
     }
-    
-    // End call function - IMPROVED
-    function endCall() {
+
+    // Audio-only call function
+    async function initiateAudioCall(doctorId, appointmentId) {
         try {
-            if (currentCall) {
-                console.log('Ending current call');
-                currentCall.close();
-                currentCall = null;
+            console.log(`Attempting audio call with doctor-${doctorId} for appointment-${appointmentId}`);
+
+            const videoModal = document.getElementById('videoCallModal');
+            const callStatus = document.getElementById('callStatus');
+
+            videoModal.style.display = 'block';
+            videoModal.setAttribute('data-appointment-id', appointmentId);
+            callStatus.textContent = 'Creating audio consultation...';
+
+            // Create audio consultation room via API
+            const response = await fetch('/api/consultation/create-audio', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
+                },
+                body: JSON.stringify({
+                    appointment_id: appointmentId
+                })
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to create audio consultation');
             }
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-                localStream = null;
-            }
-            document.getElementById('videoCallModal').style.display = 'none';
+
+            callStatus.textContent = 'Joining audio consultation...';
+
+            // Join the Daily.co room with audio only
+            await dailyCall.join({
+                url: data.room_url,
+                token: data.tokens.patient_token
+            });
+
+            // Turn off video for audio-only call
+            await dailyCall.setLocalVideo(false);
+
+            currentRoom = data.room_name;
+            console.log('Successfully joined audio consultation:', data.room_name);
+
+        } catch (err) {
+            console.error('Audio call failed:', err);
+            document.getElementById('callStatus').textContent = 'Audio call failed: ' + err.message;
+            setTimeout(endCall, 3000);
+        }
+    }
+
+    // Daily.co event handlers
+    function handleJoinedMeeting(event) {
+        console.log('Joined meeting:', event);
+        document.getElementById('callStatus').textContent = 'Connected to consultation';
+
+        // Set up local video
+        const localVideo = document.getElementById('localVideo');
+        const localParticipant = dailyCall.participants().local;
+
+        if (localParticipant.video) {
+            localVideo.srcObject = new MediaStream([localParticipant.video.track]);
+            localVideo.play();
+        }
+    }
+
+    function handleParticipantJoined(event) {
+        console.log('Participant joined:', event.participant);
+        updateParticipantVideo(event.participant);
+    }
+
+    function handleParticipantLeft(event) {
+        console.log('Participant left:', event.participant);
+        // Clear remote video if doctor left
+        if (event.participant.user_id && event.participant.user_id.startsWith('doctor-')) {
             document.getElementById('remoteVideo').srcObject = null;
+        }
+    }
+
+    function handleParticipantUpdated(event) {
+        console.log('Participant updated:', event.participant);
+        updateParticipantVideo(event.participant);
+    }
+
+    function handleLeftMeeting(event) {
+        console.log('Left meeting:', event);
+        endCall();
+    }
+
+    function handleError(event) {
+        console.error('Daily.co error:', event);
+        document.getElementById('callStatus').textContent = 'Connection error: ' + event.errorMsg;
+    }
+
+    function updateParticipantVideo(participant) {
+        // Update remote video for doctor
+        if (participant.user_id && participant.user_id.startsWith('doctor-')) {
+            const remoteVideo = document.getElementById('remoteVideo');
+            if (participant.video && participant.video.track) {
+                remoteVideo.srcObject = new MediaStream([participant.video.track]);
+                remoteVideo.play();
+            } else {
+                remoteVideo.srcObject = null;
+            }
+        }
+    }
+
+    // End call function - IMPROVED
+    async function endCall() {
+        try {
+            console.log('Ending consultation call');
+
+            if (dailyCall && dailyCall.meetingState() !== 'left-meeting') {
+                // Leave the Daily.co meeting
+                await dailyCall.leave();
+            }
+
+            // Clear video elements
             document.getElementById('localVideo').srcObject = null;
+            document.getElementById('remoteVideo').srcObject = null;
+
+            // Hide modal
+            document.getElementById('videoCallModal').style.display = 'none';
+
+            // Reset call status
+            document.getElementById('callStatus').textContent = 'Call ended';
+
+            // Clean up room if needed
+            if (currentRoom) {
+                try {
+                    await fetch('/api/consultation/end', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            room_name: currentRoom,
+                            appointment_id: getCurrentAppointmentId()
+                        })
+                    });
+                } catch (err) {
+                    console.error('Error cleaning up room:', err);
+                }
+                currentRoom = null;
+            }
+
+            console.log('Call ended successfully');
         } catch (err) {
             console.error('Error ending call:', err);
         }
     }
     
-    // Toggle mute function
-    function toggleMute() {
-        if (localStream) {
-            const audioTracks = localStream.getAudioTracks();
-            audioTracks.forEach(track => {
-                track.enabled = !track.enabled;
-            });
-            isMuted = !isMuted;
-            const muteBtn = document.querySelector('.control-btn:nth-child(1)');
-            muteBtn.innerHTML = isMuted 
-                ? '<i class="fas fa-microphone-slash"></i>' 
-                : '<i class="fas fa-microphone"></i>';
+    // Toggle mute function - Daily.co implementation
+    async function toggleMute() {
+        try {
+            if (dailyCall) {
+                const currentAudioState = dailyCall.localAudio();
+                await dailyCall.setLocalAudio(!currentAudioState);
+                isMuted = !currentAudioState;
+
+                const muteBtn = document.querySelector('.control-btn:nth-child(1)');
+                muteBtn.innerHTML = isMuted
+                    ? '<i class="fas fa-microphone-slash"></i>'
+                    : '<i class="fas fa-microphone"></i>';
+
+                console.log('Audio toggled:', isMuted ? 'muted' : 'unmuted');
+            }
+        } catch (err) {
+            console.error('Error toggling mute:', err);
         }
     }
-    
-    // Toggle video function
-    function toggleVideo() {
-        if (localStream) {
-            const videoTracks = localStream.getVideoTracks();
-            videoTracks.forEach(track => {
-                track.enabled = !track.enabled;
-            });
-            isVideoOff = !isVideoOff;
-            const videoBtn = document.querySelector('.control-btn:nth-child(2)');
-            videoBtn.innerHTML = isVideoOff 
-                ? '<i class="fas fa-video-slash"></i>' 
-                : '<i class="fas fa-video"></i>';
+
+    // Toggle video function - Daily.co implementation
+    async function toggleVideo() {
+        try {
+            if (dailyCall) {
+                const currentVideoState = dailyCall.localVideo();
+                await dailyCall.setLocalVideo(!currentVideoState);
+                isVideoOff = !currentVideoState;
+
+                const videoBtn = document.querySelector('.control-btn:nth-child(2)');
+                videoBtn.innerHTML = isVideoOff
+                    ? '<i class="fas fa-video-slash"></i>'
+                    : '<i class="fas fa-video"></i>';
+
+                console.log('Video toggled:', isVideoOff ? 'off' : 'on');
+            }
+        } catch (err) {
+            console.error('Error toggling video:', err);
         }
+    }
+
+    // Helper function to get current appointment ID
+    function getCurrentAppointmentId() {
+        // This should be set based on the current appointment context
+        return document.querySelector('[data-appointment-id]')?.getAttribute('data-appointment-id') || null;
     }
 </script>
 </body>
