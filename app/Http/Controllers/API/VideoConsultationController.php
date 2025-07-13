@@ -21,6 +21,16 @@ class VideoConsultationController extends Controller
     }
 
     /**
+     * Check if the current user is authorized for the appointment
+     */
+    private function isAuthorizedForAppointment(Appointment $appointment): bool
+    {
+        $user = Auth::user();
+        return ($user->role === 'doctor' && $user->doctor && $user->doctor->id === $appointment->doctor_id) ||
+               ($user->role === 'patient' && $user->patient && $user->patient->id === $appointment->patient_id);
+    }
+
+    /**
      * Create a video consultation room for an appointment
      */
     public function createConsultationRoom(Request $request): JsonResponse
@@ -31,13 +41,8 @@ class VideoConsultationController extends Controller
             ]);
 
             $appointment = Appointment::with(['doctor', 'patient.user'])->findOrFail($request->appointment_id);
-            
-            // Check if user is authorized (either the doctor or patient for this appointment)
-            $user = Auth::user();
-            $isAuthorized = ($user->role === 'doctor' && $user->doctor && $user->doctor->id === $appointment->doctor_id) ||
-                           ($user->role === 'patient' && $user->patient && $user->patient->id === $appointment->patient_id);
 
-            if (!$isAuthorized) {
+            if (!$this->isAuthorizedForAppointment($appointment)) {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 
@@ -52,7 +57,9 @@ class VideoConsultationController extends Controller
             $tokens = $this->dailyService->createConsultationTokens(
                 $room['name'],
                 $appointment->doctor_id,
-                $appointment->patient_id
+                $appointment->patient_id,
+                $appointment->doctor->name,
+                $appointment->patient->user->name
             );
 
             return response()->json([
@@ -88,13 +95,8 @@ class VideoConsultationController extends Controller
             ]);
 
             $appointment = Appointment::with(['doctor', 'patient.user'])->findOrFail($request->appointment_id);
-            
-            // Check authorization
-            $user = Auth::user();
-            $isAuthorized = ($user->role === 'doctor' && $user->doctor && $user->doctor->id === $appointment->doctor_id) ||
-                           ($user->role === 'patient' && $user->patient && $user->patient->id === $appointment->patient_id);
 
-            if (!$isAuthorized) {
+            if (!$this->isAuthorizedForAppointment($appointment)) {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 
@@ -105,7 +107,9 @@ class VideoConsultationController extends Controller
             $tokens = $this->dailyService->createConsultationTokens(
                 $request->room_name,
                 $appointment->doctor_id,
-                $appointment->patient_id
+                $appointment->patient_id,
+                $appointment->doctor->name,
+                $appointment->patient->user->name
             );
 
             return response()->json([
@@ -134,13 +138,8 @@ class VideoConsultationController extends Controller
             ]);
 
             $appointment = Appointment::with(['doctor', 'patient.user'])->findOrFail($request->appointment_id);
-            
-            // Check authorization
-            $user = Auth::user();
-            $isAuthorized = ($user->role === 'doctor' && $user->doctor && $user->doctor->id === $appointment->doctor_id) ||
-                           ($user->role === 'patient' && $user->patient && $user->patient->id === $appointment->patient_id);
 
-            if (!$isAuthorized) {
+            if (!$this->isAuthorizedForAppointment($appointment)) {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 
@@ -164,7 +163,9 @@ class VideoConsultationController extends Controller
             $tokens = $this->dailyService->createConsultationTokens(
                 $room['name'],
                 $appointment->doctor_id,
-                $appointment->patient_id
+                $appointment->patient_id,
+                $appointment->doctor->name,
+                $appointment->patient->user->name
             );
 
             return response()->json([
@@ -201,13 +202,8 @@ class VideoConsultationController extends Controller
             ]);
 
             $appointment = Appointment::findOrFail($request->appointment_id);
-            
-            // Check authorization
-            $user = Auth::user();
-            $isAuthorized = ($user->role === 'doctor' && $user->doctor && $user->doctor->id === $appointment->doctor_id) ||
-                           ($user->role === 'patient' && $user->patient && $user->patient->id === $appointment->patient_id);
 
-            if (!$isAuthorized) {
+            if (!$this->isAuthorizedForAppointment($appointment)) {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 

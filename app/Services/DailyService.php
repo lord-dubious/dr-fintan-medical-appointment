@@ -35,7 +35,7 @@ class DailyService
                 ]
             ];
 
-            $roomData = array_merge($defaultProperties, $properties);
+            $roomData = array_replace_recursive($defaultProperties, $properties);
             $roomData['name'] = $roomName;
 
             $response = Http::withHeaders([
@@ -127,8 +127,23 @@ class DailyService
      */
     public function createConsultationRoom(int $appointmentId, string $doctorName, string $patientName): array
     {
+        // Check if a room already exists for this appointment
+        $existingRoomName = "consultation-{$appointmentId}";
+
+        try {
+            // Try to get existing room first
+            $existingRoom = $this->getRoom($existingRoomName);
+            if ($existingRoom && isset($existingRoom['name'])) {
+                Log::info("Using existing room for appointment {$appointmentId}: {$existingRoom['name']}");
+                return $existingRoom;
+            }
+        } catch (Exception $e) {
+            // Room doesn't exist, create a new one
+            Log::info("Creating new room for appointment {$appointmentId}");
+        }
+
         $roomName = "consultation-{$appointmentId}-" . time();
-        
+
         $properties = [
             'properties' => [
                 'max_participants' => 2,
@@ -137,7 +152,6 @@ class DailyService
                 'start_video_off' => false,
                 'start_audio_off' => false,
                 'exp' => time() + (60 * 60 * 3), // 3 hours for consultation
-                'room_name' => $roomName,
             ]
         ];
 
@@ -147,17 +161,22 @@ class DailyService
     /**
      * Create tokens for doctor and patient
      */
-    public function createConsultationTokens(string $roomName, int $doctorId, int $patientId): array
-    {
+    public function createConsultationTokens(
+        string $roomName,
+        int $doctorId,
+        int $patientId,
+        string $doctorName = 'Doctor',
+        string $patientName = 'Patient'
+    ): array {
         $doctorToken = $this->createMeetingToken($roomName, [
-            'user_name' => 'Doctor',
+            'user_name' => $doctorName,
             'user_id' => "doctor-{$doctorId}",
             'is_owner' => true,
             'enable_screenshare' => true,
         ]);
 
         $patientToken = $this->createMeetingToken($roomName, [
-            'user_name' => 'Patient',
+            'user_name' => $patientName,
             'user_id' => "patient-{$patientId}",
             'is_owner' => false,
             'enable_screenshare' => false,
@@ -166,7 +185,7 @@ class DailyService
         return [
             'doctor_token' => $doctorToken['token'],
             'patient_token' => $patientToken['token'],
-            'room_url' => "https://{$roomName}.daily.co",
+            'room_url' => "https://" . config('services.daily.domain') . "/{$roomName}",
         ];
     }
 }
