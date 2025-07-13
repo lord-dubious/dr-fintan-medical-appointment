@@ -19,7 +19,20 @@ Route::get('/logout', [App\Http\Controllers\auth\LoginController::class, 'logout
 Route::middleware(['auth'])->group(function () {
     Route::get('/video-call/prejoin/{appointmentId}', [App\Http\Controllers\VideoCallController::class, 'prejoin'])->name('video-call.prejoin');
     Route::get('/video-call/consultation/{appointmentId}', [App\Http\Controllers\VideoCallController::class, 'consultation'])->name('video-call.consultation');
+
+    // Health check endpoint for prejoin connection testing
+    Route::get('/api/health-check', [App\Http\Controllers\VideoCallController::class, 'healthCheck'])->name('api.health-check');
 });
+
+// Public health check endpoint (fallback)
+Route::get('/health-check', function () {
+    return response()->json([
+        'status' => 'ok',
+        'message' => 'Service is running',
+        'timestamp' => now()->toISOString(),
+        'service' => 'dr-fintan-medical-appointment'
+    ]);
+})->name('health-check');
 Route::get('/check-doctor-availability', [App\Http\Controllers\auth\AppointmentController::class, 'checkAvailability'])
     ->name('check.doctor.availability');
 
