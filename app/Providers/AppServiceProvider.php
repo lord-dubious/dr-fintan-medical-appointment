@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Auth;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Share authentication state with all views
+        View::composer('*', function ($view) {
+            $view->with('currentUser', Auth::user());
+            $view->with('isAuthenticated', Auth::check());
+        });
     }
 }

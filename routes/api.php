@@ -1,12 +1,17 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\VideoConsultationController;
+use App\Http\Controllers\VideoCallController;
 
-// Daily.co Video Consultation Routes - Using session-based auth
-Route::group(['middleware' => ['web']], function () {
-    Route::post('/consultation/create-room', [VideoConsultationController::class, 'createConsultationRoom']);
-    Route::post('/consultation/get-room', [VideoConsultationController::class, 'getConsultationRoom']);
-    Route::post('/consultation/create-audio', [VideoConsultationController::class, 'createAudioConsultation']);
-    Route::post('/consultation/end', [VideoConsultationController::class, 'endConsultation']);
-});
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+
+// Daily.co Video Call Routes - Matching working example
+Route::post('/create-room', [VideoCallController::class, 'createRoom']);
+Route::get('/recording/{meetingId}', [VideoCallController::class, 'getRecording']);
+Route::get('/recording', [VideoCallController::class, 'listRecordings']);
+Route::post('/recording/start', [VideoCallController::class, 'startRecording']);
+Route::post('/recording/stop', [VideoCallController::class, 'stopRecording']);
+Route::post('/end-call', [VideoCallController::class, 'endCall']);

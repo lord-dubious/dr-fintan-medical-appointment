@@ -31,18 +31,57 @@
             </button>
 
             <!-- Auth Buttons -->
-            <div class="flex items-center space-x-3 border-r border-gray-200 dark:border-gray-700 pr-4">
-                <a href="{{ route('login') }}"
-                   class="flex items-center px-4 py-2 text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 font-medium rounded-md transition-all duration-200">
-                    <i class="fas fa-sign-in-alt mr-2"></i>
-                    Login
-                </a>
-                <a href="{{ route('register') }}"
-                   class="flex items-center px-4 py-2 border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-400 dark:hover:text-white font-medium rounded-md transition-all duration-200">
-                    <i class="fas fa-user-plus mr-2"></i>
-                    Sign Up
-                </a>
-            </div>
+            @if($isAuthenticated)
+                <!-- Authenticated User Menu -->
+                <div class="flex items-center space-x-3 border-r border-gray-200 dark:border-gray-700 pr-4">
+                    <div class="relative group">
+                        <button class="flex items-center px-4 py-2 text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 font-medium rounded-md transition-all duration-200">
+                            <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm mr-2">
+                                {{ strtoupper(substr($currentUser->email, 0, 1)) }}
+                            </div>
+                            <span class="hidden md:inline">{{ $currentUser->email }}</span>
+                            <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                            <div class="py-2">
+                                @if($currentUser->role === 'patient')
+                                    <a href="{{ route('patient.dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700">
+                                        <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                                    </a>
+                                @elseif($currentUser->role === 'doctor')
+                                    <a href="{{ route('doctor.dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700">
+                                        <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                                    </a>
+                                @elseif($currentUser->role === 'admin')
+                                    <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700">
+                                        <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                                    </a>
+                                @endif
+                                <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                                <a href="{{ route('logout') }}" class="block px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <!-- Guest User Buttons -->
+                <div class="flex items-center space-x-3 border-r border-gray-200 dark:border-gray-700 pr-4">
+                    <a href="{{ route('login') }}"
+                       class="flex items-center px-4 py-2 text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 font-medium rounded-md transition-all duration-200">
+                        <i class="fas fa-sign-in-alt mr-2"></i>
+                        Login
+                    </a>
+                    <a href="{{ route('register') }}"
+                       class="flex items-center px-4 py-2 border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-400 dark:hover:text-white font-medium rounded-md transition-all duration-200">
+                        <i class="fas fa-user-plus mr-2"></i>
+                        Sign Up
+                    </a>
+                </div>
+            @endif
 
             <!-- CTA Button -->
             <a href="{{ route('appointment') }}"
@@ -83,23 +122,63 @@
 
             <div class="border-t dark:border-gray-700 my-4"></div>
 
-            <div class="flex flex-col space-y-3">
-                <a href="{{ route('login') }}"
-                   class="w-full flex items-center justify-center py-3 px-4 border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-400 dark:hover:text-white rounded-md font-medium transition-all duration-200">
-                    <i class="fas fa-sign-in-alt mr-2"></i>
-                    Login
-                </a>
-                <a href="{{ route('register') }}"
-                   class="w-full flex items-center justify-center py-3 px-4 border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-md font-medium transition-all duration-200">
-                    <i class="fas fa-user-plus mr-2"></i>
-                    Sign Up
-                </a>
-                <a href="{{ route('appointment') }}"
-                   class="w-full flex items-center justify-center py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600 rounded-md font-semibold transition-all duration-200">
-                    <i class="fas fa-calendar mr-2"></i>
-                    Book Consultation
-                </a>
-            </div>
+            @if($isAuthenticated)
+                <!-- Authenticated Mobile Menu -->
+                <div class="flex flex-col space-y-3">
+                    <div class="text-center py-3 px-4 bg-blue-50 dark:bg-gray-700 rounded-md">
+                        <div class="h-12 w-12 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-lg mx-auto mb-2">
+                            {{ strtoupper(substr($currentUser->email, 0, 1)) }}
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">{{ $currentUser->email }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 capitalize">{{ $currentUser->role }}</p>
+                    </div>
+
+                    @if($currentUser->role === 'patient')
+                        <a href="{{ route('patient.dashboard') }}" class="w-full flex items-center justify-center py-3 px-4 border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-md font-medium transition-all duration-200">
+                            <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                        </a>
+                    @elseif($currentUser->role === 'doctor')
+                        <a href="{{ route('doctor.dashboard') }}" class="w-full flex items-center justify-center py-3 px-4 border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-md font-medium transition-all duration-200">
+                            <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                        </a>
+                    @elseif($currentUser->role === 'admin')
+                        <a href="{{ route('admin.dashboard') }}" class="w-full flex items-center justify-center py-3 px-4 border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white rounded-md font-medium transition-all duration-200">
+                            <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                        </a>
+                    @endif
+
+                    <a href="{{ route('appointment') }}"
+                       class="w-full flex items-center justify-center py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold transition-all duration-200">
+                        <i class="fas fa-calendar mr-2"></i>
+                        Book Consultation
+                    </a>
+
+                    <a href="{{ route('logout') }}"
+                       class="w-full flex items-center justify-center py-3 px-4 border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-md font-medium transition-all duration-200">
+                        <i class="fas fa-sign-out-alt mr-2"></i>
+                        Logout
+                    </a>
+                </div>
+            @else
+                <!-- Guest Mobile Menu -->
+                <div class="flex flex-col space-y-3">
+                    <a href="{{ route('login') }}"
+                       class="w-full flex items-center justify-center py-3 px-4 border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-400 dark:hover:text-white rounded-md font-medium transition-all duration-200">
+                        <i class="fas fa-sign-in-alt mr-2"></i>
+                        Login
+                    </a>
+                    <a href="{{ route('register') }}"
+                       class="w-full flex items-center justify-center py-3 px-4 border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-md font-medium transition-all duration-200">
+                        <i class="fas fa-user-plus mr-2"></i>
+                        Sign Up
+                    </a>
+                    <a href="{{ route('appointment') }}"
+                       class="w-full flex items-center justify-center py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600 rounded-md font-semibold transition-all duration-200">
+                        <i class="fas fa-calendar mr-2"></i>
+                        Book Consultation
+                    </a>
+                </div>
+            @endif
         </div>
     </div>
 </nav>
