@@ -23,10 +23,12 @@
         </div>
     </div>
 
-    <!-- Daily API Key Input (for testing) -->
+    <!-- Status Information -->
     <div class="max-w-3xl mx-auto my-4 px-4">
-        <input id="daily-api-key" name="daily_api_key" type="text" placeholder="Enter Daily API Key (optional - uses server default)"
-            class="w-full border rounded-lg p-3 bg-white shadow" />
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-blue-800">
+            <i class="fas fa-info-circle mr-2"></i>
+            <span>Video consultation system ready. Click "Join Consultation" to begin.</span>
+        </div>
     </div>
 
     <!-- Controls -->
@@ -131,9 +133,9 @@
     <script src="https://unpkg.com/@daily-co/daily-js"></script>
     <script>
         // Global variables
-        let appointmentId = {{ $appointmentId }};
-        let userRole = '{{ Auth::user()->role }}';
-        let userName = '{{ Auth::user()->name ?? Auth::user()->email }}';
+        let appointmentId = @json($appointmentId);
+        let userRole = @json(Auth::user()->role);
+        let userName = @json(Auth::user()->name ?? Auth::user()->email);
 
         // HTTPS Detection and Media Permissions
         const isHTTPS = location.protocol === 'https:';
@@ -167,8 +169,7 @@
             recordingsList.innerHTML = '<p class="text-gray-500">Loading recordings...</p>';
 
             try {
-                var dailyApiKey = document.getElementById('daily-api-key').value;
-                const response = await fetch(`/api/recording/?apiKey=${dailyApiKey}`);
+                const response = await fetch('/api/recording/');
                 const data = await response.json();
 
                 const today = new Date();
@@ -203,7 +204,7 @@
 
                     downloadButton.addEventListener('click', async () => {
                         try {
-                            const res = await fetch(`/api/recording/${recording.id}?apiKey=${dailyApiKey}`);
+                            const res = await fetch(`/api/recording/${recording.id}`);
                             const recordingData = await res.json();
 
                             if (recordingData.download_link) {
@@ -451,12 +452,13 @@
             // Join button event
             document.getElementById('join-btn').addEventListener('click', async function() {
                 try {
-                    var dailyApiKey = document.getElementById('daily-api-key').value;
                     const res = await fetch('/api/create-room', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
                         body: JSON.stringify({
-                            apiKey: dailyApiKey,
                             appointment_id: appointmentId
                         }),
                     });
@@ -487,13 +489,14 @@
 
             // Record button event
             document.getElementById('record-btn').addEventListener('click', async function() {
-                var dailyApiKey = document.getElementById('daily-api-key').value;
                 if (!dailyCallManager.isRecording) {
                     const res = await fetch('/api/recording/start', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
                         body: JSON.stringify({
-                            apiKey: dailyApiKey,
                             appointment_id: appointmentId
                         }),
                     });
@@ -505,9 +508,11 @@
                 } else {
                     const res = await fetch('/api/recording/stop', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
                         body: JSON.stringify({
-                            apiKey: dailyApiKey,
                             appointment_id: appointmentId
                         }),
                     });

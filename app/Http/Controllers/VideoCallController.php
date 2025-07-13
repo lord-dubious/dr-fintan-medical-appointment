@@ -16,8 +16,17 @@ class VideoCallController extends Controller
      */
     public function createRoom(Request $request)
     {
-        $apiKey = $request->input('apiKey') ?? config('services.daily.api_key');
+        $request->validate([
+            'appointment_id' => 'required|integer|exists:appointments,id',
+        ]);
+
+        $apiKey = config('services.daily.api_key');
         $dailyDomain = config('services.daily.domain');
+
+        if (!$apiKey) {
+            return response()->json(['error' => 'Daily.co API key not configured'], 500);
+        }
+
         $appointmentId = $request->input('appointment_id');
 
         // Validate appointment if provided
@@ -128,7 +137,12 @@ class VideoCallController extends Controller
                 ]);
 
             if ($doctorResponse->successful()) {
-                $tokens['doctor_token'] = $doctorResponse->json()['token'];
+                $doctorData = $doctorResponse->json();
+                if (isset($doctorData['token'])) {
+                    $tokens['doctor_token'] = $doctorData['token'];
+                }
+            } else {
+                Log::warning('Doctor token generation failed', ['response' => $doctorResponse->body()]);
             }
 
             // Patient token
@@ -145,7 +159,12 @@ class VideoCallController extends Controller
                 ]);
 
             if ($patientResponse->successful()) {
-                $tokens['patient_token'] = $patientResponse->json()['token'];
+                $patientData = $patientResponse->json();
+                if (isset($patientData['token'])) {
+                    $tokens['patient_token'] = $patientData['token'];
+                }
+            } else {
+                Log::warning('Patient token generation failed', ['response' => $patientResponse->body()]);
             }
 
         } catch (\Exception $e) {
@@ -160,9 +179,13 @@ class VideoCallController extends Controller
      */
     public function startRecording(Request $request)
     {
+        $request->validate([
+            'appointment_id' => 'required|integer|exists:appointments,id',
+        ]);
+
         $appointmentId = $request->input('appointment_id');
         $roomName = $appointmentId ? "consultation-{$appointmentId}" : 'demo-consultation';
-        $apiKey = $request->input('apiKey') ?? config('services.daily.api_key');
+        $apiKey = config('services.daily.api_key');
 
         $response = Http::withToken($apiKey)
             ->post("https://api.daily.co/v1/rooms/{$roomName}/recordings/start", [
@@ -197,9 +220,13 @@ class VideoCallController extends Controller
      */
     public function stopRecording(Request $request)
     {
+        $request->validate([
+            'appointment_id' => 'required|integer|exists:appointments,id',
+        ]);
+
         $appointmentId = $request->input('appointment_id');
         $roomName = $appointmentId ? "consultation-{$appointmentId}" : 'demo-consultation';
-        $apiKey = $request->input('apiKey') ?? config('services.daily.api_key');
+        $apiKey = config('services.daily.api_key');
 
         $response = Http::withToken($apiKey)
             ->withHeaders([
@@ -221,7 +248,7 @@ class VideoCallController extends Controller
      */
     public function listRecordings(Request $request)
     {
-        $apiKey = $request->input('apiKey') ?? config('services.daily.api_key');
+        $apiKey = config('services.daily.api_key');
         $response = Http::withToken($apiKey)
             ->get('https://api.daily.co/v1/recordings');
 
@@ -240,7 +267,7 @@ class VideoCallController extends Controller
      */
     public function getRecording(Request $request, $meetingId)
     {
-        $apiKey = $request->input('apiKey') ?? config('services.daily.api_key');
+        $apiKey = config('services.daily.api_key');
         $response = Http::withToken($apiKey)
             ->get("https://api.daily.co/v1/recordings/$meetingId/access-link");
 
@@ -252,6 +279,10 @@ class VideoCallController extends Controller
      */
     public function endCall(Request $request)
     {
+        $request->validate([
+            'appointment_id' => 'required|integer|exists:appointments,id',
+        ]);
+
         $appointmentId = $request->input('appointment_id');
 
         if ($appointmentId) {
@@ -279,11 +310,11 @@ class VideoCallController extends Controller
         }
 
         if ($user->role === 'doctor') {
-            return $appointment->doctor_id === $user->doctor->id ?? null;
+            return $user->doctor && $appointment->doctor_id === $user->doctor->id;
         }
 
         if ($user->role === 'patient') {
-            return $appointment->patient_id === $user->patient->id ?? null;
+            return $user->patient && $appointment->patient_id === $user->patient->id;
         }
 
         return false;

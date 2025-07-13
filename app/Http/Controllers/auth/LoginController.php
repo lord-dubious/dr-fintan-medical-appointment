@@ -24,7 +24,7 @@ class LoginController extends Controller
         ]);
 
         // Get remember me option
-        $remember = $request->has('remember') && $request->remember === 'on';
+        $remember = $request->boolean('remember');
 
         // Attempt to authenticate the user
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $remember)) {
