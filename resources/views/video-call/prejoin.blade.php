@@ -160,6 +160,8 @@
                 microphoneStream.getTracks().forEach(track => track.stop());
                 microphoneStream = null;
             }
+            // Clean up audio analysis resources
+            removeAudioLevelDetection();
         }
 
         async function initializeDevices() {
@@ -359,14 +361,27 @@
         async function startMicrophone() {
             const microphoneSelect = document.getElementById('microphone-select');
             const constraints = {
-                audio: { deviceId: microphoneSelect.value ? { exact: microphoneSelect.value } : undefined },
+                audio: {
+                    deviceId: microphoneSelect.value ? { exact: microphoneSelect.value } : undefined,
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                },
                 video: false
             };
 
-            microphoneStream = await navigator.mediaDevices.getUserMedia(constraints);
+            try {
+                microphoneStream = await navigator.mediaDevices.getUserMedia(constraints);
 
-            // Add visual feedback for microphone level
-            addMicrophoneLevelIndicator();
+                // Add visual feedback for microphone level
+                addMicrophoneLevelIndicator();
+
+                // Optional: Add actual audio level detection
+                addAudioLevelDetection();
+            } catch (error) {
+                console.error('Failed to start microphone:', error);
+                throw new Error('Could not access microphone. Please check permissions.');
+            }
         }
 
         function stopMicrophone() {
@@ -375,6 +390,7 @@
                 microphoneStream = null;
             }
             removeMicrophoneLevelIndicator();
+            removeAudioLevelDetection();
         }
 
         function addMicrophoneLevelIndicator() {
@@ -386,6 +402,56 @@
         function removeMicrophoneLevelIndicator() {
             const micButton = document.getElementById('toggle-microphone');
             micButton.style.boxShadow = '';
+        }
+
+        let audioContext = null;
+        let analyser = null;
+        let animationFrame = null;
+
+        function addAudioLevelDetection() {
+            if (!microphoneStream) return;
+
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                const source = audioContext.createMediaStreamSource(microphoneStream);
+
+                analyser.fftSize = 256;
+                source.connect(analyser);
+
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                function updateLevel() {
+                    analyser.getByteFrequencyData(dataArray);
+                    const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+
+                    // Update visual feedback based on audio level
+                    const micButton = document.getElementById('toggle-microphone');
+                    const intensity = Math.min(average / 50, 1); // Normalize to 0-1
+
+                    if (intensity > 0.1) {
+                        micButton.style.boxShadow = `0 0 ${10 + intensity * 10}px rgba(34, 197, 94, ${0.3 + intensity * 0.4})`;
+                    }
+
+                    animationFrame = requestAnimationFrame(updateLevel);
+                }
+
+                updateLevel();
+            } catch (error) {
+                console.warn('Audio level detection not supported:', error);
+            }
+        }
+
+        function removeAudioLevelDetection() {
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
+            }
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+            analyser = null;
         }
 
         async function testSpeakers() {
