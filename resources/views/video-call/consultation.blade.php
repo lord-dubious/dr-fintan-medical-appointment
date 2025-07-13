@@ -482,7 +482,12 @@
         }
 
         // Global dailyCallManager instance
-        let dailyCallManager;
+        let dailyCallManager = null;
+
+        // Helper function to check if dailyCallManager is ready
+        function isDailyCallManagerReady() {
+            return dailyCallManager !== null && dailyCallManager.call !== null;
+        }
 
         /**
          * Initialize Daily Call Manager
@@ -568,19 +573,34 @@
 
         // Function to end consultation and return to dashboard
         function endConsultationAndReturn() {
-            if (dailyCallManager && dailyCallManager.call) {
-                dailyCallManager.leave();
+            try {
+                if (isDailyCallManagerReady()) {
+                    console.log('Leaving Daily.co call...');
+                    dailyCallManager.leave();
+                } else {
+                    console.log('DailyCallManager not ready or already cleaned up');
+                }
+            } catch (error) {
+                console.error('Error leaving call:', error);
             }
 
             // Navigate back to appropriate dashboard
             const dashboardUrl = userRole === 'doctor' ? '{{ route("doctor.dashboard") }}' : '{{ route("patient.dashboard") }}';
+            console.log('Navigating to dashboard:', dashboardUrl);
             window.location.href = dashboardUrl;
         }
 
         // Handle browser back button
         window.addEventListener('beforeunload', function(e) {
-            if (dailyCallManager && dailyCallManager.call && typeof dailyCallManager.call.meetingState === 'function' && dailyCallManager.call.meetingState() === 'joined') {
-                dailyCallManager.leave();
+            try {
+                if (isDailyCallManagerReady() &&
+                    typeof dailyCallManager.call.meetingState === 'function' &&
+                    dailyCallManager.call.meetingState() === 'joined') {
+                    console.log('Page unloading - leaving call');
+                    dailyCallManager.leave();
+                }
+            } catch (error) {
+                console.error('Error during page unload:', error);
             }
         });
     </script>
