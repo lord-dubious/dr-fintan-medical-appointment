@@ -28,6 +28,12 @@ class CleanupExpiredRooms extends Command
     {
         $this->info('Starting Daily.co room cleanup...');
 
+        // Verify DailyService is properly configured
+        if (!$dailyService->isConfigured()) {
+            $this->error('DailyService is not properly configured. Please check your Daily.co API key.');
+            return 1;
+        }
+
         try {
             if ($this->option('dry-run')) {
                 $this->warn('DRY RUN MODE - No rooms will actually be deleted');
@@ -45,8 +51,9 @@ class CleanupExpiredRooms extends Command
                 return 0;
             }
 
+            $this->info('Calling cleanupExpiredRooms method...');
             $deletedCount = $dailyService->cleanupExpiredRooms();
-            
+
             if ($deletedCount > 0) {
                 $this->info("Successfully deleted {$deletedCount} expired room(s).");
             } else {

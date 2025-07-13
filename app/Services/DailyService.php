@@ -195,6 +195,11 @@ class DailyService
 
     /**
      * Delete expired rooms for completed appointments
+     *
+     * This method finds all completed appointments with video rooms that ended
+     * more than 1 hour ago and deletes the associated Daily.co rooms.
+     *
+     * @return int The number of rooms successfully deleted
      */
     public function cleanupExpiredRooms(): int
     {
@@ -240,5 +245,15 @@ class DailyService
                 ];
             })
             ->toArray();
+    }
+
+    /**
+     * Verify that the DailyService is properly configured and accessible
+     *
+     * @return bool True if the service is properly configured
+     */
+    public function isConfigured(): bool
+    {
+        return !empty($this->apiKey) && !empty($this->baseUrl);
     }
 }
