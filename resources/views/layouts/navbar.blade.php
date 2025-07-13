@@ -154,7 +154,7 @@
                     </a>
 
                     <a href="{{ route('logout') }}"
-                       class="w-full flex items-center justify-center py-3 px-4 border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-md font-medium transition-all duration-200">
+                       class="w-full flex items-center justify-center py-3 px-4 border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white dark:border-red-400 dark:text-red-400 dark:hover:bg-red-400 dark:hover:text-white rounded-md font-medium transition-all duration-200">
                         <i class="fas fa-sign-out-alt mr-2"></i>
                         Logout
                     </a>
@@ -168,7 +168,7 @@
                         Login
                     </a>
                     <a href="{{ route('register') }}"
-                       class="w-full flex items-center justify-center py-3 px-4 border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-md font-medium transition-all duration-200">
+                       class="w-full flex items-center justify-center py-3 px-4 border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-600 hover:text-white dark:border-indigo-400 dark:text-indigo-400 dark:hover:bg-indigo-400 dark:hover:text-white rounded-md font-medium transition-all duration-200">
                         <i class="fas fa-user-plus mr-2"></i>
                         Sign Up
                     </a>

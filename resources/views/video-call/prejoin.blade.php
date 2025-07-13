@@ -251,15 +251,18 @@
                     }
                 });
 
-                // If authenticated endpoint fails, try public fallback
-                if (!response.ok) {
-                    console.log('Authenticated health check failed, trying public endpoint...');
+                // Only fallback on authentication errors (401/403), not server errors
+                if (response.status === 401 || response.status === 403) {
+                    console.log('Authenticated health check failed due to authentication, trying public endpoint...');
                     response = await fetch('/health-check', {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json'
                         }
                     });
+                } else if (!response.ok) {
+                    // For other errors, don't fallback - let the error be handled properly
+                    throw new Error(`Health check failed: ${response.status} ${response.statusText}`);
                 }
 
                 if (response.ok) {
