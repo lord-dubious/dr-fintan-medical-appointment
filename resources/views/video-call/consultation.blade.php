@@ -481,11 +481,14 @@
             }
         }
 
+        // Global dailyCallManager instance
+        let dailyCallManager;
+
         /**
          * Initialize Daily Call Manager
          */
         document.addEventListener('DOMContentLoaded', async () => {
-            const dailyCallManager = new DailyCallManager();
+            dailyCallManager = new DailyCallManager();
 
             // Join button event
             document.getElementById('join-btn').addEventListener('click', async function() {
@@ -576,7 +579,7 @@
 
         // Handle browser back button
         window.addEventListener('beforeunload', function(e) {
-            if (dailyCallManager && dailyCallManager.call && dailyCallManager.call.meetingState() === 'joined') {
+            if (dailyCallManager && dailyCallManager.call && typeof dailyCallManager.call.meetingState === 'function' && dailyCallManager.call.meetingState() === 'joined') {
                 dailyCallManager.leave();
             }
         });

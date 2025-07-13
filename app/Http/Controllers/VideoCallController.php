@@ -20,18 +20,25 @@ class VideoCallController extends Controller
     }
 
     /**
-     * Show prejoin interface for device testing
+     * Validate appointment access and return the appointment
      */
-    public function prejoin($appointmentId)
+    private function validateAppointmentAccess($appointmentId): Appointment
     {
-        // Validate appointment exists and user has access
         $appointment = Appointment::findOrFail($appointmentId);
 
-        // Check if user can access this appointment
         if (!$this->canAccessAppointment(Auth::user(), $appointment)) {
             abort(403, 'You do not have permission to access this appointment.');
         }
 
+        return $appointment;
+    }
+
+    /**
+     * Show prejoin interface for device testing
+     */
+    public function prejoin($appointmentId)
+    {
+        $appointment = $this->validateAppointmentAccess($appointmentId);
         return view('video-call.prejoin', compact('appointmentId', 'appointment'));
     }
 
@@ -40,14 +47,7 @@ class VideoCallController extends Controller
      */
     public function consultation($appointmentId)
     {
-        // Validate appointment exists and user has access
-        $appointment = Appointment::findOrFail($appointmentId);
-
-        // Check if user can access this appointment
-        if (!$this->canAccessAppointment(Auth::user(), $appointment)) {
-            abort(403, 'You do not have permission to access this appointment.');
-        }
-
+        $appointment = $this->validateAppointmentAccess($appointmentId);
         return view('video-call.consultation', compact('appointmentId', 'appointment'));
     }
 
@@ -292,17 +292,14 @@ class VideoCallController extends Controller
         $appointmentId = $request->input('appointment_id');
 
         // Verify user has permission to stop recording this appointment
-        $appointment = Appointment::find($appointmentId);
-        if (!$appointment) {
-            return response()->json(['error' => 'Appointment not found'], 404);
-        }
+        $appointment = Appointment::findOrFail($appointmentId);
 
         $user = Auth::user();
         if (!$user || !$this->canAccessAppointment($user, $appointment)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $roomName = $appointmentId ? "consultation-{$appointmentId}" : 'demo-consultation';
+        $roomName = "consultation-{$appointmentId}";
         $apiKey = config('services.daily.api_key');
 
         $response = Http::withToken($apiKey)
@@ -338,9 +335,17 @@ class VideoCallController extends Controller
                 if ($user->role === 'admin') {
                     return; // Admin can see all
                 } elseif ($user->role === 'doctor') {
-                    $query->where('doctor_id', $user->doctor->id ?? null);
+                    if ($user->doctor) {
+                        $query->where('doctor_id', $user->doctor->id);
+                    } else {
+                        $query->whereRaw('1 = 0'); // No results if doctor relationship missing
+                    }
                 } elseif ($user->role === 'patient') {
-                    $query->where('patient_id', $user->patient->id ?? null);
+                    if ($user->patient) {
+                        $query->where('patient_id', $user->patient->id);
+                    } else {
+                        $query->whereRaw('1 = 0'); // No results if patient relationship missing
+                    }
                 }
             })->pluck('video_room_name')->filter()->toArray();
 

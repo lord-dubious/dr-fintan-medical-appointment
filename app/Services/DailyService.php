@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\Appointment;
 use Exception;
 
 class DailyService
@@ -190,5 +191,54 @@ class DailyService
             Log::error('Meeting token creation failed: ' . $e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Delete expired rooms for completed appointments
+     */
+    public function cleanupExpiredRooms(): int
+    {
+        $completedAppointments = Appointment::where('status', 'completed')
+            ->whereNotNull('video_room_name')
+            ->where('video_call_ended_at', '<', now()->subHours(1))
+            ->get();
+
+        $deletedCount = 0;
+
+        foreach ($completedAppointments as $appointment) {
+            try {
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $this->apiKey,
+                ])->delete($this->baseUrl . '/rooms/' . $appointment->video_room_name);
+
+                if ($response->successful()) {
+                    $appointment->update(['video_room_name' => null]);
+                    $deletedCount++;
+                }
+            } catch (Exception $e) {
+                Log::warning("Failed to delete room {$appointment->video_room_name}: " . $e->getMessage());
+            }
+        }
+
+        return $deletedCount;
+    }
+
+    /**
+     * Get expired rooms that would be deleted (for dry-run)
+     */
+    public function getExpiredRooms(): array
+    {
+        return Appointment::where('status', 'completed')
+            ->whereNotNull('video_room_name')
+            ->where('video_call_ended_at', '<', now()->subHours(1))
+            ->select('id', 'video_room_name')
+            ->get()
+            ->map(function($appointment) {
+                return [
+                    'name' => $appointment->video_room_name,
+                    'appointment_id' => $appointment->id
+                ];
+            })
+            ->toArray();
     }
 }

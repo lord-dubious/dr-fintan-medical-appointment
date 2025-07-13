@@ -134,6 +134,7 @@
         let userName = @json(Auth::user()->name ?? Auth::user()->email);
         
         let currentStream = null;
+        let microphoneStream = null;
         let cameraEnabled = false;
         let microphoneEnabled = false;
         let devices = { cameras: [], microphones: [], speakers: [] };
@@ -144,6 +145,22 @@
             await testConnection();
             setupEventListeners();
         });
+
+        // Ensure all media tracks are stopped before navigating away
+        window.addEventListener('beforeunload', () => {
+            stopAllMediaTracks();
+        });
+
+        function stopAllMediaTracks() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+            }
+            if (microphoneStream) {
+                microphoneStream.getTracks().forEach(track => track.stop());
+                microphoneStream = null;
+            }
+        }
 
         async function initializeDevices() {
             try {
@@ -169,6 +186,11 @@
             const cameraSelect = document.getElementById('camera-select');
             const microphoneSelect = document.getElementById('microphone-select');
             const speakerSelect = document.getElementById('speaker-select');
+
+            // Clear previous options
+            if (cameraSelect) cameraSelect.innerHTML = '<option value="">Select Camera</option>';
+            if (microphoneSelect) microphoneSelect.innerHTML = '<option value="">Select Microphone</option>';
+            if (speakerSelect) speakerSelect.innerHTML = '<option value="">Select Speakers</option>';
 
             // Populate cameras
             devices.cameras.forEach(device => {
@@ -310,24 +332,73 @@
             const icon = button.querySelector('i');
             const span = button.querySelector('span');
 
-            microphoneEnabled = !microphoneEnabled;
-            
-            if (microphoneEnabled) {
-                icon.className = 'fas fa-microphone mr-2';
-                span.textContent = 'Turn Off Microphone';
-                button.className = button.className.replace('bg-green-600 hover:bg-green-700', 'bg-red-600 hover:bg-red-700');
+            if (!microphoneEnabled) {
+                try {
+                    await startMicrophone();
+                    microphoneEnabled = true;
+                    icon.className = 'fas fa-microphone mr-2';
+                    span.textContent = 'Turn Off Microphone';
+                    button.className = button.className.replace('bg-green-600 hover:bg-green-700', 'bg-red-600 hover:bg-red-700');
+                } catch (error) {
+                    showError('Failed to start microphone: ' + error.message);
+                }
             } else {
+                stopMicrophone();
+                microphoneEnabled = false;
                 icon.className = 'fas fa-microphone-slash mr-2';
                 span.textContent = 'Turn On Microphone';
                 button.className = button.className.replace('bg-red-600 hover:bg-red-700', 'bg-green-600 hover:bg-green-700');
             }
         }
 
-        function testSpeakers() {
+        async function startMicrophone() {
+            const microphoneSelect = document.getElementById('microphone-select');
+            const constraints = {
+                audio: { deviceId: microphoneSelect.value ? { exact: microphoneSelect.value } : undefined },
+                video: false
+            };
+
+            microphoneStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+            // Add visual feedback for microphone level
+            addMicrophoneLevelIndicator();
+        }
+
+        function stopMicrophone() {
+            if (microphoneStream) {
+                microphoneStream.getTracks().forEach(track => track.stop());
+                microphoneStream = null;
+            }
+            removeMicrophoneLevelIndicator();
+        }
+
+        function addMicrophoneLevelIndicator() {
+            // Simple visual feedback - could be enhanced with actual level detection
+            const micButton = document.getElementById('toggle-microphone');
+            micButton.style.boxShadow = '0 0 10px rgba(34, 197, 94, 0.5)';
+        }
+
+        function removeMicrophoneLevelIndicator() {
+            const micButton = document.getElementById('toggle-microphone');
+            micButton.style.boxShadow = '';
+        }
+
+        async function testSpeakers() {
             // Play a test sound
             const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
+
+            // Attempt to set the sinkId to the selected output device, if supported
+            const speakerSelect = document.getElementById('speaker-select');
+            if (speakerSelect && speakerSelect.value && typeof audio.setSinkId === 'function') {
+                try {
+                    await audio.setSinkId(speakerSelect.value);
+                } catch (err) {
+                    console.warn('Error setting sinkId for test audio:', err);
+                }
+            }
+
             audio.play().catch(e => console.log('Could not play test sound'));
-            
+
             showSuccess('Test sound played. Did you hear it?');
         }
 
@@ -339,7 +410,10 @@
         }
 
         async function updateMicrophone() {
-            // Microphone changes will take effect when joining the call
+            if (microphoneEnabled) {
+                stopMicrophone();
+                await startMicrophone();
+            }
         }
 
         function joinConsultation() {
@@ -348,13 +422,19 @@
         }
 
         function showError(message) {
-            // Simple error display - could be enhanced with a proper notification system
-            alert('Error: ' + message);
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-3 rounded shadow-lg z-50';
+            notification.textContent = 'Error: ' + message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 5000);
         }
 
         function showSuccess(message) {
-            // Simple success display - could be enhanced with a proper notification system
-            alert(message);
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-3 rounded shadow-lg z-50';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
         }
     </script>
 </body>

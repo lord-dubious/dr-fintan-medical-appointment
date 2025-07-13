@@ -31,8 +31,17 @@ class CleanupExpiredRooms extends Command
         try {
             if ($this->option('dry-run')) {
                 $this->warn('DRY RUN MODE - No rooms will actually be deleted');
-                // TODO: Add dry-run logic to show what would be deleted
-                $this->info('Dry run completed. Use without --dry-run to actually delete rooms.');
+
+                $expiredRooms = $dailyService->getExpiredRooms();
+                if (count($expiredRooms) > 0) {
+                    $this->info('Would delete ' . count($expiredRooms) . ' expired room(s):');
+                    foreach ($expiredRooms as $room) {
+                        $this->line("  - {$room['name']} (appointment #{$room['appointment_id']})");
+                    }
+                } else {
+                    $this->info('No expired rooms found to delete.');
+                }
+
                 return 0;
             }
 
