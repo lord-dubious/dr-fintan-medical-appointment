@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\Appointment;
 use Exception;
 
 class DailyService
@@ -14,9 +15,13 @@ class DailyService
 
     public function __construct()
     {
-        $this->apiKey = env('DAILY_API_KEY');
-        $this->domain = env('DAILY_DOMAIN');
+        $this->apiKey = config('services.daily.api_key');
+        $this->domain = config('services.daily.domain');
         $this->baseUrl = 'https://api.daily.co/v1';
+
+        if (!$this->apiKey) {
+            throw new \Exception('Daily.co API key not configured');
+        }
     }
 
     /**
@@ -186,5 +191,69 @@ class DailyService
             Log::error('Meeting token creation failed: ' . $e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Delete expired rooms for completed appointments
+     *
+     * This method finds all completed appointments with video rooms that ended
+     * more than 1 hour ago and deletes the associated Daily.co rooms.
+     *
+     * @return int The number of rooms successfully deleted
+     */
+    public function cleanupExpiredRooms(): int
+    {
+        $completedAppointments = Appointment::where('status', 'completed')
+            ->whereNotNull('video_room_name')
+            ->where('video_call_ended_at', '<', now()->subHours(1))
+            ->get();
+
+        $deletedCount = 0;
+
+        foreach ($completedAppointments as $appointment) {
+            try {
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $this->apiKey,
+                ])->delete($this->baseUrl . '/rooms/' . $appointment->video_room_name);
+
+                if ($response->successful()) {
+                    $appointment->update(['video_room_name' => null]);
+                    $deletedCount++;
+                }
+            } catch (Exception $e) {
+                Log::warning("Failed to delete room {$appointment->video_room_name}: " . $e->getMessage());
+            }
+        }
+
+        return $deletedCount;
+    }
+
+    /**
+     * Get expired rooms that would be deleted (for dry-run)
+     */
+    public function getExpiredRooms(): array
+    {
+        return Appointment::where('status', 'completed')
+            ->whereNotNull('video_room_name')
+            ->where('video_call_ended_at', '<', now()->subHours(1))
+            ->select('id', 'video_room_name')
+            ->get()
+            ->map(function($appointment) {
+                return [
+                    'name' => $appointment->video_room_name,
+                    'appointment_id' => $appointment->id
+                ];
+            })
+            ->toArray();
+    }
+
+    /**
+     * Verify that the DailyService is properly configured and accessible
+     *
+     * @return bool True if the service is properly configured
+     */
+    public function isConfigured(): bool
+    {
+        return !empty($this->apiKey) && !empty($this->baseUrl);
     }
 }

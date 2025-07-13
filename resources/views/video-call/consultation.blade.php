@@ -12,13 +12,17 @@
     <!-- Header -->
     <div class="bg-blue-600 text-white p-4 flex justify-between items-center">
         <div class="flex items-center space-x-4">
+            <a href="{{ Auth::user()->role === 'doctor' ? route('doctor.dashboard') : route('patient.dashboard') }}"
+               class="bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded transition-colors">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
             <h1 class="text-xl font-bold">Dr. Fintan - Consultation #{{ $appointmentId }}</h1>
             <span class="text-blue-200">{{ Auth::user()->role === 'doctor' ? 'Doctor' : 'Patient' }}: {{ Auth::user()->name ?? Auth::user()->email }}</span>
         </div>
         <div class="flex items-center space-x-2">
             <span id="participant-count" class="text-blue-200">Participants: 0</span>
-            <button onclick="window.close()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">
-                <i class="fas fa-times"></i> Close
+            <button onclick="endConsultationAndReturn()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition-colors">
+                <i class="fas fa-times"></i> End & Return
             </button>
         </div>
     </div>
@@ -404,7 +408,10 @@
                 try {
                     await fetch('/api/end-call', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
                         body: JSON.stringify({ appointment_id: appointmentId }),
                     });
                 } catch (error) {
@@ -474,11 +481,19 @@
             }
         }
 
+        // Global dailyCallManager instance
+        let dailyCallManager = null;
+
+        // Helper function to check if dailyCallManager is ready
+        function isDailyCallManagerReady() {
+            return dailyCallManager !== null && dailyCallManager.call !== null;
+        }
+
         /**
          * Initialize Daily Call Manager
          */
         document.addEventListener('DOMContentLoaded', async () => {
-            const dailyCallManager = new DailyCallManager();
+            dailyCallManager = new DailyCallManager();
 
             // Join button event
             document.getElementById('join-btn').addEventListener('click', async function() {
@@ -554,6 +569,39 @@
                     }
                 }
             });
+        });
+
+        // Function to end consultation and return to dashboard
+        function endConsultationAndReturn() {
+            try {
+                if (isDailyCallManagerReady()) {
+                    console.log('Leaving Daily.co call...');
+                    dailyCallManager.leave();
+                } else {
+                    console.log('DailyCallManager not ready or already cleaned up');
+                }
+            } catch (error) {
+                console.error('Error leaving call:', error);
+            }
+
+            // Navigate back to appropriate dashboard
+            const dashboardUrl = userRole === 'doctor' ? '{{ route("doctor.dashboard") }}' : '{{ route("patient.dashboard") }}';
+            console.log('Navigating to dashboard:', dashboardUrl);
+            window.location.href = dashboardUrl;
+        }
+
+        // Handle browser back button
+        window.addEventListener('beforeunload', function(e) {
+            try {
+                if (isDailyCallManagerReady() &&
+                    typeof dailyCallManager.call.meetingState === 'function' &&
+                    dailyCallManager.call.meetingState() === 'joined') {
+                    console.log('Page unloading - leaving call');
+                    dailyCallManager.leave();
+                }
+            } catch (error) {
+                console.error('Error during page unload:', error);
+            }
         });
     </script>
 </body>
