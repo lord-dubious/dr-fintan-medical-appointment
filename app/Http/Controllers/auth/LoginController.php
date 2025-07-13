@@ -23,8 +23,14 @@ class LoginController extends Controller
             'password' => 'required|string',
         ]);
 
+        // Get remember me option
+        $remember = $request->boolean('remember');
+
         // Attempt to authenticate the user
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $remember)) {
+            // Regenerate session to prevent session fixation
+            $request->session()->regenerate();
+
             // Authentication successful
             $user = Auth::user();
 
@@ -33,7 +39,7 @@ class LoginController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Login successful!',
-                    'redirect' => '/patient/dashboard', // Redirect to patient dashboard
+                    'redirect' => route('patient.dashboard'), // Use route helper
                 ]);
             } elseif ($user->role === 'admin') {
                 return response()->json([
@@ -46,7 +52,7 @@ class LoginController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Login successful!',
-                    'redirect' => route('doctor.dashboard'), // Redirect to admin dashboard
+                    'redirect' => route('doctor.dashboard'),
                 ]);
             }
 

@@ -213,8 +213,8 @@
                                                     onclick="initiateVoiceCall('{{ $appointment->patient->mobile }}')">
                                                 <i class="fas fa-phone"></i> Call
                                             </button>
-                                            <button class="action-btn video_call_btn" 
-                                                    onclick="initiateVideoCall('{{ $appointment->id }}', '{{ $doctor->id }}')">
+                                            <button class="action-btn video_call_btn"
+                                                    onclick="startVideoConsultation('{{ $appointment->id }}')">
                                                 <i class="fas fa-video"></i> Video
                                             </button>
                                         @endif
@@ -443,7 +443,14 @@ document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
         }
     }
 
-    // Video call function for doctors
+    // Simplified video consultation function
+    function startVideoConsultation(appointmentId) {
+        // Open video consultation in new window/tab
+        const consultationUrl = `/video-call/consultation/${appointmentId}`;
+        window.open(consultationUrl, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+    }
+
+    // Legacy video call function for doctors (keeping for compatibility)
     async function initiateVideoCall(appointmentId, doctorId) {
         try {
             console.log(`Doctor initiating video call for appointment-${appointmentId}`);

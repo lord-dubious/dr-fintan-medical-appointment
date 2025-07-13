@@ -160,7 +160,7 @@
                                                 <i class="fas fa-phone"></i> Audio Call
                                             </button>
                                             <button class="video_call_btn" title="Video Call"
-                                                onclick="initiateVideoCall('{{ $appointment->doctor->id }}', '{{ $appointment->id }}')">
+                                                onclick="startVideoConsultation('{{ $appointment->id }}')">
                                                 <i class="fas fa-video"></i> Video Call
                                             </button>
                                             <button class="email_btn" title="Send Email" onclick="sendEmail()">
@@ -380,7 +380,14 @@
         return data;
     }
 
-    // Video call function - Daily.co implementation
+    // Simplified video consultation function
+    function startVideoConsultation(appointmentId) {
+        // Open video consultation in new window/tab
+        const consultationUrl = `/video-call/consultation/${appointmentId}`;
+        window.open(consultationUrl, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+    }
+
+    // Legacy video call function - Daily.co implementation (keeping for compatibility)
     async function initiateVideoCall(doctorId, appointmentId) {
         try {
             console.log(`Attempting to call doctor-${doctorId} for appointment-${appointmentId}`);

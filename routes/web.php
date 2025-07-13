@@ -14,6 +14,19 @@ Route::get('/login', [App\Http\Controllers\auth\LoginController::class, 'index']
 Route::post('/login/auth', [App\Http\Controllers\auth\LoginController::class, 'login'])->name('login.auth');
 Route::get('/register', [App\Http\Controllers\auth\LoginController::class, 'register'])->name('register');
 Route::get('/logout', [App\Http\Controllers\auth\LoginController::class, 'logout'])->name('logout');
+
+// Video Call Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/video-call/consultation/{appointmentId}', function($appointmentId) {
+        return view('video-call.consultation', compact('appointmentId'));
+    })->name('video-call.consultation');
+
+    Route::post('/video-call/create-room', [App\Http\Controllers\VideoCallController::class, 'createRoom'])->name('video-call.create-room');
+    Route::post('/video-call/start-recording', [App\Http\Controllers\VideoCallController::class, 'startRecording'])->name('video-call.start-recording');
+    Route::post('/video-call/stop-recording', [App\Http\Controllers\VideoCallController::class, 'stopRecording'])->name('video-call.stop-recording');
+    Route::get('/video-call/recordings', [App\Http\Controllers\VideoCallController::class, 'listRecordings'])->name('video-call.recordings');
+    Route::get('/video-call/recording/{recordingId}', [App\Http\Controllers\VideoCallController::class, 'getRecording'])->name('video-call.recording');
+});
 Route::get('/check-doctor-availability', [App\Http\Controllers\auth\AppointmentController::class, 'checkAvailability'])
     ->name('check.doctor.availability');
 

@@ -38,6 +38,7 @@ return [
     'daily' => [
         'api_key' => env('DAILY_API_KEY'),
         'domain' => env('DAILY_DOMAIN'),
+        'room_expiry_seconds' => env('VIDEO_ROOM_EXPIRY_SECONDS', 60 * 60 * 4), // 4 hours default
     ],
 
     'paystack' => [
