@@ -445,9 +445,9 @@ document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
 
     // Simplified video consultation function
     function startVideoConsultation(appointmentId) {
-        // Open video consultation in new window/tab
+        // Navigate to video consultation in same window
         const consultationUrl = `/video-call/consultation/${appointmentId}`;
-        window.open(consultationUrl, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+        window.location.href = consultationUrl;
     }
 
     // Legacy video call function for doctors (keeping for compatibility)

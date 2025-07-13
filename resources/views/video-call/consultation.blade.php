@@ -12,13 +12,17 @@
     <!-- Header -->
     <div class="bg-blue-600 text-white p-4 flex justify-between items-center">
         <div class="flex items-center space-x-4">
+            <a href="{{ Auth::user()->role === 'doctor' ? route('doctor.dashboard') : route('patient.dashboard') }}"
+               class="bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded transition-colors">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
             <h1 class="text-xl font-bold">Dr. Fintan - Consultation #{{ $appointmentId }}</h1>
             <span class="text-blue-200">{{ Auth::user()->role === 'doctor' ? 'Doctor' : 'Patient' }}: {{ Auth::user()->name ?? Auth::user()->email }}</span>
         </div>
         <div class="flex items-center space-x-2">
             <span id="participant-count" class="text-blue-200">Participants: 0</span>
-            <button onclick="window.close()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">
-                <i class="fas fa-times"></i> Close
+            <button onclick="endConsultationAndReturn()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition-colors">
+                <i class="fas fa-times"></i> End & Return
             </button>
         </div>
     </div>
@@ -554,6 +558,24 @@
                     }
                 }
             });
+        });
+
+        // Function to end consultation and return to dashboard
+        function endConsultationAndReturn() {
+            if (dailyCallManager && dailyCallManager.call) {
+                dailyCallManager.leave();
+            }
+
+            // Navigate back to appropriate dashboard
+            const dashboardUrl = userRole === 'doctor' ? '{{ route("doctor.dashboard") }}' : '{{ route("patient.dashboard") }}';
+            window.location.href = dashboardUrl;
+        }
+
+        // Handle browser back button
+        window.addEventListener('beforeunload', function(e) {
+            if (dailyCallManager && dailyCallManager.call && dailyCallManager.call.meetingState() === 'joined') {
+                dailyCallManager.leave();
+            }
         });
     </script>
 </body>

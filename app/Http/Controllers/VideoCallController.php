@@ -12,6 +12,22 @@ use Illuminate\Support\Facades\Log;
 class VideoCallController extends Controller
 {
     /**
+     * Show video consultation interface
+     */
+    public function consultation($appointmentId)
+    {
+        // Validate appointment exists and user has access
+        $appointment = Appointment::findOrFail($appointmentId);
+
+        // Check if user can access this appointment
+        if (!$this->canAccessAppointment(Auth::user(), $appointment)) {
+            abort(403, 'You do not have permission to access this appointment.');
+        }
+
+        return view('video-call.consultation', compact('appointmentId', 'appointment'));
+    }
+
+    /**
      * Create or get a consultation room - Integrated with appointment system and Daily domain
      */
     public function createRoom(Request $request)

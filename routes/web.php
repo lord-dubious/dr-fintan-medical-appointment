@@ -17,9 +17,7 @@ Route::get('/logout', [App\Http\Controllers\auth\LoginController::class, 'logout
 
 // Video Call Routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/video-call/consultation/{appointmentId}', function($appointmentId) {
-        return view('video-call.consultation', compact('appointmentId'));
-    })->name('video-call.consultation');
+    Route::get('/video-call/consultation/{appointmentId}', [App\Http\Controllers\VideoCallController::class, 'consultation'])->name('video-call.consultation');
 
     Route::post('/video-call/create-room', [App\Http\Controllers\VideoCallController::class, 'createRoom'])->name('video-call.create-room');
     Route::post('/video-call/start-recording', [App\Http\Controllers\VideoCallController::class, 'startRecording'])->name('video-call.start-recording');
