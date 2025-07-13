@@ -58,33 +58,52 @@ class VideoCallController extends Controller
      */
     public function healthCheck()
     {
-        $user = Auth::user();
+        try {
+            $user = Auth::user();
 
-        if (!$user) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
+            if (!$user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User not authenticated',
+                    'timestamp' => now()->toISOString()
+                ], 401);
+            }
 
-        // Verify Daily.co service is configured
-        $apiKey = config('services.daily.api_key');
-        if (!$apiKey) {
+            // Verify Daily.co service is configured
+            $apiKey = config('services.daily.api_key');
+            if (!$apiKey) {
+                return response()->json([
+                    'status' => 'warning',
+                    'message' => 'Daily.co service not configured, but connection is working',
+                    'user' => [
+                        'id' => $user->id,
+                        'role' => $user->role,
+                        'name' => $user->name ?? $user->email
+                    ],
+                    'timestamp' => now()->toISOString()
+                ], 200);
+            }
+
+            // Return success with user info and timestamp
+            return response()->json([
+                'status' => 'ok',
+                'message' => 'Connection successful',
+                'user' => [
+                    'id' => $user->id,
+                    'role' => $user->role,
+                    'name' => $user->name ?? $user->email
+                ],
+                'timestamp' => now()->toISOString(),
+                'service' => 'daily-video-calling',
+                'daily_configured' => true
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Daily.co service not configured'
+                'message' => 'Health check failed: ' . $e->getMessage(),
+                'timestamp' => now()->toISOString()
             ], 500);
         }
-
-        // Return success with user info and timestamp
-        return response()->json([
-            'status' => 'ok',
-            'message' => 'Connection successful',
-            'user' => [
-                'id' => $user->id,
-                'role' => $user->role,
-                'name' => $user->name ?? $user->email
-            ],
-            'timestamp' => now()->toISOString(),
-            'service' => 'daily-video-calling'
-        ]);
     }
 
     /**

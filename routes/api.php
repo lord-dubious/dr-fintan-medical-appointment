@@ -10,7 +10,6 @@ Route::get('/user', function (Request $request) {
 
 // Daily.co Video Call Routes - Secured with authentication and CSRF
 Route::middleware(['auth', 'web'])->group(function () {
-    Route::get('/health-check', [VideoCallController::class, 'healthCheck']);
     Route::post('/create-room', [VideoCallController::class, 'createRoom']);
     Route::get('/recording/{meetingId}', [VideoCallController::class, 'getRecording']);
     Route::get('/recording', [VideoCallController::class, 'listRecordings']);

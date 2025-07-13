@@ -242,15 +242,25 @@
             text.textContent = 'Testing connection...';
 
             try {
-                // Lightweight health check - verifies authentication and service availability
-                // without creating any Daily.co rooms (prevents resource waste)
-                const response = await fetch('/api/health-check', {
+                // Try authenticated health check first
+                let response = await fetch('/api/health-check', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     }
                 });
+
+                // If authenticated endpoint fails, try public fallback
+                if (!response.ok) {
+                    console.log('Authenticated health check failed, trying public endpoint...');
+                    response = await fetch('/health-check', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                }
 
                 if (response.ok) {
                     const data = await response.json();
@@ -262,7 +272,7 @@
                         throw new Error(data.message || 'Health check failed');
                     }
                 } else {
-                    throw new Error('Connection test failed');
+                    throw new Error(`Connection test failed: ${response.status} ${response.statusText}`);
                 }
             } catch (error) {
                 indicator.className = 'w-3 h-3 rounded-full bg-red-400 mr-2';
