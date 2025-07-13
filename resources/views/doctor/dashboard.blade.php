@@ -14,6 +14,25 @@
 
                 <div class="col-xl-9 col-lg-8 mb-5">
                     <div class="dashboard_content bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 border border-gray-200/50 dark:border-gray-700/50">
+                        @if(session('original_admin_id'))
+                        <div class="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-user-shield text-yellow-600 dark:text-yellow-400 mr-2"></i>
+                                    <span class="text-yellow-800 dark:text-yellow-200 font-medium">
+                                        You are logged in as a doctor (Admin Mode)
+                                    </span>
+                                </div>
+                                <form action="{{ route('admin.return-to-admin') }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-arrow-left mr-1"></i> Return to Admin
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        @endif
+
                         <h5 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Doctor Overview</h5>
 
                         <div class="row">

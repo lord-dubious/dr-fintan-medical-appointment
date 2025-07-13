@@ -47,12 +47,25 @@
                                             <td>{{ $doctor->email }}</td>
                                             <td>{{ $doctor->created_at->format('M d, Y') }}</td>
                                             <td>
-                                                <button class="btn btn-sm btn-info view-stats" 
-                                                    data-doctor-id="{{ $doctor->id }}"
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#statsModal">
-                                                    <i class="fas fa-chart-bar"></i> Stats
-                                                </button>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-sm btn-info view-stats"
+                                                        data-doctor-id="{{ $doctor->id }}"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#statsModal">
+                                                        <i class="fas fa-chart-bar"></i> Stats
+                                                    </button>
+
+                                                    <form action="{{ route('admin.login-as-doctor', $doctor->id) }}"
+                                                          method="POST"
+                                                          class="d-inline">
+                                                        @csrf
+                                                        <button type="submit"
+                                                                class="btn btn-sm btn-success"
+                                                                title="Login as {{ $doctor->name }}">
+                                                            <i class="fas fa-sign-in-alt"></i> Login as Doctor
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </td>
                                             <td>
                                             <form action="{{ route('admin.doctors.delete', $doctor->id) }}" 

@@ -7,6 +7,9 @@ Route::get('/about', [App\Http\Controllers\frontend\HomeController::class, 'abou
 Route::get('/contact', [App\Http\Controllers\frontend\HomeController::class, 'contact'])->name('contact');
 Route::get('/appointment', [App\Http\Controllers\auth\AppointmentController::class, 'index'])->name('appointment');
 Route::post('/appointment/store', [App\Http\Controllers\auth\AppointmentController::class, 'store'])->name('appointment.store');
+Route::post('/appointment/payment/initialize', [App\Http\Controllers\auth\AppointmentController::class, 'initializePayment'])->name('appointment.payment.initialize');
+Route::get('/appointment/payment/callback', [App\Http\Controllers\auth\AppointmentController::class, 'paymentCallback'])->name('appointment.payment.callback');
+Route::post('/paystack/webhook', [App\Http\Controllers\auth\AppointmentController::class, 'paystackWebhook'])->name('paystack.webhook');
 Route::get('/login', [App\Http\Controllers\auth\LoginController::class, 'index'])->name('login');
 Route::post('/login/auth', [App\Http\Controllers\auth\LoginController::class, 'login'])->name('login.auth');
 Route::get('/register', [App\Http\Controllers\auth\LoginController::class, 'register'])->name('register');
@@ -32,6 +35,61 @@ Route::get('/test-redis', function () {
             'direct_redis_test' => $direct_value,
             'message' => 'Redis/Valkey is properly configured!'
         ]);
+    } catch (Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ]);
+    }
+});
+
+// Test Daily.co integration
+Route::get('/test-daily', function () {
+    try {
+        $apiKey = env('DAILY_API_KEY');
+        $domain = env('DAILY_DOMAIN');
+
+        if (!$apiKey || !$domain) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Daily.co API key or domain not configured'
+            ]);
+        }
+
+        // Test creating a room
+        $roomName = 'test-room-' . time();
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $apiKey,
+            'Content-Type' => 'application/json'
+        ])->post('https://api.daily.co/v1/rooms', [
+            'name' => $roomName,
+            'properties' => [
+                'max_participants' => 2,
+                'enable_chat' => true,
+                'enable_screenshare' => true,
+                'start_video_off' => false,
+                'start_audio_off' => false
+            ]
+        ]);
+
+        if ($response->successful()) {
+            $roomData = $response->json();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Daily.co API is working!',
+                'room_url' => $roomData['url'],
+                'room_name' => $roomData['name'],
+                'api_key_configured' => !empty($apiKey),
+                'domain_configured' => $domain
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create Daily.co room',
+                'error' => $response->body()
+            ]);
+        }
+
     } catch (Exception $e) {
         return response()->json([
             'status' => 'error',

@@ -10,33 +10,45 @@ class DailyService
 {
     private string $apiKey;
     private string $baseUrl;
+    private string $domain;
 
     public function __construct()
     {
-        $this->apiKey = config('services.daily.api_key');
+        $this->apiKey = env('DAILY_API_KEY');
+        $this->domain = env('DAILY_DOMAIN');
         $this->baseUrl = 'https://api.daily.co/v1';
     }
 
     /**
-     * Create a Daily.co room for video consultation
+     * Create a Daily.co room for consultation (video or audio)
      */
-    public function createRoom(string $roomName, array $properties = []): array
+    public function createConsultationRoom(int $appointmentId, string $consultationType = 'video'): array
     {
         try {
-            $defaultProperties = [
+            $roomName = "consultation-{$appointmentId}-" . time();
+
+            // Configure room based on consultation type
+            $isVideoCall = $consultationType === 'video';
+
+            $roomData = [
+                'name' => $roomName,
                 'privacy' => 'private',
                 'properties' => [
-                    'max_participants' => 2, // Doctor and Patient only
-                    'enable_chat' => false,
-                    'enable_screenshare' => false,
-                    'start_video_off' => false,
+                    'max_participants' => 2,
+                    'enable_chat' => true,
+                    'enable_screenshare' => $isVideoCall, // Only for video calls
+                    'start_video_off' => !$isVideoCall, // Video off for audio-only
                     'start_audio_off' => false,
-                    'exp' => time() + (60 * 60 * 2), // 2 hours expiry
+                    'enable_recording' => false,
+                    'enable_dialin' => false,
+                    'enable_dialout' => false,
+                    'owner_only_broadcast' => false,
+                    'enable_prejoin_ui' => true,
+                    'enable_network_ui' => true,
+                    'enable_people_ui' => true,
+                    'exp' => time() + (60 * 60 * 3), // 3 hours expiry
                 ]
             ];
-
-            $roomData = array_replace_recursive($defaultProperties, $properties);
-            $roomData['name'] = $roomName;
 
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $this->apiKey,
@@ -44,7 +56,23 @@ class DailyService
             ])->post($this->baseUrl . '/rooms', $roomData);
 
             if ($response->successful()) {
-                return $response->json();
+                $roomData = $response->json();
+
+                // Generate meeting tokens for doctor and patient
+                $doctorToken = $this->createMeetingToken($roomData['name'], 'doctor', true);
+                $patientToken = $this->createMeetingToken($roomData['name'], 'patient', false);
+
+                return [
+                    'success' => true,
+                    'room' => $roomData,
+                    'room_url' => $roomData['url'],
+                    'room_name' => $roomData['name'],
+                    'consultation_type' => $consultationType,
+                    'tokens' => [
+                        'doctor' => $doctorToken,
+                        'patient' => $patientToken
+                    ]
+                ];
             }
 
             throw new Exception('Failed to create Daily room: ' . $response->body());
@@ -75,35 +103,7 @@ class DailyService
         }
     }
 
-    /**
-     * Create a meeting token for a participant
-     */
-    public function createMeetingToken(string $roomName, array $properties = []): array
-    {
-        try {
-            $defaultProperties = [
-                'room_name' => $roomName,
-                'is_owner' => false,
-                'exp' => time() + (60 * 60 * 2), // 2 hours expiry
-            ];
 
-            $tokenData = array_replace_recursive($defaultProperties, $properties);
-
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
-                'Content-Type' => 'application/json',
-            ])->post($this->baseUrl . '/meeting-tokens', $tokenData);
-
-            if ($response->successful()) {
-                return $response->json();
-            }
-
-            throw new Exception('Failed to create Daily meeting token: ' . $response->body());
-        } catch (Exception $e) {
-            Log::error('Daily token creation failed: ' . $e->getMessage());
-            throw $e;
-        }
-    }
 
     /**
      * Delete a room
@@ -122,47 +122,7 @@ class DailyService
         }
     }
 
-    /**
-     * Create a consultation room for an appointment
-     */
-    public function createConsultationRoom(int $appointmentId, string $doctorName, string $patientName): array
-    {
-        // Check if a room already exists for this appointment
-        $existingRoomName = "consultation-{$appointmentId}";
 
-        try {
-            // Try to get existing room first
-            $existingRoom = $this->getRoom($existingRoomName);
-            if ($existingRoom && isset($existingRoom['name'])) {
-                Log::info("Using existing room for appointment {$appointmentId}: {$existingRoom['name']}");
-                return $existingRoom;
-            }
-        } catch (Exception $e) {
-            // Room doesn't exist, create a new one
-            Log::info("Creating new room for appointment {$appointmentId}");
-        }
-
-        $roomName = "consultation-{$appointmentId}-" . time();
-
-        $properties = [
-            'properties' => [
-                'max_participants' => 2,
-                'enable_chat' => true,
-                'enable_screenshare' => true,
-                'start_video_off' => false,
-                'start_audio_off' => false,
-                'exp' => time() + (60 * 60 * 3), // 3 hours for consultation
-            ],
-            'metadata' => [
-                'appointment_id' => $appointmentId,
-                'doctor_name' => $doctorName,
-                'patient_name' => $patientName,
-                'created_at' => date('Y-m-d H:i:s'),
-            ]
-        ];
-
-        return $this->createRoom($roomName, $properties);
-    }
 
     /**
      * Create tokens for doctor and patient
@@ -193,5 +153,38 @@ class DailyService
             'patient_token' => $patientToken['token'],
             'room_url' => "https://" . config('services.daily.domain') . "/{$roomName}",
         ];
+    }
+
+    /**
+     * Create a meeting token for a specific user
+     */
+    public function createMeetingToken(string $roomName, string $userRole, bool $isOwner = false): ?string
+    {
+        try {
+            $tokenData = [
+                'properties' => [
+                    'room_name' => $roomName,
+                    'user_name' => ucfirst($userRole),
+                    'is_owner' => $isOwner,
+                    'exp' => time() + (60 * 60 * 4), // 4 hours
+                ]
+            ];
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Content-Type' => 'application/json',
+            ])->post($this->baseUrl . '/meeting-tokens', $tokenData);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                return $data['token'] ?? null;
+            }
+
+            Log::error('Failed to create meeting token: ' . $response->body());
+            return null;
+        } catch (Exception $e) {
+            Log::error('Meeting token creation failed: ' . $e->getMessage());
+            return null;
+        }
     }
 }

@@ -339,22 +339,43 @@ document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
     let currentRoom;
     let isMuted = false;
     let isVideoOff = false;
+    let hasMediaPermissions = false;
+
+    // Crypto polyfill for older browsers
+    if (!crypto.randomUUID) {
+        crypto.randomUUID = function() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        };
+    }
 
     // Initialize Daily.co when page loads
     document.addEventListener('DOMContentLoaded', function() {
         initializeDailyConnection();
     });
 
-    function initializeDailyConnection() {
+    async function initializeDailyConnection() {
         try {
             console.log('Initializing Daily.co for doctor-{{ $doctor->id }}');
+
+            // Check if we're on HTTPS (required for camera/microphone)
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+                throw new Error('HTTPS is required for camera and microphone access. Please use https://ekochin.violetmethods.com');
+            }
+
+            // Check if we have the necessary APIs
+            if (!navigator.mediaDevices) {
+                throw new Error('Media devices not supported. Please use a modern browser with HTTPS.');
+            }
 
             // Clean up existing call object if it exists
             if (dailyCall) {
                 dailyCall.destroy();
             }
 
-            // Create Daily call object
+            // Create Daily call object with minimal configuration
             dailyCall = DailyIframe.createCallObject();
 
             // Set up event listeners
@@ -364,12 +385,61 @@ document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
                 .on('participant-left', handleParticipantLeft)
                 .on('participant-updated', handleParticipantUpdated)
                 .on('left-meeting', handleLeftMeeting)
+                .on('camera-error', handleCameraError)
                 .on('error', handleError);
 
             console.log('Daily.co initialized successfully');
+
+            // Request media permissions after initialization
+            setTimeout(async () => {
+                await requestMediaPermissions();
+            }, 1000);
+
         } catch (err) {
             console.error('Daily.co initialization failed:', err);
-            alert('Failed to initialize video call system. Please refresh the page.');
+            showAlert('Failed to initialize video call system: ' + err.message, 'error');
+        }
+    }
+
+    // Request camera and microphone permissions
+    async function requestMediaPermissions() {
+        try {
+            console.log('Requesting media permissions...');
+
+            // Check if mediaDevices is available
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error('Media devices not supported. Please use HTTPS or a modern browser.');
+            }
+
+            // Request both camera and microphone permissions
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: true
+            });
+
+            // Stop the stream immediately - we just needed permissions
+            stream.getTracks().forEach(track => track.stop());
+
+            hasMediaPermissions = true;
+            console.log('Media permissions granted');
+
+        } catch (err) {
+            console.error('Media permissions denied:', err);
+            hasMediaPermissions = false;
+
+            // Show user-friendly error message
+            let errorMessage = 'Camera and microphone access is required for video calls. ';
+            if (err.name === 'NotAllowedError') {
+                errorMessage += 'Please allow camera and microphone access in your browser settings.';
+            } else if (err.name === 'NotFoundError') {
+                errorMessage += 'No camera or microphone found. Please connect a camera and microphone.';
+            } else if (err.message.includes('not supported')) {
+                errorMessage += 'Please use HTTPS or a modern browser that supports media devices.';
+            } else {
+                errorMessage += 'Please check your camera and microphone settings.';
+            }
+
+            showAlert(errorMessage, 'error');
         }
     }
 
@@ -377,6 +447,14 @@ document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
     async function initiateVideoCall(appointmentId, doctorId) {
         try {
             console.log(`Doctor initiating video call for appointment-${appointmentId}`);
+
+            // Check media permissions first
+            if (!hasMediaPermissions) {
+                await requestMediaPermissions();
+                if (!hasMediaPermissions) {
+                    throw new Error('Camera and microphone permissions are required for video calls');
+                }
+            }
 
             const videoModal = document.getElementById('videoCallModal');
             const callStatus = document.getElementById('callStatus');
@@ -390,13 +468,16 @@ document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Authorization': 'Bearer ' + (localStorage.getItem('auth_token') || '')
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
                 body: JSON.stringify({
                     appointment_id: appointmentId
                 })
             });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
             const data = await response.json();
 
@@ -406,18 +487,26 @@ document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
 
             callStatus.textContent = 'Joining consultation...';
 
-            // Join the Daily.co room
+            // Join the Daily.co room with proper configuration
             await dailyCall.join({
                 url: data.room_url,
-                token: data.tokens.doctor_token
+                token: data.tokens.doctor_token,
+                userName: 'Dr. {{ $doctor->name }}',
+                userData: {
+                    role: 'doctor',
+                    appointmentId: appointmentId
+                }
             });
 
             currentRoom = data.room_name;
             console.log('Doctor successfully joined Daily.co room:', data.room_name);
+            callStatus.textContent = 'Connected to consultation';
 
         } catch (err) {
             console.error('Video call failed:', err);
-            document.getElementById('callStatus').textContent = 'Call failed: ' + err.message;
+            const errorMessage = err.message || 'Failed to start video call';
+            document.getElementById('callStatus').textContent = 'Video call failed: ' + errorMessage;
+            showAlert('Video call failed: ' + errorMessage, 'error');
             setTimeout(endCall, 3000);
         }
     }
@@ -463,7 +552,32 @@ document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
 
     function handleError(event) {
         console.error('Daily.co error:', event);
-        document.getElementById('callStatus').textContent = 'Connection error: ' + event.errorMsg;
+        let errorMessage = 'Connection error: ';
+
+        if (event.errorMsg) {
+            errorMessage += event.errorMsg;
+        } else if (event.error) {
+            errorMessage += event.error;
+        } else {
+            errorMessage += 'Unknown error occurred';
+        }
+
+        document.getElementById('callStatus').textContent = errorMessage;
+        showAlert(errorMessage, 'error');
+    }
+
+    function handleCameraError(event) {
+        console.error('Camera error:', event);
+        let errorMessage = 'Camera error: ';
+
+        if (event.errorMsg) {
+            errorMessage += event.errorMsg;
+        } else {
+            errorMessage += 'Please check your camera permissions and try again.';
+        }
+
+        showAlert(errorMessage, 'error');
+        document.getElementById('callStatus').textContent = errorMessage;
     }
 
     function updateParticipantVideo(participant) {
@@ -587,6 +701,32 @@ document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
 
     function closeMessageModal() {
         document.getElementById('messageModal').style.display = 'none';
+    }
+
+    // Simple alert function for user feedback
+    function showAlert(message, type = 'info') {
+        // Create a simple alert div
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'} alert-dismissible fade show`;
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '20px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '9999';
+        alertDiv.style.maxWidth = '400px';
+
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        document.body.appendChild(alertDiv);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.parentNode.removeChild(alertDiv);
+            }
+        }, 5000);
     }
 </script>
 

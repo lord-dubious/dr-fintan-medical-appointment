@@ -17,7 +17,14 @@ class Appointment extends Model
         'appointment_date',
         'appointment_time',
         'message',
-        'status'
+        'status',
+        'consultation_type',
+        'payment_status',
+        'payment_reference',
+        'amount',
+        'currency',
+        'payment_metadata',
+        'payment_completed_at'
     ];
 
 
@@ -25,6 +32,9 @@ class Appointment extends Model
         'appointment_date' => 'date',  // Casts to Carbon instance
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'payment_metadata' => 'array',
+        'payment_completed_at' => 'datetime',
+        'amount' => 'decimal:2',
     ];
     
     public function patient()

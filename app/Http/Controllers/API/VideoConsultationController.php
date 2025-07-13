@@ -46,11 +46,14 @@ class VideoConsultationController extends Controller
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 
+            // Get patient name (fallback to patient name if no user)
+            $patientName = $appointment->patient->user ? $appointment->patient->user->name : $appointment->patient->name;
+
             // Create Daily.co room
             $room = $this->dailyService->createConsultationRoom(
                 $appointment->id,
                 $appointment->doctor->name,
-                $appointment->patient->user->name
+                $patientName
             );
 
             // Create tokens for both participants
@@ -59,7 +62,7 @@ class VideoConsultationController extends Controller
                 $appointment->doctor_id,
                 $appointment->patient_id,
                 $appointment->doctor->name,
-                $appointment->patient->user->name
+                $patientName
             );
 
             return response()->json([
@@ -70,7 +73,7 @@ class VideoConsultationController extends Controller
                 'appointment' => [
                     'id' => $appointment->id,
                     'doctor_name' => $appointment->doctor->name,
-                    'patient_name' => $appointment->patient->user->name,
+                    'patient_name' => $patientName,
                 ]
             ]);
 
@@ -103,13 +106,16 @@ class VideoConsultationController extends Controller
             // Get room details
             $room = $this->dailyService->getRoom($request->room_name);
 
+            // Get patient name (fallback to patient name if no user)
+            $patientName = $appointment->patient->user ? $appointment->patient->user->name : $appointment->patient->name;
+
             // Create new tokens (in case old ones expired)
             $tokens = $this->dailyService->createConsultationTokens(
                 $request->room_name,
                 $appointment->doctor_id,
                 $appointment->patient_id,
                 $appointment->doctor->name,
-                $appointment->patient->user->name
+                $patientName
             );
 
             return response()->json([
@@ -159,13 +165,16 @@ class VideoConsultationController extends Controller
 
             $room = $this->dailyService->createRoom($roomName, $properties);
 
+            // Get patient name (fallback to patient name if no user)
+            $patientName = $appointment->patient->user ? $appointment->patient->user->name : $appointment->patient->name;
+
             // Create tokens
             $tokens = $this->dailyService->createConsultationTokens(
                 $room['name'],
                 $appointment->doctor_id,
                 $appointment->patient_id,
                 $appointment->doctor->name,
-                $appointment->patient->user->name
+                $patientName
             );
 
             return response()->json([
@@ -177,7 +186,7 @@ class VideoConsultationController extends Controller
                 'appointment' => [
                     'id' => $appointment->id,
                     'doctor_name' => $appointment->doctor->name,
-                    'patient_name' => $appointment->patient->user->name,
+                    'patient_name' => $patientName,
                 ]
             ]);
 

@@ -11,7 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Trust all proxies for HTTPS termination (Cloudflare, load balancers)
+        $middleware->trustProxies(at: '*');
+
+        // Add CORS middleware for API routes
+        $middleware->api(prepend: [
+            \Illuminate\Http\Middleware\HandleCors::class,
+        ]);
     })
 
     ->withMiddleware(function (Middleware $middleware) {

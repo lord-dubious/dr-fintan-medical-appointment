@@ -17,7 +17,7 @@ A comprehensive medical appointment management system built with **Laravel 12**,
 ### **📅 Core Functionality**
 - ✅ **Smart Appointment Booking** with real-time availability checking
 - ✅ **Status Management** (pending, confirmed, cancelled)
-- ✅ **Video & Audio Consultations** via Daily.co integration
+- ✅ **SMS Notifications** via Twilio integration
 - ✅ **Doctor Availability Management** with scheduling
 - ✅ **Patient Management System** with medical records
 - ✅ **Department-based Organization** (15+ specializations)
@@ -38,7 +38,7 @@ A comprehensive medical appointment management system built with **Laravel 12**,
 | **Backend** | Laravel 12 + PHP 8.2 |
 | **Database** | MySQL (Aiven Cloud) |
 | **Frontend** | Tailwind CSS 4.0 + Vite |
-| **Video/Audio** | Daily.co SDK |
+| **SMS** | Twilio SDK |
 | **Package Manager** | PNPM |
 | **Authentication** | Laravel Sanctum |
 
@@ -88,7 +88,7 @@ Visit: **http://localhost:8000**
 | **👨‍⚕️ Doctor** | `doctor1@medical.com` | `doctor123` | Appointment management |
 | **🏥 Patient** | `patient@medical.com` | `password123` | Booking & history |
 
-*Note: 10 doctor accounts available (doctor1-doctor10@medical.com)*
+
 
 ## 🎯 System Overview
 
@@ -181,27 +181,26 @@ pnpm run dev     # Development with hot reload
 pnpm run build   # Production build
 ```
 
-## 📹 Video Consultation Integration (Daily.co)
+## 📱 SMS Integration (Twilio)
 
-To enable video and audio consultations:
+To enable SMS notifications:
 
-1. **Get Daily.co Credentials**
-   - Sign up at [Daily.co](https://www.daily.co)
-   - Get API Key and Domain from your dashboard
+1. **Get Twilio Credentials**
+   - Sign up at [Twilio](https://www.twilio.com)
+   - Get Account SID, Auth Token, and Phone Number
 
 2. **Configure Environment**
    ```bash
    # Add to .env file
-   DAILY_API_KEY=your_daily_api_key
-   DAILY_DOMAIN=your_daily_domain
+   TWILIO_SID=your_account_sid
+   TWILIO_TOKEN=your_auth_token
+   TWILIO_FROM=your_twilio_phone_number
    ```
 
-3. **Video Consultation Features**
-   - HD Video calling between doctors and patients
-   - Audio-only consultations
-   - Secure, private consultation rooms
-   - Real-time communication during appointments
-   - Automatic room cleanup after consultations
+3. **SMS Features**
+   - Appointment confirmations
+   - Reminder notifications
+   - Status change alerts
 
 ## 🔧 Configuration
 

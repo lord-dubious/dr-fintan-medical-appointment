@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Models\{User, Patient, Doctor, Appointment};
+use App\Services\PaystackService;
 
 
 class AppointmentController extends Controller
@@ -132,6 +133,209 @@ class AppointmentController extends Controller
                 'message' => 'An error occurred while booking the appointment. Please try again.',
             ], 500);
         }
+    }
+
+    /**
+     * Initialize payment for appointment
+     */
+    public function initializePayment(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'patient_name' => 'required|string',
+                'phone' => 'required|string',
+                'doctor' => 'required|exists:doctors,id',
+                'date' => 'required|date',
+                'time' => 'required|string',
+                'email' => 'required|email',
+                'password' => 'required|string|min:8',
+                'message' => 'nullable|string',
+                'consultation_type' => 'required|in:video,audio',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+
+            // Check if doctor is available
+            $doctorIsTaken = Appointment::where('doctor_id', $request->doctor)
+                ->where('appointment_date', $request->date)
+                ->where('appointment_time', $request->time)
+                ->where('payment_status', '!=', 'failed')
+                ->exists();
+
+            if ($doctorIsTaken) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The selected doctor is not available at this time. Please choose another time.',
+                ], 409);
+            }
+
+            // Calculate amount based on consultation type
+            $amount = $request->consultation_type === 'video' ? 75 : 45;
+
+            // Generate payment reference
+            $reference = PaystackService::generateReference('APPT');
+
+            // Store appointment data in session for later use
+            session([
+                'appointment_data' => [
+                    'patient_name' => $request->patient_name,
+                    'phone' => $request->phone,
+                    'doctor' => $request->doctor,
+                    'date' => $request->date,
+                    'time' => $request->time,
+                    'email' => $request->email,
+                    'password' => $request->password,
+                    'message' => $request->message,
+                    'consultation_type' => $request->consultation_type,
+                    'amount' => $amount,
+                    'reference' => $reference,
+                    'image' => $request->hasFile('image') ? $request->file('image') : null
+                ]
+            ]);
+
+            // Initialize payment with Paystack
+            $paystackService = new PaystackService();
+            $paymentUrl = $paystackService->getPaymentUrl($reference, $amount, $request->email);
+
+            if ($paymentUrl) {
+                return response()->json([
+                    'success' => true,
+                    'payment_url' => $paymentUrl,
+                    'reference' => $reference
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unable to initialize payment. Please try again.'
+                ], 500);
+            }
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Payment initialization error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while initializing payment. Please try again.',
+            ], 500);
+        }
+    }
+
+    /**
+     * Handle payment callback from Paystack
+     */
+    public function paymentCallback(Request $request)
+    {
+        $reference = $request->query('reference');
+
+        if (!$reference) {
+            return redirect()->route('appointment')->with('error', 'Invalid payment reference.');
+        }
+
+        $paystackService = new PaystackService();
+        $verification = $paystackService->verifyPayment($reference);
+
+        if ($verification['status'] && $verification['data']['status'] === 'success') {
+            // Payment successful, create appointment
+            $appointmentData = session('appointment_data');
+
+            if (!$appointmentData || $appointmentData['reference'] !== $reference) {
+                return redirect()->route('appointment')->with('error', 'Invalid session data.');
+            }
+
+            DB::beginTransaction();
+            try {
+                // Create user
+                $user = User::create([
+                    'email' => $appointmentData['email'],
+                    'password' => Hash::make($appointmentData['password']),
+                    'role' => 'patient',
+                ]);
+
+                // Handle image upload
+                $imageName = null;
+                if (isset($appointmentData['image']) && $appointmentData['image']) {
+                    $image = $appointmentData['image'];
+                    $imageName = time() . '_' . $image->getClientOriginalName();
+                    $image->storeAs('public/images', $imageName);
+                }
+
+                // Create patient
+                $patient = Patient::create([
+                    'name' => $appointmentData['patient_name'],
+                    'mobile' => $appointmentData['phone'],
+                    'email' => $appointmentData['email'],
+                    'image' => $imageName,
+                    'user_id' => $user->id,
+                ]);
+
+                // Create appointment
+                $appointment = Appointment::create([
+                    'patient_id' => $patient->id,
+                    'doctor_id' => $appointmentData['doctor'],
+                    'appointment_date' => $appointmentData['date'],
+                    'appointment_time' => $appointmentData['time'],
+                    'message' => $appointmentData['message'],
+                    'consultation_type' => $appointmentData['consultation_type'],
+                    'amount' => $appointmentData['amount'],
+                    'currency' => 'USD',
+                    'payment_status' => 'paid',
+                    'payment_reference' => $reference,
+                    'payment_metadata' => $verification['data'],
+                    'payment_completed_at' => now(),
+                    'status' => 'pending',
+                ]);
+
+                DB::commit();
+
+                // Clear session data
+                session()->forget('appointment_data');
+
+                return redirect()->route('appointment')->with('success', 'Appointment booked successfully! Payment completed.');
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                \Log::error('Appointment creation error after payment: ' . $e->getMessage());
+                return redirect()->route('appointment')->with('error', 'Payment successful but appointment creation failed. Please contact support.');
+            }
+        } else {
+            return redirect()->route('appointment')->with('error', 'Payment verification failed. Please try again.');
+        }
+    }
+
+    /**
+     * Handle Paystack webhook
+     */
+    public function paystackWebhook(Request $request)
+    {
+        $paystackService = new PaystackService();
+        $signature = $request->header('X-Paystack-Signature');
+        $payload = $request->getContent();
+
+        if (!$paystackService->validateWebhook($payload, $signature)) {
+            return response('Invalid signature', 400);
+        }
+
+        $event = json_decode($payload, true);
+
+        if ($event['event'] === 'charge.success') {
+            $reference = $event['data']['reference'];
+
+            // Update appointment payment status
+            $appointment = Appointment::where('payment_reference', $reference)->first();
+            if ($appointment && $appointment->payment_status === 'pending') {
+                $appointment->update([
+                    'payment_status' => 'paid',
+                    'payment_completed_at' => now(),
+                    'payment_metadata' => $event['data']
+                ]);
+            }
+        }
+
+        return response('OK', 200);
     }
 
 }

@@ -2,97 +2,243 @@
 
 @include('layouts.navbar')
 
-<!-- Modern Booking Header -->
-<section class="py-12 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 relative overflow-hidden">
-    <!-- Background Pattern -->
-    <div class="absolute inset-0 bg-white/5 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:20px_20px]"></div>
-    
-    <div class="container mx-auto px-4 relative">
-        <div class="text-center max-w-4xl mx-auto">
-            <div class="mb-6">
-                <div class="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-full px-6 py-3 mb-4">
-                    <i class="fas fa-calendar-check text-white text-xl"></i>
-                    <span class="text-white font-medium">Book Consultation</span>
-                </div>
-            </div>
-            
-            <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-                Schedule Your 
-                <span class="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
-                    Consultation
-                </span>
+<!-- Fintan-Style Booking Page -->
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 px-4 py-8">
+    <div class="container mx-auto max-w-4xl">
+
+        <!-- Fintan-Style Header -->
+        <div class="text-center mb-8">
+            <a href="{{ route('home') }}" class="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors mb-4">
+                <i class="fas fa-arrow-left"></i>
+                Back to Home
+            </a>
+            <h1 class="text-3xl md:text-4xl font-bold dark:text-gray-100">
+                Book with Dr. Fintan Ekochin
             </h1>
-            
-            <p class="text-xl text-blue-100 mb-8 max-w-2xl mx-auto leading-relaxed">
-                Choose the perfect time that works for you with our intelligent scheduling system. 
-                Experience personalized healthcare from the comfort of your home.
+            <p class="mt-2 text-gray-600 dark:text-gray-300">
+                Complete your consultation booking in 4 simple steps
             </p>
         </div>
-    </div>
-</section>
 
-<!-- Fintan-Style Booking Flow -->
-<section class="py-16 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 min-h-screen">
-    <div class="container mx-auto max-w-6xl px-4">
-        
-        <!-- Booking Progress -->
-        <div class="mb-8">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                        Book Your Consultation
-                    </h2>
-                    <span class="text-sm text-gray-500 dark:text-gray-400">
-                        Step <span id="current-step">1</span> of 3
-                    </span>
-                </div>
-                
-                <div class="flex items-center space-x-4">
-                    <!-- Step 1: Date & Time -->
-                    <div class="flex items-center">
-                        <div class="step-indicator w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold" data-step="1">
-                            1
+        <!-- Main Booking Card -->
+        <div class="bg-white dark:bg-gray-800/95 rounded-2xl shadow-xl border-0 dark:border-gray-700">
+            <div class="p-6 md:p-8">
+
+                <!-- Progress Indicator -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex flex-col items-center relative z-10 flex-1">
+                            <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-medium transition-all mb-2" id="step-1-indicator">
+                                1
+                            </div>
+                            <span class="text-xs text-center text-blue-600 dark:text-blue-400 font-medium">Consultation Type</span>
                         </div>
-                        <span class="ml-2 text-sm font-medium text-blue-600 dark:text-blue-400">Date & Time</span>
+                        <div class="flex flex-col items-center relative z-10 flex-1">
+                            <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 flex items-center justify-center font-medium transition-all mb-2" id="step-2-indicator">
+                                2
+                            </div>
+                            <span class="text-xs text-center text-gray-500 dark:text-gray-400">Date & Time</span>
+                        </div>
+                        <div class="flex flex-col items-center relative z-10 flex-1">
+                            <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 flex items-center justify-center font-medium transition-all mb-2" id="step-3-indicator">
+                                3
+                            </div>
+                            <span class="text-xs text-center text-gray-500 dark:text-gray-400">Your Information</span>
+                        </div>
+                        <div class="flex flex-col items-center relative z-10 flex-1">
+                            <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 flex items-center justify-center font-medium transition-all mb-2" id="step-4-indicator">
+                                4
+                            </div>
+                            <span class="text-xs text-center text-gray-500 dark:text-gray-400">Confirmation</span>
+                        </div>
                     </div>
-                    
-                    <div class="flex-1 h-1 bg-gray-200 dark:bg-gray-700 rounded step-line" data-step="1"></div>
-                    
-                    <!-- Step 2: Your Info -->
-                    <div class="flex items-center">
-                        <div class="step-indicator w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-semibold" data-step="2">
-                            2
-                        </div>
-                        <span class="ml-2 text-sm font-medium text-gray-500">Your Info</span>
-                    </div>
-                    
-                    <div class="flex-1 h-1 bg-gray-200 dark:bg-gray-700 rounded step-line" data-step="2"></div>
-                    
-                    <!-- Step 3: Confirm -->
-                    <div class="flex items-center">
-                        <div class="step-indicator w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-semibold" data-step="3">
-                            3
-                        </div>
-                        <span class="ml-2 text-sm font-medium text-gray-500">Confirm</span>
+                    <!-- Progress line -->
+                    <div class="relative h-1 bg-gray-200 dark:bg-gray-700 rounded">
+                        <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded transition-all duration-300 ease-in-out" style="width: 25%" id="progress-bar"></div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <form id="appointmentForm">
-            @csrf
-            
-            <!-- Step 1: Date & Time Selection -->
+                <!-- Step Content -->
+                <form id="appointmentForm">
+                    @csrf
+
+            <!-- Step 1: Consultation Type Selection -->
             <div class="booking-step" id="step-1">
-                <div class="grid lg:grid-cols-2 gap-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">
+                        Choose Your Consultation Type
+                    </h2>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        Select the consultation format that works best for you
+                    </p>
+                </div>
+
+                <div class="grid gap-6 md:grid-cols-2 max-w-4xl mx-auto">
+                    <!-- Video Consultation -->
+                    <div class="consultation-type-card relative cursor-pointer transition-all duration-200 hover:shadow-lg border-2 border-gray-200 dark:border-gray-700 rounded-xl p-6 bg-white dark:bg-gray-800" data-type="video">
+                        <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                            <span class="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium">
+                                Recommended
+                            </span>
+                        </div>
+
+                        <div class="text-center mb-4">
+                            <div class="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center mx-auto mb-3 transition-colors">
+                                <i class="fas fa-video text-blue-600 dark:text-blue-400 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">
+                                Video Consultation
+                            </h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm">
+                                Face-to-face consultation with full visual examination
+                            </p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Pricing and Duration -->
+                            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-clock text-gray-500 text-sm"></i>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">30 minutes</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-dollar-sign text-gray-500 text-sm"></i>
+                                    <span class="text-lg font-semibold text-blue-600 dark:text-blue-400">$75</span>
+                                </div>
+                            </div>
+
+                            <!-- Features -->
+                            <div class="space-y-2">
+                                <h4 class="text-sm font-medium flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                                    <i class="fas fa-shield-alt text-sm"></i>
+                                    What's included:
+                                </h4>
+                                <ul class="space-y-1">
+                                    <li class="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                                        <div class="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
+                                        HD video call
+                                    </li>
+                                    <li class="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                                        <div class="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
+                                        Visual examination
+                                    </li>
+                                    <li class="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                                        <div class="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
+                                        Screen sharing
+                                    </li>
+                                    <li class="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                                        <div class="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
+                                        Recording available
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <button type="button" class="w-full mt-6 py-3 px-6 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium transition-all hover:bg-gray-200 dark:hover:bg-gray-600 consultation-select-btn">
+                            Select This Option
+                        </button>
+                    </div>
+
+                    <!-- Audio Consultation -->
+                    <div class="consultation-type-card relative cursor-pointer transition-all duration-200 hover:shadow-lg border-2 border-gray-200 dark:border-gray-700 rounded-xl p-6 bg-white dark:bg-gray-800" data-type="audio">
+                        <div class="text-center mb-4">
+                            <div class="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center mx-auto mb-3 transition-colors">
+                                <i class="fas fa-phone text-green-600 dark:text-green-400 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">
+                                Audio Consultation
+                            </h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm">
+                                Voice-only consultation for follow-ups and general advice
+                            </p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Pricing and Duration -->
+                            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-clock text-gray-500 text-sm"></i>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">20 minutes</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-dollar-sign text-gray-500 text-sm"></i>
+                                    <span class="text-lg font-semibold text-green-600 dark:text-green-400">$45</span>
+                                </div>
+                            </div>
+
+                            <!-- Features -->
+                            <div class="space-y-2">
+                                <h4 class="text-sm font-medium flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                                    <i class="fas fa-shield-alt text-sm"></i>
+                                    What's included:
+                                </h4>
+                                <ul class="space-y-1">
+                                    <li class="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                                        <div class="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                                        High-quality audio
+                                    </li>
+                                    <li class="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                                        <div class="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                                        Secure connection
+                                    </li>
+                                    <li class="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                                        <div class="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                                        Text chat support
+                                    </li>
+                                    <li class="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                                        <div class="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                                        Lower bandwidth
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <button type="button" class="w-full mt-6 py-3 px-6 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium transition-all hover:bg-gray-200 dark:hover:bg-gray-600 consultation-select-btn">
+                            Select This Option
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6 mt-8 max-w-4xl mx-auto">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-users text-blue-600 dark:text-blue-400 text-lg mt-0.5"></i>
+                        <div>
+                            <h4 class="font-medium mb-2 text-gray-900 dark:text-gray-100">
+                                All consultations include:
+                            </h4>
+                            <ul class="text-sm text-gray-600 dark:text-gray-300 space-y-1">
+                                <li>• Secure, HIPAA-compliant platform</li>
+                                <li>• Consultation summary and recommendations</li>
+                                <li>• Follow-up support via message</li>
+                                <li>• Prescription services when appropriate</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" name="consultation_type" id="consultation_type" value="">
+            </div>
+
+            <!-- Step 2: Date & Time Selection -->
+            <div class="booking-step hidden" id="step-2">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">
+                        Schedule Your Consultation
+                    </h2>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        Choose the perfect time that works for you
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     
                     <!-- Calendar Card -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-8">
-                        <div class="p-6">
-                            <div class="flex items-center gap-2 mb-6">
-                                <i class="fas fa-calendar text-blue-600 dark:text-blue-400"></i>
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Select Date</h3>
-                            </div>
+                    <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6">
+                        <div class="flex items-center gap-2 mb-6">
+                            <i class="fas fa-calendar text-blue-600 dark:text-blue-400"></i>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Select Date</h3>
+                        </div>
                             
                             <!-- Calendar Navigation -->
                             <div class="flex items-center justify-between mb-4">
@@ -120,59 +266,23 @@
                             <div class="grid grid-cols-7 gap-1" id="calendar-days">
                                 <!-- Days will be populated by JavaScript -->
                             </div>
-                        </div>
                     </div>
-                    
+
                     <!-- Time Slots Card -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-8">
-                        <div class="p-6">
-                            <div class="flex items-center gap-2 mb-6">
-                                <i class="fas fa-clock text-blue-600 dark:text-blue-400"></i>
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Select Time</h3>
+                    <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6">
+                        <div class="flex items-center gap-2 mb-6">
+                            <i class="fas fa-clock text-blue-600 dark:text-blue-400"></i>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Available Times</h3>
+                        </div>
+                        <div id="time-slots-container" class="hidden">
+                            <div class="grid grid-cols-3 gap-3" id="all-time-slots">
+                                <!-- Time slots will be populated by JavaScript -->
                             </div>
+                        </div>
                             
-                            <div id="time-slots-container" class="hidden space-y-6">
-                                <!-- Morning Slots -->
-                                <div class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-xl p-4 border border-yellow-200/50 dark:border-yellow-700/50">
-                                    <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
-                                        <i class="fas fa-sun text-yellow-500 text-lg"></i>
-                                        Morning (9 AM - 12 PM)
-                                    </h4>
-                                    <div class="grid grid-cols-2 gap-3" id="morning-slots">
-                                        <!-- Morning time slots -->
-                                    </div>
-                                </div>
-
-                                <!-- Afternoon Slots -->
-                                <div class="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-xl p-4 border border-orange-200/50 dark:border-orange-700/50">
-                                    <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
-                                        <i class="fas fa-sun text-orange-500 text-lg"></i>
-                                        Afternoon (2 PM - 5 PM)
-                                    </h4>
-                                    <div class="grid grid-cols-2 gap-3" id="afternoon-slots">
-                                        <!-- Afternoon time slots -->
-                                    </div>
-                                </div>
-
-                                <!-- Evening Slots -->
-                                <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl p-4 border border-indigo-200/50 dark:border-indigo-700/50">
-                                    <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
-                                        <i class="fas fa-moon text-indigo-500 text-lg"></i>
-                                        Evening (6 PM - 8 PM)
-                                    </h4>
-                                    <div class="grid grid-cols-2 gap-3" id="evening-slots">
-                                        <!-- Evening time slots -->
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div id="no-date-selected" class="text-center py-12 text-gray-500 dark:text-gray-400">
-                                <div class="bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-                                    <i class="fas fa-calendar-plus text-3xl text-blue-600 dark:text-blue-400"></i>
-                                </div>
-                                <p class="text-lg font-medium">Please select a date to view available times</p>
-                                <p class="text-sm mt-2 opacity-75">Choose from the calendar on the left</p>
-                            </div>
+                        <div id="no-date-selected" class="text-center py-12">
+                            <i class="fas fa-calendar-day text-gray-400 text-4xl mb-4"></i>
+                            <p class="text-gray-500 dark:text-gray-400">Please select a date to view available time slots</p>
                         </div>
                     </div>
                 </div>
@@ -181,83 +291,78 @@
                 <input type="hidden" name="time" id="selectedTime" required>
             </div>
 
-            <!-- Step 2: Patient Information -->
-            <div class="booking-step hidden" id="step-2">
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-8">
-                    <div class="p-8">
-                        <div class="text-center mb-8">
-                            <h3 class="text-2xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                                Your Information
-                            </h3>
-                            <p class="text-gray-600 dark:text-gray-400">
-                                Please provide your details for the appointment
-                            </p>
+            <!-- Step 3: Patient Information -->
+            <div class="booking-step hidden" id="step-3">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">
+                        Your Information
+                    </h2>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        Please provide your details for the consultation
+                    </p>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Doctor Selection -->
+                    <div class="space-y-2">
+                        <label for="doctor" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Doctor</label>
+                        <select name="doctor" id="doctor" class="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm" required>
+                            @if(isset($doctors) && $doctors->count() > 0)
+                                @foreach($doctors as $doctor)
+                                    <option value="{{ $doctor->id }}" {{ $doctor->name === 'Dr. Fintan' ? 'selected' : '' }}>
+                                        {{ $doctor->name }} - {{ $doctor->department }}
+                                    </option>
+                                @endforeach
+                            @else
+                                <option value="1" selected>Dr. Fintan Ekochin - Neurology</option>
+                            @endif
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label for="patient_name" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Full Name</label>
+                            <input type="text" id="patient_name" name="patient_name" required class="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
                         </div>
-
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <!-- Doctor Selection -->
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Doctor & Department *</label>
-                                <select name="doctor" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200" required>
-                                    <option value="">Select Doctor & Department</option>
-                                    @foreach($doctors as $doctor)
-                                    <option value="{{ $doctor->id }}">{{ $doctor->name }} - {{ $doctor->department }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <!-- Patient Name -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Patient Name *</label>
-                                <input type="text" name="patient_name" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200" placeholder="Enter your full name" required>
-                            </div>
-
-                            <!-- Phone -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number *</label>
-                                <input type="tel" name="phone" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200" placeholder="Enter your phone number" required>
-                            </div>
-
-                            <!-- Email -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address *</label>
-                                <input type="email" name="email" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200" placeholder="Enter your email" required>
-                            </div>
-
-                            <!-- Password -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password *</label>
-                                <input type="password" name="password" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200" placeholder="Create a password" required>
-                            </div>
-
-                            <!-- Profile Image -->
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Profile Image</label>
-                                <input type="file" name="image" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200" accept="image/*">
-                            </div>
-
-                            <!-- Message -->
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Message</label>
-                                <textarea name="message" rows="4" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200" placeholder="Tell us how you feel or any specific concerns..."></textarea>
-                            </div>
+                        <div class="space-y-2">
+                            <label for="phone" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" required class="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
                         </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label for="email" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Email Address</label>
+                            <input type="email" id="email" name="email" required class="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
+                        </div>
+                        <div class="space-y-2">
+                            <label for="password" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Password</label>
+                            <input type="password" id="password" name="password" required class="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="message" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Reason for Consultation</label>
+                        <textarea id="message" name="message" rows="4" required class="flex min-h-[80px] w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-base ring-offset-background placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm" placeholder="Please describe your symptoms or reason for consultation..."></textarea>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="image" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Profile Image (Optional)</label>
+                        <input type="file" id="image" name="image" accept="image/*" class="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
                     </div>
                 </div>
             </div>
 
-            <!-- Step 3: Confirmation -->
-            <div class="booking-step hidden" id="step-3">
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-8">
-                    <div class="p-8">
-                        <div class="text-center mb-8">
-                            <h3 class="text-2xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                                Confirm Your Appointment
-                            </h3>
-                            <p class="text-gray-600 dark:text-gray-400">
-                                Please review your appointment details before confirming
-                            </p>
-                        </div>
+            <!-- Step 4: Confirmation & Payment -->
+            <div class="booking-step hidden" id="step-4">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">
+                        Confirm Your Appointment
+                    </h2>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        Please review your appointment details
+                    </p>
+                </div>
 
                         <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl p-8 border border-blue-200/50 dark:border-blue-600/50">
                             <div class="grid md:grid-cols-2 gap-8">
@@ -265,6 +370,14 @@
                                 <div>
                                     <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Appointment Details</h4>
                                     <div class="space-y-3">
+                                        <div class="flex items-center gap-3">
+                                            <i class="fas fa-video text-blue-600 dark:text-blue-400"></i>
+                                            <span class="text-gray-700 dark:text-gray-300">Type: <span id="confirm-consultation-type" class="font-medium"></span></span>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <i class="fas fa-dollar-sign text-blue-600 dark:text-blue-400"></i>
+                                            <span class="text-gray-700 dark:text-gray-300">Price: <span id="confirm-price" class="font-medium text-green-600 dark:text-green-400"></span></span>
+                                        </div>
                                         <div class="flex items-center gap-3">
                                             <i class="fas fa-user-md text-blue-600 dark:text-blue-400"></i>
                                             <span class="text-gray-700 dark:text-gray-300">Doctor: <span id="confirm-doctor" class="font-medium"></span></span>
@@ -302,55 +415,54 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Navigation Buttons -->
-            <div class="flex justify-between items-center mt-8">
-                <button type="button" id="prevBtn" class="px-6 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl font-medium transition-all duration-200 hidden">
-                    <i class="fas fa-arrow-left mr-2"></i>
-                    Previous
-                </button>
+                <!-- Navigation Buttons -->
+                <div class="flex justify-between mt-8">
+                    <button type="button" id="prevBtn" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-gray-300 dark:border-gray-600 bg-white dark:bg-transparent hover:bg-gray-50 dark:hover:bg-blue-600/20 hover:text-gray-900 dark:hover:text-gray-100 h-10 px-8 py-2 dark:text-gray-100 hidden">
+                        Previous
+                    </button>
 
-                <div class="flex-1"></div>
+                    <button type="button" id="nextBtn" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-600/90 dark:bg-blue-500 dark:hover:bg-blue-500/90 h-10 px-8 py-2">
+                        Continue
+                    </button>
 
-                <button type="button" id="nextBtn" class="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                    Next Step
-                    <i class="fas fa-arrow-right ml-2"></i>
-                </button>
-
-                <button type="submit" id="submitBtn" class="px-8 py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hidden">
-                    <span id="spinner" class="hidden">
-                        <i class="fas fa-spinner fa-spin mr-2"></i>
-                        Booking...
-                    </span>
-                    <span id="buttonText">
-                        <i class="fas fa-calendar-check mr-2"></i>
-                        Confirm Appointment
-                    </span>
-                </button>
-            </div>
-
-            <!-- Availability Status -->
-            <div id="availabilityStatus" class="mt-6 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 hidden">
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-info-circle text-blue-600 dark:text-blue-400"></i>
-                    <span class="text-blue-800 dark:text-blue-200 font-medium">Checking availability...</span>
+                    <button type="button" id="paymentBtn" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-600/90 dark:bg-blue-500 dark:hover:bg-blue-500/90 h-10 px-8 py-2 hidden">
+                        <span id="payment-spinner" class="hidden">
+                            <i class="fas fa-spinner fa-spin mr-2"></i>
+                            Processing...
+                        </span>
+                        <span id="payment-button-text">
+                            Review & Pay
+                        </span>
+                    </button>
                 </div>
-            </div>
 
-            <!-- Alert container -->
-            <div id="alertContainer" class="mt-6"></div>
-        </form>
+                </form>
+            </div>
+        </div>
     </div>
-</section>
+</div>
+
+<!-- Alert container -->
+<div id="alertContainer" class="fixed top-4 right-4 z-50"></div>
+
+<!-- Availability Status -->
+<div id="availabilityStatus" class="fixed top-20 right-4 z-50 p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg hidden">
+    <div class="flex items-center gap-2">
+        <i class="fas fa-spinner fa-spin text-blue-600 dark:text-blue-400"></i>
+        <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">Checking availability...</span>
+    </div>
+</div>
 
 @include('layouts.footer')
 
 <script>
 // Fintan-style booking functionality
 let currentStep = 1;
-const totalSteps = 3;
+const totalSteps = 4;
 let currentDate = new Date();
+let selectedConsultationType = '';
+let consultationPrice = 0;
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeCalendar();
@@ -429,54 +541,41 @@ function selectDate(date) {
 }
 
 function generateTimeSlots() {
-    const morningSlots = document.getElementById('morning-slots');
-    const afternoonSlots = document.getElementById('afternoon-slots');
-    const eveningSlots = document.getElementById('evening-slots');
+    const allTimeSlotsContainer = document.getElementById('all-time-slots');
 
     // Clear existing slots
-    morningSlots.innerHTML = '';
-    afternoonSlots.innerHTML = '';
-    eveningSlots.innerHTML = '';
+    allTimeSlotsContainer.innerHTML = '';
 
-    // Morning slots (9 AM - 12 PM) - 30 minute intervals
-    const morningTimes = ['09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM'];
-    morningTimes.forEach(time => {
-        const slot = createTimeSlot(time);
-        morningSlots.appendChild(slot);
-    });
+    // All available time slots (30-minute intervals)
+    const allTimes = [
+        '08:00 AM', '08:30 AM', '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',
+        '11:00 AM', '11:30 AM', '01:00 PM', '01:30 PM', '02:00 PM', '02:30 PM',
+        '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM', '05:00 PM', '05:30 PM'
+    ];
 
-    // Afternoon slots (2 PM - 5 PM) - 30 minute intervals
-    const afternoonTimes = ['02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM'];
-    afternoonTimes.forEach(time => {
+    allTimes.forEach(time => {
         const slot = createTimeSlot(time);
-        afternoonSlots.appendChild(slot);
-    });
-
-    // Evening slots (6 PM - 8 PM) - 30 minute intervals
-    const eveningTimes = ['06:00 PM', '06:30 PM', '07:00 PM', '07:30 PM'];
-    eveningTimes.forEach(time => {
-        const slot = createTimeSlot(time);
-        eveningSlots.appendChild(slot);
+        allTimeSlotsContainer.appendChild(slot);
     });
 }
 
 function createTimeSlot(time) {
     const slot = document.createElement('button');
     slot.type = 'button';
-    slot.className = 'time-slot p-4 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-xl hover:border-blue-500 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-blue-900/20 dark:hover:to-indigo-900/20 hover:shadow-lg transition-all duration-300 text-center font-semibold text-sm text-gray-900 dark:text-gray-100 shadow-sm hover:scale-105';
+    slot.className = 'time-slot py-3 px-4 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all text-center font-medium text-sm text-gray-900 dark:text-gray-100';
     slot.textContent = time;
     slot.dataset.time = time;
 
     slot.addEventListener('click', function() {
         // Remove selection from all slots
         document.querySelectorAll('.time-slot').forEach(s => {
-            s.classList.remove('border-blue-500', 'bg-gradient-to-r', 'from-blue-600', 'to-indigo-600', 'text-white', 'ring-2', 'ring-blue-500', 'shadow-lg', 'scale-105');
+            s.classList.remove('border-blue-600', 'bg-blue-600', 'text-white');
             s.classList.add('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-800', 'text-gray-900', 'dark:text-gray-100');
         });
 
         // Add selection to clicked slot
         this.classList.remove('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-800', 'text-gray-900', 'dark:text-gray-100');
-        this.classList.add('border-blue-500', 'bg-gradient-to-r', 'from-blue-600', 'to-indigo-600', 'text-white', 'ring-2', 'ring-blue-500', 'shadow-lg', 'scale-105');
+        this.classList.add('border-blue-600', 'bg-blue-600', 'text-white');
         document.getElementById('selectedTime').value = time;
 
         // Check availability
@@ -491,6 +590,35 @@ function initializeBookingInterface() {
     document.getElementById('nextBtn').addEventListener('click', nextStep);
     document.getElementById('prevBtn').addEventListener('click', prevStep);
 
+    // Consultation type selection
+    document.querySelectorAll('.consultation-type-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const type = this.dataset.type;
+            selectedConsultationType = type;
+            consultationPrice = type === 'video' ? 75 : 45;
+
+            // Remove selection from all cards
+            document.querySelectorAll('.consultation-type-card').forEach(c => {
+                c.classList.remove('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+                c.querySelector('.consultation-select-btn').textContent = 'Select This Option';
+                c.querySelector('.consultation-select-btn').classList.remove('bg-blue-600', 'text-white');
+                c.querySelector('.consultation-select-btn').classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            });
+
+            // Add selection to clicked card
+            this.classList.add('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+            this.querySelector('.consultation-select-btn').textContent = 'Selected';
+            this.querySelector('.consultation-select-btn').classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            this.querySelector('.consultation-select-btn').classList.add('bg-blue-600', 'text-white');
+
+            // Update hidden field
+            document.getElementById('consultation_type').value = type;
+
+            // Enable next button
+            updateNavigationButtons();
+        });
+    });
+
     // Doctor selection change event
     document.querySelector('select[name="doctor"]').addEventListener('change', checkAvailability);
 }
@@ -500,7 +628,7 @@ function nextStep() {
         if (currentStep < totalSteps) {
             currentStep++;
             updateStepDisplay();
-            if (currentStep === 3) {
+            if (currentStep === 4) {
                 updateConfirmationDetails();
             }
         }
@@ -517,12 +645,21 @@ function prevStep() {
 function validateCurrentStep() {
     switch(currentStep) {
         case 1:
+            // Consultation type selection
+            if (!selectedConsultationType) {
+                showAlert('Please select a consultation type', 'error');
+                return false;
+            }
+            break;
+        case 2:
+            // Date and time selection
             if (!document.getElementById('selectedDate').value || !document.getElementById('selectedTime').value) {
                 showAlert('Please select both date and time', 'error');
                 return false;
             }
             break;
-        case 2:
+        case 3:
+            // Patient information
             const requiredFields = ['doctor', 'patient_name', 'phone', 'email', 'password'];
             for (let field of requiredFields) {
                 if (!document.querySelector(`[name="${field}"]`).value) {
@@ -544,40 +681,37 @@ function updateStepDisplay() {
     // Show current step
     document.getElementById(`step-${currentStep}`).classList.remove('hidden');
 
-    // Update progress indicators
-    document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
-        const stepNum = index + 1;
-        if (stepNum <= currentStep) {
-            indicator.classList.remove('bg-gray-300', 'text-gray-600');
-            indicator.classList.add('bg-blue-600', 'text-white');
-            indicator.nextElementSibling.classList.remove('text-gray-500');
-            indicator.nextElementSibling.classList.add('text-blue-600', 'dark:text-blue-400');
-        } else {
-            indicator.classList.remove('bg-blue-600', 'text-white');
-            indicator.classList.add('bg-gray-300', 'text-gray-600');
-            indicator.nextElementSibling.classList.remove('text-blue-600', 'dark:text-blue-400');
-            indicator.nextElementSibling.classList.add('text-gray-500');
-        }
-    });
+    // Update step indicators (Fintan style)
+    for (let i = 1; i <= totalSteps; i++) {
+        const indicator = document.getElementById(`step-${i}-indicator`);
+        const stepText = indicator.nextElementSibling;
 
-    // Update step lines
-    document.querySelectorAll('.step-line').forEach((line, index) => {
-        if (index < currentStep - 1) {
-            line.classList.remove('bg-gray-200', 'dark:bg-gray-700');
-            line.classList.add('bg-blue-600');
+        if (i < currentStep) {
+            // Completed step
+            indicator.innerHTML = '<i class="fas fa-check text-sm"></i>';
+            indicator.className = 'w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center font-medium transition-all mb-2';
+            stepText.className = 'text-xs text-center text-green-600 dark:text-green-400 font-medium';
+        } else if (i === currentStep) {
+            // Current step
+            indicator.textContent = i;
+            indicator.className = 'w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-medium transition-all mb-2';
+            stepText.className = 'text-xs text-center text-blue-600 dark:text-blue-400 font-medium';
         } else {
-            line.classList.remove('bg-blue-600');
-            line.classList.add('bg-gray-200', 'dark:bg-gray-700');
+            // Future step
+            indicator.textContent = i;
+            indicator.className = 'w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 flex items-center justify-center font-medium transition-all mb-2';
+            stepText.className = 'text-xs text-center text-gray-500 dark:text-gray-400';
         }
-    });
+    }
 
-    // Update current step number
-    document.getElementById('current-step').textContent = currentStep;
+    // Update progress bar
+    const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+    document.getElementById('progress-bar').style.width = `${progress}%`;
 
     // Update navigation buttons
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
-    const submitBtn = document.getElementById('submitBtn');
+    const paymentBtn = document.getElementById('paymentBtn');
 
     if (currentStep === 1) {
         prevBtn.classList.add('hidden');
@@ -587,10 +721,10 @@ function updateStepDisplay() {
 
     if (currentStep === totalSteps) {
         nextBtn.classList.add('hidden');
-        submitBtn.classList.remove('hidden');
+        paymentBtn.classList.remove('hidden');
     } else {
         nextBtn.classList.remove('hidden');
-        submitBtn.classList.add('hidden');
+        paymentBtn.classList.add('hidden');
     }
 }
 
@@ -600,6 +734,8 @@ function updateConfirmationDetails() {
     const doctorName = doctorSelect.options[doctorSelect.selectedIndex].text;
 
     // Update confirmation display
+    document.getElementById('confirm-consultation-type').textContent = selectedConsultationType.charAt(0).toUpperCase() + selectedConsultationType.slice(1) + ' Consultation';
+    document.getElementById('confirm-price').textContent = '$' + consultationPrice;
     document.getElementById('confirm-doctor').textContent = doctorName;
     document.getElementById('confirm-date').textContent = document.getElementById('selectedDate').value;
     document.getElementById('confirm-time').textContent = document.getElementById('selectedTime').value;
@@ -687,21 +823,24 @@ function showAlert(message, type = 'info') {
     }, 5000);
 }
 
-// Form submission
-document.getElementById('appointmentForm').addEventListener('submit', function (event) {
+// Payment processing
+document.getElementById('paymentBtn').addEventListener('click', function (event) {
     event.preventDefault();
 
-    const form = this;
+    const form = document.getElementById('appointmentForm');
     const formData = new FormData(form);
-    const spinner = document.getElementById('spinner');
-    const buttonText = document.getElementById('buttonText');
+    const spinner = document.getElementById('payment-spinner');
+    const buttonText = document.getElementById('payment-button-text');
+
+    // Add consultation type and amount to form data
+    formData.append('consultation_type', selectedConsultationType);
 
     // Show loading state
     spinner.classList.remove('hidden');
     buttonText.classList.add('hidden');
 
-    // Submit form data via fetch
-    fetch("{{ route('appointment.store') }}", {
+    // Initialize payment
+    fetch("{{ route('appointment.payment.initialize') }}", {
         method: "POST",
         body: formData,
         headers: {
@@ -721,33 +860,14 @@ document.getElementById('appointmentForm').addEventListener('submit', function (
         spinner.classList.add('hidden');
         buttonText.classList.remove('hidden');
 
-        if (data.success) {
-            showAlert('Appointment booked successfully! You will receive a confirmation email and SMS.', 'success');
-
-            // Reset form after delay
+        if (data.success && data.payment_url) {
+            // Redirect to Paystack payment page
+            showAlert('Redirecting to payment...', 'success');
             setTimeout(() => {
-                form.reset();
-                currentStep = 1;
-                updateStepDisplay();
-                // Reset selections
-                document.querySelectorAll('.calendar-day').forEach(day => {
-                    day.classList.remove('bg-gradient-to-r', 'from-blue-600', 'to-indigo-600', 'text-white', 'ring-2', 'ring-blue-500', 'border-blue-600', 'shadow-lg', 'from-blue-700', 'to-indigo-700');
-                });
-                document.querySelectorAll('.time-slot').forEach(slot => {
-                    slot.classList.remove('border-blue-500', 'bg-gradient-to-r', 'from-blue-600', 'to-indigo-600', 'text-white', 'ring-2', 'ring-blue-500', 'shadow-lg', 'scale-105');
-                    slot.classList.add('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-800', 'text-gray-900', 'dark:text-gray-100');
-                });
-                document.getElementById('time-slots-container').classList.add('hidden');
-                document.getElementById('no-date-selected').classList.remove('hidden');
-                document.getElementById('availabilityStatus').classList.add('hidden');
-
-                // Redirect if provided
-                if (data.redirect) {
-                    window.location.href = data.redirect;
-                }
-            }, 3000);
+                window.location.href = data.payment_url;
+            }, 1000);
         } else {
-            showAlert(data.message || 'Booking failed. Please try again.', 'error');
+            showAlert(data.message || 'Payment initialization failed. Please try again.', 'error');
         }
     })
     .catch(error => {
