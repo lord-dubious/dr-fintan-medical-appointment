@@ -62,6 +62,9 @@ class VideoCallController extends Controller
         }
 
         // Create new room with custom domain
+        // Room expiry is configurable via env, defaults to 4 hours (14400 seconds)
+        $roomExpirySeconds = config('services.daily.room_expiry_seconds', 60 * 60 * 4);
+
         $roomProperties = [
             'name' => $roomName,
             'properties' => [
@@ -71,7 +74,7 @@ class VideoCallController extends Controller
                 'start_audio_off' => false,
                 'enable_chat' => true,
                 'enable_screenshare' => true,
-                'exp' => time() + (60 * 60 * 4), // 4 hours expiry
+                'exp' => time() + $roomExpirySeconds,
             ],
         ];
 
@@ -146,7 +149,13 @@ class VideoCallController extends Controller
             }
 
             // Patient token
-            $patientName = $appointment->patient->user->name ?? $appointment->patient->name ?? 'Patient';
+            $patientName = 'Patient';
+            if ($appointment->patient) {
+                $patientName = $appointment->patient->name ?? $patientName;
+                if ($appointment->patient->user) {
+                    $patientName = $appointment->patient->user->name ?? $patientName;
+                }
+            }
             $patientResponse = Http::withToken($apiKey)
                 ->post('https://api.daily.co/v1/meeting-tokens', [
                     'properties' => [
@@ -229,11 +238,7 @@ class VideoCallController extends Controller
         $apiKey = config('services.daily.api_key');
 
         $response = Http::withToken($apiKey)
-            ->withHeaders([
-                'Content-Type' => 'application/json',
-            ])
-            ->withBody(json_encode((object) []), 'application/json')
-            ->post("https://api.daily.co/v1/rooms/{$roomName}/recordings/stop");
+            ->post("https://api.daily.co/v1/rooms/{$roomName}/recordings/stop", []);
 
         $data = $response->json();
         if ($response->successful()) {

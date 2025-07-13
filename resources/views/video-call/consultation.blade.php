@@ -238,6 +238,7 @@
                 this.currentRoomUrl = null;
                 this.isRecording = false;
                 this.isScreenSharing = false;
+                this.peerIdToName = {}; // Mapping from peerId to display name
                 this.initialize();
             }
 
@@ -300,6 +301,7 @@
             async joinRoom(roomData, userRole = 'patient') {
                 if (!roomData || (!roomData.url && !roomData.custom_url)) {
                     console.error('Room URL is required to join a room.');
+                    this.showError('Room URL is required to join a room. Please contact support or try again.');
                     return;
                 }
 
@@ -412,15 +414,25 @@
 
             handleParticipantJoinedOrUpdated(event) {
                 this.updateAndDisplayParticipantCount();
+                // Update the mapping when a participant joins or updates
+                if (event && event.participant) {
+                    this.peerIdToName[event.participant.peerId] = event.participant.userName || event.participant.name || event.participant.peerId;
+                }
                 // Handle video/audio tracks here if needed
             }
 
             handleParticipantLeft(event) {
                 this.updateAndDisplayParticipantCount();
+                // Remove the mapping when a participant leaves
+                if (event && event.participant) {
+                    delete this.peerIdToName[event.participant.peerId];
+                }
             }
 
             handleActiveSpeakerChange(event) {
-                document.getElementById('active-speaker').textContent = `Active Speaker: ${event.activeSpeaker.peerId}`;
+                const peerId = event.activeSpeaker.peerId;
+                const displayName = this.peerIdToName && this.peerIdToName[peerId] ? this.peerIdToName[peerId] : peerId;
+                document.getElementById('active-speaker').textContent = `Active Speaker: ${displayName}`;
             }
 
             handleScreenShareStarted() {
@@ -440,6 +452,25 @@
             updateAndDisplayParticipantCount() {
                 const participantCount = this.call.participantCounts().present + this.call.participantCounts().hidden;
                 document.getElementById('participant-count').textContent = `Participants: ${participantCount}`;
+            }
+
+            showError(message) {
+                let errorEl = document.getElementById('room-error-message');
+                if (!errorEl) {
+                    errorEl = document.createElement('div');
+                    errorEl.id = 'room-error-message';
+                    errorEl.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4';
+                    const container = document.querySelector('.max-w-6xl') || document.body;
+                    container.insertBefore(errorEl, container.firstChild);
+                }
+                errorEl.textContent = message;
+
+                // Auto-remove after 10 seconds
+                setTimeout(() => {
+                    if (errorEl.parentNode) {
+                        errorEl.parentNode.removeChild(errorEl);
+                    }
+                }, 10000);
             }
         }
 
