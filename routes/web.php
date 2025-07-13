@@ -45,7 +45,6 @@ Route::middleware(['auth', 'patient'])->prefix('patient')->group(function () {
     Route::get('/appointment', [App\Http\Controllers\user\AppointmentController::class, 'index'])->name('patient.appointment');
     Route::get('/book_appointment', [App\Http\Controllers\user\AppointmentController::class, 'book_appointment'])->name('patient.book_appointment');
     Route::post('/book_appointment/store', [App\Http\Controllers\user\AppointmentController::class, 'save_Appointment'])->name('patient.book_appointment.store');
-    Route::post('/generate-token', [App\Http\Controllers\API\GenerateAccessTokenController::class, 'generate_token']);
 });
 
 Route::middleware(['auth', 'doctor'])->prefix('doctor')->name('doctor.')->group(function () {
