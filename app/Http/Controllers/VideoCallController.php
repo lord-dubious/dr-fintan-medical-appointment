@@ -173,16 +173,8 @@ class VideoCallController extends Controller
 
         $appointmentId = $request->input('appointment_id');
 
-        // Verify user has permission to record this appointment
-        $appointment = Appointment::find($appointmentId);
-        if (!$appointment) {
-            return response()->json(['error' => 'Appointment not found'], 404);
-        }
-
-        $user = Auth::user();
-        if (!$user || !$this->canAccessAppointment($user, $appointment)) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
+        // Validate appointment access using centralized method
+        $appointment = $this->validateAppointmentAccess($appointmentId);
 
         $roomName = "consultation-{$appointmentId}";
         $apiKey = config('services.daily.api_key');
