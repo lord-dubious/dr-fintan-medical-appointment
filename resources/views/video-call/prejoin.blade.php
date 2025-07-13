@@ -74,9 +74,19 @@
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Microphone</label>
-                    <select id="microphone-select" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select id="microphone-select" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-2">
                         <option value="">Select Microphone</option>
                     </select>
+                    <!-- Microphone Level Indicator -->
+                    <div id="microphone-level-container" class="hidden">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-gray-600">Level:</span>
+                            <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                <div id="microphone-level-bar" class="bg-green-500 h-2 rounded-full transition-all duration-100" style="width: 0%"></div>
+                            </div>
+                            <span id="microphone-level-text" class="text-xs text-gray-600">0%</span>
+                        </div>
+                    </div>
                 </div>
                 
                 <div>
@@ -427,10 +437,32 @@
 
                     // Update visual feedback based on audio level
                     const micButton = document.getElementById('toggle-microphone');
-                    const intensity = Math.min(average / 50, 1); // Normalize to 0-1
+                    const levelBar = document.getElementById('microphone-level-bar');
+                    const levelText = document.getElementById('microphone-level-text');
+                    const levelContainer = document.getElementById('microphone-level-container');
 
+                    const intensity = Math.min(average / 50, 1); // Normalize to 0-1
+                    const percentage = Math.round(intensity * 100);
+
+                    // Update button glow
                     if (intensity > 0.1) {
                         micButton.style.boxShadow = `0 0 ${10 + intensity * 10}px rgba(34, 197, 94, ${0.3 + intensity * 0.4})`;
+                    }
+
+                    // Update level bar
+                    if (levelBar && levelText && levelContainer) {
+                        levelContainer.classList.remove('hidden');
+                        levelBar.style.width = `${percentage}%`;
+                        levelText.textContent = `${percentage}%`;
+
+                        // Change color based on level
+                        if (percentage > 70) {
+                            levelBar.className = 'bg-red-500 h-2 rounded-full transition-all duration-100';
+                        } else if (percentage > 30) {
+                            levelBar.className = 'bg-green-500 h-2 rounded-full transition-all duration-100';
+                        } else {
+                            levelBar.className = 'bg-yellow-500 h-2 rounded-full transition-all duration-100';
+                        }
                     }
 
                     animationFrame = requestAnimationFrame(updateLevel);
@@ -452,6 +484,12 @@
                 audioContext = null;
             }
             analyser = null;
+
+            // Hide level indicator
+            const levelContainer = document.getElementById('microphone-level-container');
+            if (levelContainer) {
+                levelContainer.classList.add('hidden');
+            }
         }
 
         async function testSpeakers() {
@@ -483,7 +521,14 @@
         async function updateMicrophone() {
             if (microphoneEnabled) {
                 stopMicrophone();
-                await startMicrophone();
+                try {
+                    await startMicrophone();
+                    showSuccess('Microphone updated successfully. Speak to test audio levels.');
+                } catch (error) {
+                    showError('Failed to update microphone: ' + error.message);
+                }
+            } else {
+                showSuccess('Microphone device updated. Click "Turn On Microphone" to test.');
             }
         }
 
