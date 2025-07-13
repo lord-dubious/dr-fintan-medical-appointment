@@ -225,25 +225,30 @@
         async function testConnection() {
             const indicator = document.getElementById('connection-indicator');
             const text = document.getElementById('connection-text');
-            
+
             indicator.className = 'w-3 h-3 rounded-full bg-yellow-400 mr-2';
             text.textContent = 'Testing connection...';
 
             try {
-                // Simple connection test
-                const response = await fetch('/api/create-room', {
-                    method: 'POST',
+                // Lightweight health check - verifies authentication and service availability
+                // without creating any Daily.co rooms (prevents resource waste)
+                const response = await fetch('/api/health-check', {
+                    method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ appointment_id: appointmentId })
+                    }
                 });
 
                 if (response.ok) {
-                    indicator.className = 'w-3 h-3 rounded-full bg-green-400 mr-2';
-                    text.textContent = 'Connection good';
-                    document.getElementById('join-consultation').disabled = false;
+                    const data = await response.json();
+                    if (data.status === 'ok') {
+                        indicator.className = 'w-3 h-3 rounded-full bg-green-400 mr-2';
+                        text.textContent = 'Connection good';
+                        document.getElementById('join-consultation').disabled = false;
+                    } else {
+                        throw new Error(data.message || 'Health check failed');
+                    }
                 } else {
                     throw new Error('Connection test failed');
                 }

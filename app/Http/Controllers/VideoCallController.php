@@ -52,6 +52,42 @@ class VideoCallController extends Controller
     }
 
     /**
+     * Health check endpoint for connection testing
+     * Lightweight endpoint that verifies authentication and connectivity
+     * without creating any resources
+     */
+    public function healthCheck()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        // Verify Daily.co service is configured
+        $apiKey = config('services.daily.api_key');
+        if (!$apiKey) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Daily.co service not configured'
+            ], 500);
+        }
+
+        // Return success with user info and timestamp
+        return response()->json([
+            'status' => 'ok',
+            'message' => 'Connection successful',
+            'user' => [
+                'id' => $user->id,
+                'role' => $user->role,
+                'name' => $user->name ?? $user->email
+            ],
+            'timestamp' => now()->toISOString(),
+            'service' => 'daily-video-calling'
+        ]);
+    }
+
+    /**
      * Create or get a consultation room - Integrated with appointment system and Daily domain
      */
     public function createRoom(Request $request)
