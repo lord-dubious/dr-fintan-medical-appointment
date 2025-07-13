@@ -349,6 +349,11 @@ document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
         try {
             console.log('Initializing Daily.co for doctor-{{ $doctor->id }}');
 
+            // Clean up existing call object if it exists
+            if (dailyCall) {
+                dailyCall.destroy();
+            }
+
             // Create Daily call object
             dailyCall = DailyIframe.createCallObject();
 

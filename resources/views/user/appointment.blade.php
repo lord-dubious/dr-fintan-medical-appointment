@@ -219,8 +219,17 @@
 
     // Initialize Daily.co when page loads
     document.addEventListener('DOMContentLoaded', function() {
+        initializeDailyCall();
+    });
+
+    function initializeDailyCall() {
         try {
             console.log('Initializing Daily.co for patient-{{ $patient->id }}');
+
+            // Clean up existing call object if it exists
+            if (dailyCall) {
+                dailyCall.destroy();
+            }
 
             // Create Daily call object
             dailyCall = DailyIframe.createCallObject();
@@ -239,7 +248,51 @@
             console.error('Daily.co initialization failed:', err);
             alert('Failed to initialize video call system');
         }
-    });
+    }
+
+    // Shared helper function for creating and joining consultation rooms
+    async function createAndJoinConsultation(appointmentId, consultationType = 'video') {
+        const endpoint = consultationType === 'audio' ? '/api/consultation/create-audio' : '/api/consultation/create-room';
+        const statusText = consultationType === 'audio' ? 'Creating audio consultation...' : 'Creating consultation room...';
+
+        document.getElementById('callStatus').textContent = statusText;
+
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Authorization': 'Bearer ' + (localStorage.getItem('auth_token') || '')
+            },
+            body: JSON.stringify({
+                appointment_id: appointmentId
+            })
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(data.error || `Failed to create ${consultationType} consultation`);
+        }
+
+        document.getElementById('callStatus').textContent = `Joining ${consultationType} consultation...`;
+
+        // Join the Daily.co room
+        await dailyCall.join({
+            url: data.room_url,
+            token: data.tokens.patient_token
+        });
+
+        // Turn off video for audio-only calls
+        if (consultationType === 'audio') {
+            await dailyCall.setLocalVideo(false);
+        }
+
+        currentRoom = data.room_name;
+        console.log(`Successfully joined Daily.co ${consultationType} consultation:`, data.room_name);
+
+        return data;
+    }
 
     // Video call function - Daily.co implementation
     async function initiateVideoCall(doctorId, appointmentId) {
@@ -254,34 +307,7 @@
             videoModal.setAttribute('data-appointment-id', appointmentId);
             callStatus.textContent = 'Creating consultation room...';
 
-            // Create consultation room via API
-            const response = await fetch('/api/consultation/create-room', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
-                },
-                body: JSON.stringify({
-                    appointment_id: appointmentId
-                })
-            });
-
-            const data = await response.json();
-
-            if (!data.success) {
-                throw new Error(data.error || 'Failed to create consultation room');
-            }
-
-            callStatus.textContent = 'Joining consultation...';
-
-            // Join the Daily.co room
-            await dailyCall.join({
-                url: data.room_url,
-                token: data.tokens.patient_token
-            });
-
-            currentRoom = data.room_name;
+            await createAndJoinConsultation(appointmentId, 'video');
             console.log('Successfully joined Daily.co room:', data.room_name);
             
         } catch (err) {
@@ -304,37 +330,7 @@
             videoModal.setAttribute('data-appointment-id', appointmentId);
             callStatus.textContent = 'Creating audio consultation...';
 
-            // Create audio consultation room via API
-            const response = await fetch('/api/consultation/create-audio', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
-                },
-                body: JSON.stringify({
-                    appointment_id: appointmentId
-                })
-            });
-
-            const data = await response.json();
-
-            if (!data.success) {
-                throw new Error(data.error || 'Failed to create audio consultation');
-            }
-
-            callStatus.textContent = 'Joining audio consultation...';
-
-            // Join the Daily.co room with audio only
-            await dailyCall.join({
-                url: data.room_url,
-                token: data.tokens.patient_token
-            });
-
-            // Turn off video for audio-only call
-            await dailyCall.setLocalVideo(false);
-
-            currentRoom = data.room_name;
+            await createAndJoinConsultation(appointmentId, 'audio');
             console.log('Successfully joined audio consultation:', data.room_name);
 
         } catch (err) {

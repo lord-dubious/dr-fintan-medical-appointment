@@ -87,7 +87,7 @@ class DailyService
                 'exp' => time() + (60 * 60 * 2), // 2 hours expiry
             ];
 
-            $tokenData = array_merge($defaultProperties, $properties);
+            $tokenData = array_replace_recursive($defaultProperties, $properties);
 
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $this->apiKey,
@@ -152,6 +152,12 @@ class DailyService
                 'start_video_off' => false,
                 'start_audio_off' => false,
                 'exp' => time() + (60 * 60 * 3), // 3 hours for consultation
+            ],
+            'metadata' => [
+                'appointment_id' => $appointmentId,
+                'doctor_name' => $doctorName,
+                'patient_name' => $patientName,
+                'created_at' => date('Y-m-d H:i:s'),
             ]
         ];
 
