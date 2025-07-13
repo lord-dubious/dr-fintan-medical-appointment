@@ -69,98 +69,33 @@ class VideoCallController extends Controller
 
         $appointmentId = $request->input('appointment_id');
 
-        // Validate appointment if provided
-        if ($appointmentId) {
-            $appointment = Appointment::with(['doctor', 'patient'])->find($appointmentId);
-            if (!$appointment) {
-                return response()->json(['error' => 'Appointment not found'], 404);
-            }
+        // Validate appointment access
+        $appointment = $this->validateAppointmentAccess($appointmentId);
 
-            // Check if user has access to this appointment
-            $user = Auth::user();
-            if (!$this->canAccessAppointment($user, $appointment)) {
-                return response()->json(['error' => 'Unauthorized access to this appointment'], 403);
-            }
-        }
+        try {
+            // Use DailyService to create consultation room
+            $roomData = $this->dailyService->createConsultationRoom($appointmentId, 'video');
 
-        // Medical consultations require appointment ID - no demo rooms allowed
-        if (!$appointmentId) {
-            return response()->json(['error' => 'Appointment ID required for medical consultations'], 400);
-        }
-
-        $roomName = "consultation-{$appointmentId}";
-
-        // Check if room already exists
-        $check = Http::withToken($apiKey)
-            ->get("https://api.daily.co/v1/rooms/{$roomName}");
-
-        if ($check->status() === 200) {
-            // Update appointment with room info if not already set
-            if ($appointmentId && $appointment && !$appointment->video_room_name) {
+            if ($roomData['success']) {
+                // Update appointment with room info
                 $appointment->update([
-                    'video_room_name' => $roomName,
-                    'video_call_started_at' => now()
+                    'video_room_name' => $roomData['room_name'],
+                    'video_call_started_at' => now(),
+                    'video_call_metadata' => [
+                        'room_url' => $roomData['room_url'],
+                        'consultation_type' => $roomData['consultation_type'],
+                        'created_at' => now()->toISOString()
+                    ]
                 ]);
+
+                return response()->json($roomData);
+            } else {
+                return response()->json(['error' => 'Failed to create room'], 500);
             }
-            return $check->json(); // Reuse existing room
+        } catch (\Exception $e) {
+            Log::error('Failed to create consultation room: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to create video room'], 500);
         }
-
-        // Create new room with custom domain
-        // Room expiry is configurable via env, defaults to 4 hours (14400 seconds)
-        $roomExpirySeconds = config('services.daily.room_expiry_seconds', 60 * 60 * 4);
-
-        $roomProperties = [
-            'name' => $roomName,
-            'properties' => [
-                'enable_recording' => 'cloud',
-                'max_participants' => 2,
-                'start_video_off' => false,
-                'start_audio_off' => false,
-                'enable_chat' => true,
-                'enable_screenshare' => true,
-                'exp' => time() + $roomExpirySeconds,
-            ],
-        ];
-
-        // Add domain if configured
-        if ($dailyDomain) {
-            $roomProperties['properties']['domain_config'] = [
-                'domain' => $dailyDomain
-            ];
-        }
-
-        $response = Http::withToken($apiKey)
-            ->post('https://api.daily.co/v1/rooms', $roomProperties);
-
-        $roomData = $response->json();
-
-        // Use custom domain URL if available
-        if ($response->successful() && $dailyDomain) {
-            $roomData['custom_url'] = "https://{$dailyDomain}/{$roomName}";
-        }
-
-        // Update appointment with room info
-        if ($appointmentId && $appointment && $response->successful()) {
-            $customUrl = $dailyDomain ? "https://{$dailyDomain}/{$roomName}" : ($roomData['url'] ?? null);
-            $appointment->update([
-                'video_room_name' => $roomName,
-                'video_call_started_at' => now(),
-                'video_call_metadata' => [
-                    'room_url' => $roomData['url'] ?? null,
-                    'custom_url' => $customUrl,
-                    'daily_domain' => $dailyDomain,
-                    'created_at' => now()->toISOString()
-                ]
-            ]);
-        }
-
-        // Generate meeting tokens for secure access
-        if ($response->successful() && $appointmentId && $appointment) {
-            $tokens = $this->generateMeetingTokens($roomName, $appointment, $apiKey);
-            $roomData['tokens'] = $tokens;
-        }
-
-        return $roomData;
     }
 
     /**
@@ -249,7 +184,7 @@ class VideoCallController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $roomName = $appointmentId ? "consultation-{$appointmentId}" : 'demo-consultation';
+        $roomName = "consultation-{$appointmentId}";
         $apiKey = config('services.daily.api_key');
 
         $response = Http::withToken($apiKey)
@@ -268,12 +203,9 @@ class VideoCallController extends Controller
         if ($response->successful()) {
             // Update appointment with recording ID
             if ($appointmentId) {
-                $appointment = Appointment::where('id', $appointmentId)->first();
-                if ($appointment) {
-                    $appointment->update([
-                        'recording_id' => $data['recordingId'] ?? null
-                    ]);
-                }
+                $appointment->update([
+                    'recording_id' => $data['recordingId'] ?? null
+                ]);
             }
             return response()->json($data['recordingId']);
         }
@@ -381,9 +313,17 @@ class VideoCallController extends Controller
                 if ($user->role === 'admin') {
                     return; // Admin can access all
                 } elseif ($user->role === 'doctor') {
-                    $query->where('doctor_id', $user->doctor->id ?? null);
+                    if ($user->doctor) {
+                        $query->where('doctor_id', $user->doctor->id);
+                    } else {
+                        $query->whereRaw('1 = 0'); // No results if doctor relationship missing
+                    }
                 } elseif ($user->role === 'patient') {
-                    $query->where('patient_id', $user->patient->id ?? null);
+                    if ($user->patient) {
+                        $query->where('patient_id', $user->patient->id);
+                    } else {
+                        $query->whereRaw('1 = 0'); // No results if patient relationship missing
+                    }
                 }
             })->exists();
 
