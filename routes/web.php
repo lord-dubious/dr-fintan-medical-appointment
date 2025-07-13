@@ -17,6 +17,7 @@ Route::get('/logout', [App\Http\Controllers\auth\LoginController::class, 'logout
 
 // Video Call Routes
 Route::middleware(['auth'])->group(function () {
+    Route::get('/video-call/prejoin/{appointmentId}', [App\Http\Controllers\VideoCallController::class, 'prejoin'])->name('video-call.prejoin');
     Route::get('/video-call/consultation/{appointmentId}', [App\Http\Controllers\VideoCallController::class, 'consultation'])->name('video-call.consultation');
 });
 Route::get('/check-doctor-availability', [App\Http\Controllers\auth\AppointmentController::class, 'checkAvailability'])

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
+use App\Services\DailyService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +12,29 @@ use Illuminate\Support\Facades\Log;
 
 class VideoCallController extends Controller
 {
+    protected DailyService $dailyService;
+
+    public function __construct(DailyService $dailyService)
+    {
+        $this->dailyService = $dailyService;
+    }
+
+    /**
+     * Show prejoin interface for device testing
+     */
+    public function prejoin($appointmentId)
+    {
+        // Validate appointment exists and user has access
+        $appointment = Appointment::findOrFail($appointmentId);
+
+        // Check if user can access this appointment
+        if (!$this->canAccessAppointment(Auth::user(), $appointment)) {
+            abort(403, 'You do not have permission to access this appointment.');
+        }
+
+        return view('video-call.prejoin', compact('appointmentId', 'appointment'));
+    }
+
     /**
      * Show video consultation interface
      */
@@ -59,8 +83,12 @@ class VideoCallController extends Controller
             }
         }
 
-        // Use appointment-specific room name or unique demo room
-        $roomName = $appointmentId ? "consultation-{$appointmentId}" : 'demo-consultation-' . uniqid();
+        // Medical consultations require appointment ID - no demo rooms allowed
+        if (!$appointmentId) {
+            return response()->json(['error' => 'Appointment ID required for medical consultations'], 400);
+        }
+
+        $roomName = "consultation-{$appointmentId}";
 
         // Check if room already exists
         $check = Http::withToken($apiKey)

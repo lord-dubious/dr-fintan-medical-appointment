@@ -14,9 +14,13 @@ class DailyService
 
     public function __construct()
     {
-        $this->apiKey = env('DAILY_API_KEY');
-        $this->domain = env('DAILY_DOMAIN');
+        $this->apiKey = config('services.daily.api_key');
+        $this->domain = config('services.daily.domain');
         $this->baseUrl = 'https://api.daily.co/v1';
+
+        if (!$this->apiKey) {
+            throw new \Exception('Daily.co API key not configured');
+        }
     }
 
     /**
