@@ -37,7 +37,7 @@
         
         <!-- Booking Progress -->
         <div class="mb-8">
-            <div class="fintan-card-sm shadow-lg">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                         Book Your Consultation
@@ -87,7 +87,7 @@
                 <div class="grid lg:grid-cols-2 gap-8">
                     
                     <!-- Calendar Card -->
-                    <div class="fintan-card shadow-lg">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-8">
                         <div class="p-6">
                             <div class="flex items-center gap-2 mb-6">
                                 <i class="fas fa-calendar text-blue-600 dark:text-blue-400"></i>
@@ -124,7 +124,7 @@
                     </div>
                     
                     <!-- Time Slots Card -->
-                    <div class="fintan-card shadow-lg">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-8">
                         <div class="p-6">
                             <div class="flex items-center gap-2 mb-6">
                                 <i class="fas fa-clock text-blue-600 dark:text-blue-400"></i>
@@ -147,7 +147,7 @@
                                 <div class="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-xl p-4 border border-orange-200/50 dark:border-orange-700/50">
                                     <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
                                         <i class="fas fa-sun text-orange-500 text-lg"></i>
-                                        Afternoon (1 PM - 5 PM)
+                                        Afternoon (2 PM - 5 PM)
                                     </h4>
                                     <div class="grid grid-cols-2 gap-3" id="afternoon-slots">
                                         <!-- Afternoon time slots -->
@@ -183,7 +183,7 @@
 
             <!-- Step 2: Patient Information -->
             <div class="booking-step hidden" id="step-2">
-                <div class="fintan-card shadow-lg">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-8">
                     <div class="p-8">
                         <div class="text-center mb-8">
                             <h3 class="text-2xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
@@ -248,7 +248,7 @@
 
             <!-- Step 3: Confirmation -->
             <div class="booking-step hidden" id="step-3">
-                <div class="fintan-card shadow-lg">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-8">
                     <div class="p-8">
                         <div class="text-center mb-8">
                             <h3 class="text-2xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
@@ -392,20 +392,20 @@ function generateCalendarDays(year, month) {
         date.setDate(startDate.getDate() + i);
 
         const dayElement = document.createElement('div');
-        dayElement.className = 'calendar-day text-center p-3 cursor-pointer rounded-lg transition-all duration-200 font-medium text-sm border border-transparent';
+        dayElement.className = 'calendar-day text-center p-3 cursor-pointer rounded-xl transition-all duration-300 font-medium text-sm border border-transparent hover:shadow-md';
         dayElement.textContent = date.getDate();
 
         if (date.getMonth() !== month) {
-            dayElement.className += ' text-gray-400 dark:text-gray-600 cursor-not-allowed';
+            dayElement.className += ' text-gray-400 dark:text-gray-600 cursor-not-allowed opacity-50';
         } else if (date < new Date().setHours(0,0,0,0)) {
-            dayElement.className += ' text-gray-400 dark:text-gray-600 cursor-not-allowed';
+            dayElement.className += ' text-gray-400 dark:text-gray-600 cursor-not-allowed opacity-50';
         } else {
-            dayElement.className += ' text-gray-900 dark:text-gray-100 hover:bg-blue-100 dark:hover:bg-blue-800/50 hover:border-blue-300 dark:hover:border-blue-600 hover:scale-105';
+            dayElement.className += ' text-gray-900 dark:text-gray-100 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-blue-900/20 dark:hover:to-indigo-900/20 hover:border-blue-200 dark:hover:border-blue-700 hover:scale-105';
             dayElement.addEventListener('click', () => selectDate(date));
         }
 
         if (date.toDateString() === new Date().toDateString()) {
-            dayElement.className += ' bg-blue-600 text-white hover:bg-blue-700 border-blue-600';
+            dayElement.className += ' bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 border-blue-600 shadow-lg ring-2 ring-blue-500/20';
         }
 
         calendarDays.appendChild(dayElement);
@@ -418,9 +418,9 @@ function selectDate(date) {
 
     // Update visual selection
     document.querySelectorAll('.calendar-day').forEach(day => {
-        day.classList.remove('bg-blue-600', 'text-white', 'ring-2', 'ring-blue-500', 'border-blue-600');
+        day.classList.remove('bg-gradient-to-r', 'from-blue-600', 'to-indigo-600', 'text-white', 'ring-2', 'ring-blue-500', 'border-blue-600', 'shadow-lg', 'from-blue-700', 'to-indigo-700');
     });
-    event.target.classList.add('bg-blue-600', 'text-white', 'ring-2', 'ring-blue-500', 'border-blue-600');
+    event.target.classList.add('bg-gradient-to-r', 'from-blue-600', 'to-indigo-600', 'text-white', 'ring-2', 'ring-blue-500', 'border-blue-600', 'shadow-lg', 'hover:from-blue-700', 'hover:to-indigo-700');
 
     // Show time slots
     generateTimeSlots();
@@ -438,22 +438,22 @@ function generateTimeSlots() {
     afternoonSlots.innerHTML = '';
     eveningSlots.innerHTML = '';
 
-    // Morning slots (9 AM - 12 PM)
-    const morningTimes = ['09:00 AM', '10:00 AM', '11:00 AM'];
+    // Morning slots (9 AM - 12 PM) - 30 minute intervals
+    const morningTimes = ['09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM'];
     morningTimes.forEach(time => {
         const slot = createTimeSlot(time);
         morningSlots.appendChild(slot);
     });
 
-    // Afternoon slots (1 PM - 5 PM)
-    const afternoonTimes = ['01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM'];
+    // Afternoon slots (2 PM - 5 PM) - 30 minute intervals
+    const afternoonTimes = ['02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM'];
     afternoonTimes.forEach(time => {
         const slot = createTimeSlot(time);
         afternoonSlots.appendChild(slot);
     });
 
-    // Evening slots (6 PM - 8 PM)
-    const eveningTimes = ['06:00 PM', '07:00 PM'];
+    // Evening slots (6 PM - 8 PM) - 30 minute intervals
+    const eveningTimes = ['06:00 PM', '06:30 PM', '07:00 PM', '07:30 PM'];
     eveningTimes.forEach(time => {
         const slot = createTimeSlot(time);
         eveningSlots.appendChild(slot);
@@ -463,20 +463,20 @@ function generateTimeSlots() {
 function createTimeSlot(time) {
     const slot = document.createElement('button');
     slot.type = 'button';
-    slot.className = 'time-slot p-4 border-2 border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-700 rounded-xl hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-600/20 hover:shadow-md transition-all duration-200 text-center font-semibold text-sm text-gray-900 dark:text-gray-100 shadow-sm';
+    slot.className = 'time-slot p-4 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-xl hover:border-blue-500 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-blue-900/20 dark:hover:to-indigo-900/20 hover:shadow-lg transition-all duration-300 text-center font-semibold text-sm text-gray-900 dark:text-gray-100 shadow-sm hover:scale-105';
     slot.textContent = time;
     slot.dataset.time = time;
 
     slot.addEventListener('click', function() {
         // Remove selection from all slots
         document.querySelectorAll('.time-slot').forEach(s => {
-            s.classList.remove('border-blue-500', 'bg-blue-500', 'text-white', 'dark:bg-blue-500', 'ring-2', 'ring-blue-500', 'shadow-lg');
-            s.classList.add('border-gray-300', 'dark:border-gray-500', 'bg-white', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-gray-100');
+            s.classList.remove('border-blue-500', 'bg-gradient-to-r', 'from-blue-600', 'to-indigo-600', 'text-white', 'ring-2', 'ring-blue-500', 'shadow-lg', 'scale-105');
+            s.classList.add('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-800', 'text-gray-900', 'dark:text-gray-100');
         });
 
         // Add selection to clicked slot
-        this.classList.remove('border-gray-300', 'dark:border-gray-500', 'bg-white', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-gray-100');
-        this.classList.add('border-blue-500', 'bg-blue-500', 'text-white', 'dark:bg-blue-500', 'ring-2', 'ring-blue-500', 'shadow-lg');
+        this.classList.remove('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-800', 'text-gray-900', 'dark:text-gray-100');
+        this.classList.add('border-blue-500', 'bg-gradient-to-r', 'from-blue-600', 'to-indigo-600', 'text-white', 'ring-2', 'ring-blue-500', 'shadow-lg', 'scale-105');
         document.getElementById('selectedTime').value = time;
 
         // Check availability
@@ -731,11 +731,11 @@ document.getElementById('appointmentForm').addEventListener('submit', function (
                 updateStepDisplay();
                 // Reset selections
                 document.querySelectorAll('.calendar-day').forEach(day => {
-                    day.classList.remove('bg-blue-600', 'text-white', 'ring-2', 'ring-blue-500', 'border-blue-600');
+                    day.classList.remove('bg-gradient-to-r', 'from-blue-600', 'to-indigo-600', 'text-white', 'ring-2', 'ring-blue-500', 'border-blue-600', 'shadow-lg', 'from-blue-700', 'to-indigo-700');
                 });
                 document.querySelectorAll('.time-slot').forEach(slot => {
-                    slot.classList.remove('border-blue-500', 'bg-blue-500', 'text-white', 'dark:bg-blue-500', 'ring-2', 'ring-blue-500', 'shadow-lg');
-                    slot.classList.add('border-gray-300', 'dark:border-gray-500', 'bg-white', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-gray-100');
+                    slot.classList.remove('border-blue-500', 'bg-gradient-to-r', 'from-blue-600', 'to-indigo-600', 'text-white', 'ring-2', 'ring-blue-500', 'shadow-lg', 'scale-105');
+                    slot.classList.add('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-800', 'text-gray-900', 'dark:text-gray-100');
                 });
                 document.getElementById('time-slots-container').classList.add('hidden');
                 document.getElementById('no-date-selected').classList.remove('hidden');

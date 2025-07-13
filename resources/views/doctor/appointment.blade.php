@@ -269,8 +269,6 @@
     </div>
 </div>
 
-@include('layouts.footer')
-
 <!-- PeerJS for video calls -->
 <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
 

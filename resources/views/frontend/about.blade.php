@@ -54,7 +54,7 @@
                                     Fellow WACP • Neurologist • Integrative Medicine Specialist
                                 </p>
                                 
-                                <div class="space-y-4 fintan-text-secondary">
+                                <div class="space-y-4 text-gray-600 dark:text-gray-300">
                                     <p class="leading-relaxed">
                                         Dr. Ekochin Fintan is one of two generations of the EKOCHIN Family of Doctors. He largely grew up in 
                                         Nigeria with some years of childhood spent in Austria, where he added German to his Igbo and English 

@@ -77,8 +77,6 @@
 
     <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>
 
-    @include('layouts.footer')
-
     <script>
         // Handle approve/reject buttons
       document.addEventListener('DOMContentLoaded', function() {

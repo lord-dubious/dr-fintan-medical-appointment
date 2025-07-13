@@ -29,10 +29,10 @@
                 <h4 class="text-lg font-semibold mb-4 text-white">Quick Links</h4>
                 <ul class="space-y-2">
                     <li><a href="{{ route('home') }}" class="text-gray-300 hover:text-blue-400 transition-colors">Home</a></li>
-                    <li><a href="/about" class="text-gray-300 hover:text-blue-400 transition-colors">About Dr. Fintan</a></li>
-                    <li><a href="/services" class="text-gray-300 hover:text-blue-400 transition-colors">Our Services</a></li>
-                    <li><a href="/faq" class="text-gray-300 hover:text-blue-400 transition-colors">FAQs</a></li>
-                    <li><a href="/contact" class="text-gray-300 hover:text-blue-400 transition-colors">Contact Us</a></li>
+                    <li><a href="{{ route('about') }}" class="text-gray-300 hover:text-blue-400 transition-colors">About Dr. Fintan</a></li>
+                    <li><a href="{{ route('appointment') }}" class="text-gray-300 hover:text-blue-400 transition-colors">Book Appointment</a></li>
+                    <li><a href="{{ route('contact') }}" class="text-gray-300 hover:text-blue-400 transition-colors">Contact Us</a></li>
+                    <li><a href="{{ route('login') }}" class="text-gray-300 hover:text-blue-400 transition-colors">Login</a></li>
                 </ul>
             </div>
 
@@ -40,10 +40,10 @@
             <div>
                 <h4 class="text-lg font-semibold mb-4 text-white">Our Services</h4>
                 <ul class="space-y-2">
-                    <li><a href="/services" class="text-gray-300 hover:text-blue-400 transition-colors">Video Consultations</a></li>
-                    <li><a href="/services" class="text-gray-300 hover:text-blue-400 transition-colors">Audio Consultations</a></li>
-                    <li><a href="/services" class="text-gray-300 hover:text-blue-400 transition-colors">Follow-up Appointments</a></li>
-                    <li><a href="/services" class="text-gray-300 hover:text-blue-400 transition-colors">Prescription Renewals</a></li>
+                    <li><a href="{{ route('appointment') }}" class="text-gray-300 hover:text-blue-400 transition-colors">Video Consultations</a></li>
+                    <li><a href="{{ route('appointment') }}" class="text-gray-300 hover:text-blue-400 transition-colors">Integrative Medicine</a></li>
+                    <li><a href="{{ route('appointment') }}" class="text-gray-300 hover:text-blue-400 transition-colors">Lifestyle Medicine</a></li>
+                    <li><a href="{{ route('appointment') }}" class="text-gray-300 hover:text-blue-400 transition-colors">Functional Medicine</a></li>
                 </ul>
             </div>
 
@@ -52,16 +52,16 @@
                 <h4 class="text-lg font-semibold mb-4 text-white">Contact Information</h4>
                 <ul class="space-y-4">
                     <li class="flex items-start">
-                        <i class="fas fa-phone text-blue-400 mr-2 mt-1"></i>
-                        <span class="text-gray-300">+1 (555) 123-4567</span>
-                    </li>
-                    <li class="flex items-start">
                         <i class="fas fa-envelope text-blue-400 mr-2 mt-1"></i>
-                        <span class="text-gray-300">contact@drfintan.com</span>
+                        <span class="text-gray-300">dr.fintan@medical.com</span>
                     </li>
                     <li class="flex items-start">
                         <i class="fas fa-map-marker-alt text-blue-400 mr-2 mt-1"></i>
-                        <span class="text-gray-300">Virtual Practice<br/>Available Worldwide</span>
+                        <span class="text-gray-300">ESUT Teaching Hospital<br/>Enugu, Nigeria</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-globe text-blue-400 mr-2 mt-1"></i>
+                        <span class="text-gray-300">Virtual Consultations<br/>Available Worldwide</span>
                     </li>
                 </ul>
             </div>

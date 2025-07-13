@@ -13,7 +13,7 @@
         <div class="container mx-auto px-4">
             <div class="max-w-7xl mx-auto">
                 <!-- Main Profile Card -->
-                <div class="mb-8 overflow-hidden fintan-card shadow-2xl">
+                <div class="mb-8 overflow-hidden shadow-2xl border-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl">
                     <div class="grid lg:grid-cols-5 gap-0">
                         <!-- Profile Image -->
                         <div class="lg:col-span-2 relative bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 flex items-center justify-center overflow-hidden">
@@ -46,13 +46,13 @@
                             </div>
 
                             <div class="space-y-4 mb-8">
-                                <p class="fintan-text-secondary text-base leading-relaxed">
+                                <p class="text-gray-600 dark:text-gray-300 text-base leading-relaxed">
                                     Dr. Ekochin Fintan is one of two generations of the EKOCHIN Family of Doctors. He largely grew up in
                                     Nigeria with some years of childhood spent in Austria, where he added German to his Igbo and English
                                     language proficiency.
                                 </p>
 
-                                <p class="fintan-text-secondary text-base leading-relaxed">
+                                <p class="text-gray-600 dark:text-gray-300 text-base leading-relaxed">
                                     After completing Primary and Secondary schools in Enugu and Nsukka, he earned an MBBS from the premier
                                     University of Nigeria, College of Medicine. Post graduation activities were first in the Paklose
                                     Specialist Hospital before going to do House training in Internal Medicine at the University Teaching
@@ -86,7 +86,7 @@
                                     </button>
                                 </a>
                                 <a href="/about" class="flex-1">
-                                    <button class="w-full fintan-btn-secondary py-4 px-8 text-lg">
+                                    <button class="w-full py-4 px-8 text-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-300 rounded-xl font-medium text-gray-900 dark:text-gray-100">
                                         Learn More
                                     </button>
                                 </a>
@@ -97,43 +97,49 @@
 
                 <!-- Features Grid -->
                 <div class="grid md:grid-cols-3 gap-6 mb-12">
-                    <div class="fintan-card-sm text-center hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                        <i class="fas fa-video text-blue-600 dark:text-blue-400 text-5xl mb-4"></i>
-                        <h3 class="font-bold text-xl mb-3 fintan-text-primary">HD Video Consultations</h3>
-                        <p class="text-base fintan-text-secondary">Crystal clear video calls with screen sharing</p>
+                    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 rounded-2xl">
+                        <div class="p-8 text-center">
+                            <i class="fas fa-video h-12 w-12 text-blue-600 dark:text-blue-400 text-5xl mb-4"></i>
+                            <h3 class="font-bold text-xl mb-3 text-gray-900 dark:text-gray-100">HD Video Consultations</h3>
+                            <p class="text-base text-gray-600 dark:text-gray-300">Crystal clear video calls with screen sharing</p>
+                        </div>
                     </div>
 
-                    <div class="fintan-card-sm text-center hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                        <i class="fas fa-calendar-check text-blue-600 dark:text-blue-400 text-5xl mb-4"></i>
-                        <h3 class="font-bold text-xl mb-3 fintan-text-primary">Easy Scheduling</h3>
-                        <p class="text-base fintan-text-secondary">Simple appointment booking system</p>
+                    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 rounded-2xl">
+                        <div class="p-8 text-center">
+                            <i class="fas fa-calendar-check h-12 w-12 text-blue-600 dark:text-blue-400 text-5xl mb-4"></i>
+                            <h3 class="font-bold text-xl mb-3 text-gray-900 dark:text-gray-100">Smart Scheduling</h3>
+                            <p class="text-base text-gray-600 dark:text-gray-300">AI-powered appointment booking system</p>
+                        </div>
                     </div>
 
-                    <div class="fintan-card-sm text-center hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                        <i class="fas fa-shield-alt text-blue-600 dark:text-blue-400 text-5xl mb-4"></i>
-                        <h3 class="font-bold text-xl mb-3 fintan-text-primary">Secure & Private</h3>
-                        <p class="text-base fintan-text-secondary">HIPAA compliant with end-to-end encryption</p>
+                    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 rounded-2xl">
+                        <div class="p-8 text-center">
+                            <i class="fas fa-shield-alt h-12 w-12 text-blue-600 dark:text-blue-400 text-5xl mb-4"></i>
+                            <h3 class="font-bold text-xl mb-3 text-gray-900 dark:text-gray-100">Secure & Private</h3>
+                            <p class="text-base text-gray-600 dark:text-gray-300">HIPAA compliant with end-to-end encryption</p>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Specialties Grid -->
                 <div class="grid lg:grid-cols-3 gap-4">
-                    <div class="fintan-card-xs text-center hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-                        <i class="fas fa-heart text-blue-600 dark:text-blue-400 text-4xl mb-3"></i>
-                        <h3 class="font-bold text-base mb-2 fintan-text-primary">Integrative Medicine</h3>
-                        <p class="text-sm fintan-text-secondary">Combining traditional and alternative approaches</p>
+                    <div class="text-center p-6 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border-0 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 hover:bg-white dark:hover:bg-gray-800 rounded-2xl">
+                        <i class="fas fa-heart h-10 w-10 text-blue-600 dark:text-blue-400 text-4xl mb-3"></i>
+                        <h3 class="font-bold text-base mb-2 text-gray-900 dark:text-gray-100">Integrative Medicine</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Combining traditional and alternative approaches</p>
                     </div>
 
-                    <div class="fintan-card-xs text-center hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-                        <i class="fas fa-user-md text-blue-600 dark:text-blue-400 text-4xl mb-3"></i>
-                        <h3 class="font-bold text-base mb-2 fintan-text-primary">Lifestyle Medicine</h3>
-                        <p class="text-sm fintan-text-secondary">Prevention through lifestyle modifications</p>
+                    <div class="text-center p-6 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border-0 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 hover:bg-white dark:hover:bg-gray-800 rounded-2xl">
+                        <i class="fas fa-user-md h-10 w-10 text-blue-600 dark:text-blue-400 text-4xl mb-3"></i>
+                        <h3 class="font-bold text-base mb-2 text-gray-900 dark:text-gray-100">Lifestyle Medicine</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Prevention through lifestyle modifications</p>
                     </div>
 
-                    <div class="fintan-card-xs text-center hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-                        <i class="fas fa-globe text-blue-600 dark:text-blue-400 text-4xl mb-3"></i>
-                        <h3 class="font-bold text-base mb-2 fintan-text-primary">Virtual Care</h3>
-                        <p class="text-sm fintan-text-secondary">Accessible healthcare from anywhere</p>
+                    <div class="text-center p-6 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border-0 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 hover:bg-white dark:hover:bg-gray-800 rounded-2xl">
+                        <i class="fas fa-globe h-10 w-10 text-blue-600 dark:text-blue-400 text-4xl mb-3"></i>
+                        <h3 class="font-bold text-base mb-2 text-gray-900 dark:text-gray-100">Virtual Care</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Accessible healthcare from anywhere</p>
                     </div>
                 </div>
             </div>
@@ -150,7 +156,7 @@
 
                 <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-l-4 border-blue-600 shadow-xl rounded-2xl">
                     <div class="p-8">
-                        <blockquote class="text-lg md:text-xl italic fintan-text-secondary mb-6 leading-relaxed">
+                        <blockquote class="text-lg md:text-xl italic text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
                             "Dr. Fintan's medical practice is an amalgamation of Orthodox and Alternative medicine,
                             yielding a blend of Complementary, Functional, Orthomolecular, and Lifestyle Medicine.
                             This delivers a pharmacologically minimalist approach to healthcare. Most consultations
@@ -161,29 +167,29 @@
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-6 mt-12">
-                    <div class="flex items-start gap-4 fintan-card-xs hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-                        <i class="fas fa-check-circle text-green-500 text-2xl mt-1"></i>
-                        <span class="text-base fintan-text-secondary leading-relaxed">Amalgamation of Orthodox and Alternative medicine</span>
+                    <div class="flex items-start gap-4 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                        <i class="fas fa-check-circle h-6 w-6 text-green-500 flex-shrink-0 mt-1"></i>
+                        <span class="text-base text-gray-700 dark:text-gray-300 leading-relaxed">Amalgamation of Orthodox and Alternative medicine</span>
                     </div>
 
-                    <div class="flex items-start gap-4 fintan-card-xs hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-                        <i class="fas fa-check-circle text-green-500 text-2xl mt-1"></i>
-                        <span class="text-base fintan-text-secondary leading-relaxed">Complementary, Functional, Orthomolecular approach</span>
+                    <div class="flex items-start gap-4 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                        <i class="fas fa-check-circle h-6 w-6 text-green-500 flex-shrink-0 mt-1"></i>
+                        <span class="text-base text-gray-700 dark:text-gray-300 leading-relaxed">Complementary, Functional, Orthomolecular approach</span>
                     </div>
 
-                    <div class="flex items-start gap-4 fintan-card-xs hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-                        <i class="fas fa-check-circle text-green-500 text-2xl mt-1"></i>
-                        <span class="text-base fintan-text-secondary leading-relaxed">Pharmacologically minimalist healthcare - most consultations end without drug prescriptions</span>
+                    <div class="flex items-start gap-4 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                        <i class="fas fa-check-circle h-6 w-6 text-green-500 flex-shrink-0 mt-1"></i>
+                        <span class="text-base text-gray-700 dark:text-gray-300 leading-relaxed">Pharmacologically minimalist healthcare - most consultations end without drug prescriptions</span>
                     </div>
 
-                    <div class="flex items-start gap-4 fintan-card-xs hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-                        <i class="fas fa-check-circle text-green-500 text-2xl mt-1"></i>
-                        <span class="text-base fintan-text-secondary leading-relaxed">Focus on lifestyle medicine and natural healing approaches</span>
+                    <div class="flex items-start gap-4 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                        <i class="fas fa-check-circle h-6 w-6 text-green-500 flex-shrink-0 mt-1"></i>
+                        <span class="text-base text-gray-700 dark:text-gray-300 leading-relaxed">Focus on lifestyle medicine and natural healing approaches</span>
                     </div>
 
-                    <div class="flex items-start gap-4 fintan-card-xs hover:shadow-lg transition-all duration-300 transform hover:scale-105 md:col-span-2">
-                        <i class="fas fa-check-circle text-green-500 text-2xl mt-1"></i>
-                        <span class="text-base fintan-text-secondary leading-relaxed">Efficient cross-border client care</span>
+                    <div class="flex items-start gap-4 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 md:col-span-2">
+                        <i class="fas fa-check-circle h-6 w-6 text-green-500 flex-shrink-0 mt-1"></i>
+                        <span class="text-base text-gray-700 dark:text-gray-300 leading-relaxed">Efficient cross-border client care</span>
                     </div>
                 </div>
 

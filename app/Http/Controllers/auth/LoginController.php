@@ -59,6 +59,12 @@ class LoginController extends Controller
         }
     }
 
+    // Register page
+    public function register()
+    {
+        return view('auth.register');
+    }
+
     //Logout function
     public function logout(Request $request)
     {

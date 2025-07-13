@@ -43,8 +43,8 @@
     }
 </style>
 
-<body>
-    <section class="dashboard mt_100 xs_mt_70 pb_100 xs_pb_70">
+<body class="bg-gray-50 dark:bg-gray-900 font-inter">
+    <section class="dashboard pt-24 pb-16 min-h-screen">
         <div class="container">
             <div class="row">
                 <div class="col-xl-3 col-lg-4 wow fadeInLeft" data-wow-duration="1s">
@@ -52,72 +52,75 @@
                 </div>
             
                 <div class="col-xl-9 col-lg-8">
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">Admin Dashboard</h1>
-                        <div class="btn-toolbar mb-2 mb-md-0">
-                            <div class="btn-group me-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary">Print</button>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 border border-gray-200/50 dark:border-gray-700/50">
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-4 mb-6 border-bottom border-gray-200 dark:border-gray-700">
+                            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Admin Dashboard</h1>
+                            <div class="btn-toolbar mb-2 mb-md-0">
+                                <div class="btn-group me-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary">Print</button>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-sync-alt"></i> Refresh
+                                </button>
                             </div>
-                            <button type="button" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-sync-alt"></i> Refresh
-                            </button>
                         </div>
-                    </div>
                     
-                    <!-- Stats Cards -->
-                    <div class="row mb-4">
-                        @foreach([
-                            ['total', 'calendar-check', 'primary', 'Total Appointments', $stats['total_appointments'], $stats['today_appointments'].' today'],
-                            ['pending', 'clock', 'warning', 'Pending Appointments', $stats['pending_appointments'], 'Needs approval'],
-                            ['active', 'check-circle', 'success', 'Active Appointments', $stats['active_appointments'], 'Upcoming'],
-                            ['doctors', 'user-md', 'purple', 'Total Doctors', $stats['total_doctors'], 'View all'],
-                            ['patients', 'procedures', 'teal', 'Total Patients', $stats['total_patients'], 'View all'],
-                            ['expired', 'calendar-times', 'danger', 'Expired/Cancelled', $stats['expired_appointments'], 'Past appointments']
-                        ] as $card)
-                        <div class="col-md-4 mb-4">
-                            <div class="stat-card {{ $card[0] }} p-4 bg-white h-100">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="text-muted mb-2">{{ $card[3] }}</h6>
-                                        <h3 class="mb-0">{{ $card[4] }}</h3>
+                        <!-- Stats Cards -->
+                        <div class="row mb-6">
+                            @foreach([
+                                ['total', 'calendar-check', 'blue', 'Total Appointments', $stats['total_appointments'], $stats['today_appointments'].' today'],
+                                ['pending', 'clock', 'orange', 'Pending Appointments', $stats['pending_appointments'], 'Needs approval'],
+                                ['active', 'check-circle', 'green', 'Active Appointments', $stats['active_appointments'], 'Upcoming'],
+                                ['doctors', 'user-md', 'purple', 'Total Doctors', $stats['total_doctors'], 'View all'],
+                                ['patients', 'procedures', 'teal', 'Total Patients', $stats['total_patients'], 'View all'],
+                                ['expired', 'calendar-times', 'red', 'Expired/Cancelled', $stats['expired_appointments'], 'Past appointments']
+                            ] as $card)
+                            <div class="col-md-4 mb-4">
+                                <div class="bg-gradient-to-r from-{{ $card[2] }}-50 to-{{ $card[2] }}-100 dark:from-{{ $card[2] }}-900/20 dark:to-{{ $card[2] }}-800/20 rounded-xl p-6 border border-{{ $card[2] }}-200/50 dark:border-{{ $card[2] }}-700/50 hover:shadow-lg transition-all duration-300 h-100">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="text-gray-600 dark:text-gray-300 text-sm font-medium mb-2">{{ $card[3] }}</h6>
+                                            <h3 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-0">{{ $card[4] }}</h3>
+                                        </div>
+                                        <div class="h-12 w-12 bg-{{ $card[2] }}-600 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-{{ $card[1] }} text-white text-xl"></i>
+                                        </div>
                                     </div>
-                                    <i class="fas fa-{{ $card[1] }} stat-icon text-{{ $card[2] }}"></i>
-                                </div>
-                                <div class="mt-3">
-                                    @if(in_array($card[0], ['doctors', 'patients']))
-                                        <a href="{{ route('admin.'.$card[0].'.index') }}" class="text-muted">{{ $card[5] }}</a>
-                                    @else
-                                        <span @class(['text-success' => $card[0] === 'total', 'text-muted' => $card[0] !== 'total'])>
-                                            @if($card[0] === 'total')<i class="fas fa-calendar-day"></i>@endif
-                                            {{ $card[5] }}
-                                        </span>
-                                    @endif
+                                    <div class="mt-3">
+                                        @if(in_array($card[0], ['doctors', 'patients']))
+                                            <a href="{{ route('admin.'.$card[0].'.index') }}" class="text-{{ $card[2] }}-600 dark:text-{{ $card[2] }}-400 hover:underline font-medium">{{ $card[5] }}</a>
+                                        @else
+                                            <span class="text-{{ $card[2] }}-600 dark:text-{{ $card[2] }}-400 font-medium">
+                                                @if($card[0] === 'total')<i class="fas fa-calendar-day mr-1"></i>@endif
+                                                {{ $card[5] }}
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
+                            @endforeach
                         </div>
-                        @endforeach
-                    </div>
                     
-                    <!-- Pending Appointments Table -->
-                    <div class="card appointment-table mb-4">
-                        <div class="card-header bg-white">
-                            <h5 class="mb-0">Pending Appointments</h5>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Patient</th>
-                                            <th>Doctor</th>
-                                            <th>Department</th>
-                                            <th>Date & Time</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
+                        <!-- Pending Appointments Table -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 mb-4">
+                            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                                <h5 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-0">Pending Appointments</h5>
+                            </div>
+                            <div class="p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="bg-gray-50 dark:bg-gray-700">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Patient</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Doctor</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Department</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date & Time</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                            </tr>
+                                        </thead>
                                     <tbody>
                                         @forelse($pendingAppointments as $appointment)
                                         <tr id="appointment-{{ $appointment->id }}">
@@ -156,6 +159,7 @@
                         <div class="card-footer bg-white">
                             {{ $pendingAppointments->links() }}
                         </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -163,8 +167,6 @@
     </section>
 
     <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>
-
-    @include('layouts.footer')
 
     <script>
         // Handle approve/reject buttons

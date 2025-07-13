@@ -13,6 +13,32 @@ Route::get('/register', [App\Http\Controllers\auth\LoginController::class, 'regi
 Route::get('/logout', [App\Http\Controllers\auth\LoginController::class, 'logout'])->name('logout');
 Route::get('/check-doctor-availability', [App\Http\Controllers\auth\AppointmentController::class, 'checkAvailability'])
     ->name('check.doctor.availability');
+
+// Test Redis connection
+Route::get('/test-redis', function () {
+    try {
+        // Test cache
+        Cache::put('test_key', 'Redis is working with Laravel!', 60);
+        $cached_value = Cache::get('test_key');
+
+        // Test direct Redis
+        $redis = Redis::connection();
+        $redis->set('direct_test', 'Direct Redis connection works!');
+        $direct_value = $redis->get('direct_test');
+
+        return response()->json([
+            'status' => 'success',
+            'cache_test' => $cached_value,
+            'direct_redis_test' => $direct_value,
+            'message' => 'Redis/Valkey is properly configured!'
+        ]);
+    } catch (Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ]);
+    }
+});
 //User Dashboard
 Route::middleware(['auth', 'patient'])->prefix('patient')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\user\DashboardController::class, 'index'])->name('patient.dashboard');

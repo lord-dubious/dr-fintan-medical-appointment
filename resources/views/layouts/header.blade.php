@@ -72,7 +72,51 @@
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
+    <!-- Font Awesome Fallback -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+
+    <!-- Custom Icon Styles -->
+    <style>
+        /* Ensure FontAwesome icons display properly */
+        .fas, .far, .fab, .fal, .fad, .fat {
+            font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", "Font Awesome 5 Free", "Font Awesome 5 Pro" !important;
+            font-weight: 900;
+            font-style: normal;
+            font-variant: normal;
+            text-rendering: auto;
+            line-height: 1;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .far {
+            font-weight: 400;
+        }
+
+        /* Icon loading fallback */
+        .fas:before, .far:before, .fab:before {
+            display: inline-block;
+            text-decoration: inherit;
+        }
+
+        /* Specific icon fixes */
+        .fa-calendar-check:before { content: "\f274"; }
+        .fa-check-circle:before { content: "\f058"; }
+        .fa-calendar-times:before { content: "\f273"; }
+        .fa-user:before { content: "\f007"; }
+        .fa-phone:before { content: "\f095"; }
+        .fa-envelope:before { content: "\f0e0"; }
+        .fa-user-md:before { content: "\f0f0"; }
+        .fa-hospital:before { content: "\f0f8"; }
+        .fa-clock:before { content: "\f017"; }
+        .fa-calendar:before { content: "\f133"; }
+        .fa-chevron-left:before { content: "\f053"; }
+        .fa-chevron-right:before { content: "\f054"; }
+        .fa-sun:before { content: "\f185"; }
+        .fa-cloud-sun:before { content: "\f6c4"; }
+        .fa-moon:before { content: "\f186"; }
+    </style>
 
     <!-- Original CSS for compatibility -->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">

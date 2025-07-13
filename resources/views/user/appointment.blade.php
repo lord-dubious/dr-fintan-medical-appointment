@@ -207,8 +207,6 @@
     </div>
 </div>
 
-@include('layouts.footer')
-
 <!-- Include Twilio Video JS -->
 <!-- Remove this line -->
 <script src="https://sdk.twilio.com/js/video/releases/2.23.0/twilio-video.min.js"></script>

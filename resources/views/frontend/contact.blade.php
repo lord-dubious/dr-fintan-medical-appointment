@@ -35,8 +35,8 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <!-- Contact Information -->
-                    <div class="fintan-card shadow-lg">
-                        <h3 class="text-2xl font-semibold mb-8 fintan-text-primary">Contact Information</h3>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-8">
+                        <h3 class="text-2xl font-semibold mb-8 text-gray-900 dark:text-gray-100">Contact Information</h3>
                         
                         <div class="space-y-6">
                             <!-- Email -->
@@ -102,8 +102,8 @@
                     </div>
                     
                     <!-- Contact Form -->
-                    <div class="fintan-card shadow-lg">
-                        <h3 class="text-2xl font-semibold mb-8 fintan-text-primary">Send a Message</h3>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-8">
+                        <h3 class="text-2xl font-semibold mb-8 text-gray-900 dark:text-gray-100">Send a Message</h3>
                         
                         <form id="contactForm" class="space-y-6">
                             @csrf
