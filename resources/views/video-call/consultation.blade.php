@@ -408,7 +408,10 @@
                 try {
                     await fetch('/api/end-call', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
                         body: JSON.stringify({ appointment_id: appointmentId }),
                     });
                 } catch (error) {

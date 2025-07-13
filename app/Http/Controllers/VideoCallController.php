@@ -59,8 +59,8 @@ class VideoCallController extends Controller
             }
         }
 
-        // Use appointment-specific room name or default demo room
-        $roomName = $appointmentId ? "consultation-{$appointmentId}" : 'demo-consultation';
+        // Use appointment-specific room name or unique demo room
+        $roomName = $appointmentId ? "consultation-{$appointmentId}" : 'demo-consultation-' . uniqid();
 
         // Check if room already exists
         $check = Http::withToken($apiKey)
@@ -209,6 +209,18 @@ class VideoCallController extends Controller
         ]);
 
         $appointmentId = $request->input('appointment_id');
+
+        // Verify user has permission to record this appointment
+        $appointment = Appointment::find($appointmentId);
+        if (!$appointment) {
+            return response()->json(['error' => 'Appointment not found'], 404);
+        }
+
+        $user = Auth::user();
+        if (!$user || !$this->canAccessAppointment($user, $appointment)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
         $roomName = $appointmentId ? "consultation-{$appointmentId}" : 'demo-consultation';
         $apiKey = config('services.daily.api_key');
 
@@ -250,6 +262,18 @@ class VideoCallController extends Controller
         ]);
 
         $appointmentId = $request->input('appointment_id');
+
+        // Verify user has permission to stop recording this appointment
+        $appointment = Appointment::find($appointmentId);
+        if (!$appointment) {
+            return response()->json(['error' => 'Appointment not found'], 404);
+        }
+
+        $user = Auth::user();
+        if (!$user || !$this->canAccessAppointment($user, $appointment)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
         $roomName = $appointmentId ? "consultation-{$appointmentId}" : 'demo-consultation';
         $apiKey = config('services.daily.api_key');
 
@@ -267,14 +291,38 @@ class VideoCallController extends Controller
     /**
      * List recordings - Matching working example
      */
-    public function listRecordings(Request $request)
+    public function listRecordings()
     {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
         $apiKey = config('services.daily.api_key');
         $response = Http::withToken($apiKey)
             ->get('https://api.daily.co/v1/recordings');
 
         if ($response->successful()) {
-            return $response->json();
+            $allRecordings = $response->json();
+
+            // Filter recordings based on user's appointments
+            $userAppointments = Appointment::where(function($query) use ($user) {
+                if ($user->role === 'admin') {
+                    return; // Admin can see all
+                } elseif ($user->role === 'doctor') {
+                    $query->where('doctor_id', $user->doctor->id ?? null);
+                } elseif ($user->role === 'patient') {
+                    $query->where('patient_id', $user->patient->id ?? null);
+                }
+            })->pluck('video_room_name')->filter()->toArray();
+
+            $filteredRecordings = collect($allRecordings['data'] ?? [])
+                ->filter(function($recording) use ($userAppointments, $user) {
+                    if ($user->role === 'admin') return true;
+                    return in_array($recording['room_name'] ?? null, $userAppointments);
+                })->values();
+
+            return response()->json(['data' => $filteredRecordings]);
         }
 
         return response()->json([
@@ -286,8 +334,30 @@ class VideoCallController extends Controller
     /**
      * Get recording access link - Matching working example
      */
-    public function getRecording(Request $request, $meetingId)
+    public function getRecording($meetingId)
     {
+        // Verify the user has access to this recording
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        // Check if user has any appointment with this recording
+        $hasAccess = Appointment::where('recording_id', $meetingId)
+            ->where(function($query) use ($user) {
+                if ($user->role === 'admin') {
+                    return; // Admin can access all
+                } elseif ($user->role === 'doctor') {
+                    $query->where('doctor_id', $user->doctor->id ?? null);
+                } elseif ($user->role === 'patient') {
+                    $query->where('patient_id', $user->patient->id ?? null);
+                }
+            })->exists();
+
+        if (!$hasAccess && $user->role !== 'admin') {
+            return response()->json(['error' => 'Access denied'], 403);
+        }
+
         $apiKey = config('services.daily.api_key');
         $response = Http::withToken($apiKey)
             ->get("https://api.daily.co/v1/recordings/$meetingId/access-link");
@@ -309,6 +379,12 @@ class VideoCallController extends Controller
         if ($appointmentId) {
             $appointment = Appointment::find($appointmentId);
             if ($appointment) {
+                // Verify user has permission to end this call
+                $user = Auth::user();
+                if (!$user || !$this->canAccessAppointment($user, $appointment)) {
+                    return response()->json(['error' => 'Unauthorized'], 403);
+                }
+
                 $appointment->update([
                     'video_call_ended_at' => now(),
                     'status' => 'completed'
