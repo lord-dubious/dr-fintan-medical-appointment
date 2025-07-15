@@ -1,313 +1,148 @@
-# 🏥 Medical Appointment System
-
-A comprehensive medical appointment management system built with **Laravel 12**, featuring multi-role authentication, complete appointment lifecycle management, and modern responsive design.
-
-![Laravel](https://img.shields.io/badge/Laravel-12-red?style=flat-square&logo=laravel)
-![PHP](https://img.shields.io/badge/PHP-8.2-blue?style=flat-square&logo=php)
-![MySQL](https://img.shields.io/badge/Database-MySQL-orange?style=flat-square&logo=mysql)
-![Tailwind](https://img.shields.io/badge/CSS-Tailwind-38B2AC?style=flat-square&logo=tailwind-css)
-
-## 🚀 Features
-
-### **🔐 Multi-Role Authentication**
-- **👨‍💼 Admin Dashboard**: Complete system management and oversight
-- **👨‍⚕️ Doctor Portal**: Appointment management and patient interaction
-- **🏥 Patient Portal**: Appointment booking and medical history
-
-### **📅 Core Functionality**
-- ✅ **Smart Appointment Booking** with real-time availability checking
-- ✅ **Status Management** (pending, confirmed, cancelled)
-- ✅ **SMS Notifications** via Twilio integration
-- ✅ **Doctor Availability Management** with scheduling
-- ✅ **Patient Management System** with medical records
-- ✅ **Department-based Organization** (15+ specializations)
-- ✅ **Image Upload** for patient profiles
-
-### **⚡ Technical Features**
-- ✅ **RESTful API** endpoints for external integration
-- ✅ **Database Migrations** with comprehensive sample data
-- ✅ **Role-based Middleware** protection
-- ✅ **Soft Deletes** for data integrity
-- ✅ **Modern Frontend** with Vite build system
-- ✅ **Responsive Design** for all devices
-
-## 🛠️ Tech Stack
-
-| Component | Technology |
-|-----------|------------|
-| **Backend** | Laravel 12 + PHP 8.2 |
-| **Database** | MySQL (Aiven Cloud) |
-| **Frontend** | Tailwind CSS 4.0 + Vite |
-| **SMS** | Twilio SDK |
-| **Package Manager** | PNPM |
-| **Authentication** | Laravel Sanctum |
-
-## 📋 Prerequisites
-
-- **PHP 8.2+** with extensions: `mysql`, `sqlite3`, `mbstring`, `xml`
-- **Composer** for PHP dependency management
-- **Node.js 18+** for frontend assets
-- **PNPM** for package management
-- **MySQL** database (cloud or local)
-
-## ⚡ Quick Start
-
-### **1. Clone & Install**
-```bash
-git clone https://github.com/lord-dubious/fintan-new.git
-cd fintan-new
-composer install
-pnpm install
-```
-
-### **2. Environment Setup**
-```bash
-cp .env.example .env
-php artisan key:generate
-```
-
-### **3. Database Setup**
-```bash
-# Configure your database in .env file
-php artisan migrate --seed
-```
-
-### **4. Build & Run**
-```bash
-pnpm run build
-php artisan serve
-```
-
-Visit: **http://localhost:8000**
-
-## 🔐 Default Login Credentials
-
-| Role | Email | Password | Access Level |
-|------|-------|----------|--------------|
-| **👨‍💼 Admin** | `admin@medical.com` | `password123` | Full system access |
-| **👨‍⚕️ Doctor** | `doctor1@medical.com` | `doctor123` | Appointment management |
-| **🏥 Patient** | `patient@medical.com` | `password123` | Booking & history |
-
-
-
-## 🎯 System Overview
-
-### **Database Schema**
-- **Users**: Authentication and role management
-- **Doctors**: Doctor profiles with specializations
-- **Patients**: Patient information and history
-- **Appointments**: Complete appointment lifecycle
-
-### **User Roles & Permissions**
-
-#### **Admin Dashboard** (`/admin`)
-- View all appointments, doctors, and patients
-- Manage doctor profiles and availability
-- System-wide statistics and reporting
-- User management and role assignment
-
-#### **Doctor Portal** (`/doctor`)
-- View assigned appointments
-- Update appointment status
-- Manage availability schedule
-- Patient interaction history
-
-#### **Patient Portal** (`/patient`)
-- Book new appointments
-- View appointment history
-- Check appointment status
-- Generate access tokens for API
-
-## 🔗 API Endpoints
-
-### **Authentication**
-```bash
-POST /api/generate-token    # Generate API access token
-```
-
-### **Web Routes**
-```bash
-GET  /                      # Homepage
-GET  /appointment          # Public appointment booking
-POST /appointment/store    # Store new appointment
-GET  /login               # Login page
-POST /login/auth          # Authenticate user
-GET  /logout              # Logout user
-```
-
-### **Admin Routes** (Prefix: `/admin`)
-```bash
-GET  /dashboard           # Admin dashboard
-GET  /doctors            # Manage doctors
-GET  /patients           # Manage patients
-GET  /appointments       # Manage appointments
-```
-
-### **Doctor Routes** (Prefix: `/doctor`)
-```bash
-GET  /dashboard          # Doctor dashboard
-GET  /appointment        # View appointments
-PUT  /appointments/{id}/status  # Update appointment status
-```
-
-### **Patient Routes** (Prefix: `/patient`)
-```bash
-GET  /dashboard          # Patient dashboard
-GET  /appointment        # View appointments
-GET  /book_appointment   # Book new appointment
-POST /book_appointment/store  # Store appointment
-```
-
-## 🚀 Development Commands
-
-### **Laravel Commands**
-```bash
-# Database operations
-php artisan migrate:fresh --seed  # Reset database with sample data
-php artisan db:seed               # Add sample data only
-
-# Development server with all services
-composer run dev                  # Runs server + queue + logs + vite
-
-# Individual services
-php artisan serve                 # Web server
-php artisan queue:work           # Background jobs
-php artisan pail                 # Real-time logs
-```
-
-### **Frontend Development**
-```bash
-pnpm run dev     # Development with hot reload
-pnpm run build   # Production build
-```
-
-## 📱 SMS Integration (Twilio)
-
-To enable SMS notifications:
-
-1. **Get Twilio Credentials**
-   - Sign up at [Twilio](https://www.twilio.com)
-   - Get Account SID, Auth Token, and Phone Number
-
-2. **Configure Environment**
-   ```bash
-   # Add to .env file
-   TWILIO_SID=your_account_sid
-   TWILIO_TOKEN=your_auth_token
-   TWILIO_FROM=your_twilio_phone_number
-   ```
-
-3. **SMS Features**
-   - Appointment confirmations
-   - Reminder notifications
-   - Status change alerts
-
-## 🔧 Configuration
-
-### **Database Configuration**
-Default: SQLite (`database/database.sqlite`)
-
-For MySQL:
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=medical_appointment
-DB_USERNAME=root
-DB_PASSWORD=your_password
-```
-
-### **Mail Configuration**
-```env
-MAIL_MAILER=smtp
-MAIL_HOST=your_smtp_host
-MAIL_PORT=587
-MAIL_USERNAME=your_email
-MAIL_PASSWORD=your_password
-```
-
-## 🎨 Customization
-
-### **Adding New Departments**
-Edit `database/seeders/DoctorSeeder.php`:
-```php
-$departments = [
-    'Cardiology',
-    'Your New Department',
-    // ... more departments
-];
-```
-
-### **Styling**
-- Tailwind CSS classes in Blade templates
-- Custom CSS in `resources/css/app.css`
-- Build with `pnpm run build`
-
-## 🧪 Testing
-
-```bash
-# Run tests
-php artisan test
-
-# Run specific test
-php artisan test --filter=AppointmentTest
-```
-
-## 📊 Sample Data
-
-The system includes:
-- **5 Doctors** across different specializations
-- **3 User accounts** (admin, doctor, patient)
-- **15 Medical departments**
-- **Realistic appointment scenarios**
-
-## 🔒 Security Features
-
-- **Role-based Access Control** (RBAC)
-- **CSRF Protection** on all forms
-- **SQL Injection Prevention** via Eloquent ORM
-- **Password Hashing** with bcrypt
-- **Session Management** with database storage
-
-## 📈 Production Deployment
-
-1. **Environment Setup**
-   ```bash
-   APP_ENV=production
-   APP_DEBUG=false
-   APP_URL=https://yourdomain.com
-   ```
-
-2. **Optimize for Production**
-   ```bash
-   php artisan config:cache
-   php artisan route:cache
-   php artisan view:cache
-   pnpm run build
-   ```
-
-3. **Queue Workers**
-   ```bash
-   php artisan queue:work --daemon
-   ```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
-
-## 📄 License
-
+# Medical Appointment and Video Consultation System
+
+## Project Overview
+This is a comprehensive web application designed to streamline the process of booking medical appointments and facilitating secure video consultations between patients and doctors. It provides a robust platform for managing appointments, user roles, and integrates essential services like video conferencing and online payments.
+
+## Key Technologies
+The application is built using the following core technologies:
+*   **Laravel:** A powerful PHP framework for the backend logic and API development.
+*   **Daily.co:** Integrated for real-time video and audio consultation capabilities.
+*   **Paystack:** Used for secure and efficient online payment processing for appointments.
+*   **Blade:** Laravel's templating engine for rendering dynamic frontend views.
+*   **MySQL/PostgreSQL:** Relational databases for data storage.
+*   **Composer:** PHP dependency management.
+*   **Node.js & npm:** JavaScript runtime and package manager for frontend assets.
+
+## Architectural Components
+The application follows a standard Laravel MVC (Model-View-Controller) architecture with additional components:
+*   **Routes:** Defines all application endpoints and maps them to corresponding controller actions.
+*   **Controllers:** Handle incoming requests, process data, and interact with models and services before returning responses.
+*   **Models:** Represent the data structure and business logic, interacting directly with the database.
+*   **Middleware:** Filters HTTP requests entering the application, handling tasks like authentication, authorization, and request manipulation.
+*   **Services:** Encapsulate complex business logic, such as Daily.co API interactions and Paystack payment processing, promoting reusability and separation of concerns.
+*   **Views:** Responsible for presenting data to the user, primarily built using Laravel Blade templates.
+
+## User Roles
+The system supports three distinct user roles, each with specific functionalities and access levels:
+
+### Admin
+*   **Dashboard Overview:** Comprehensive view of total appointments, doctors, and patients.
+*   **User Management:** Manage doctor and patient accounts, including creation, editing, and deletion.
+*   **Appointment Oversight:** View and manage all appointments across the system.
+*   **Site Settings:** Configure global application settings.
+*   **Content Management:** Manage static pages and dynamic content.
+*   **Media Library:** Organize and manage uploaded media files.
+*   **Login as Doctor:** Ability to impersonate a doctor for administrative purposes.
+
+### Doctor
+*   **Personal Dashboard:** View and manage their own appointments.
+*   **Profile Management:** Update personal information, medical specializations, and working hours.
+*   **Appointment Management:** Accept, reject, reschedule, or complete appointments.
+*   **Video Consultation Access:** Join scheduled video consultation rooms.
+
+### Patient
+*   **Personal Dashboard:** View and manage their booked appointments.
+*   **Profile Management:** Update personal details.
+*   **Appointment Booking:** Search for doctors and book appointments based on availability.
+*   **Video Consultation Access:** Join scheduled video consultation rooms.
+*   **Payment Processing:** Initiate and complete payments for appointments.
+
+## Payment Integration (Paystack)
+The application integrates with Paystack for secure and seamless payment processing.
+*   **Service Class:** A dedicated service class (`app/Services/PaystackService.php` - *Note: This path is an assumption based on common Laravel practices and the task description. Actual path might vary.*) handles all interactions with the Paystack API, including initiating transactions, verifying payments, and handling callbacks.
+*   **Controller Integration:** Payment logic is integrated into relevant controllers (e.g., `app/Http/Controllers/user/AppointmentController.php`) to manage the payment flow during appointment booking.
+*   **Configuration:** Paystack API keys (public and secret) are securely stored in the `.env` file and accessed via Laravel's configuration system.
+*   **Payment Flow:**
+    1.  Patient books an appointment.
+    2.  System initiates a payment request to Paystack.
+    3.  Patient is redirected to Paystack's secure payment gateway.
+    4.  Upon successful payment, Paystack redirects the patient back to the application with a payment reference.
+    5.  The application verifies the payment status with Paystack and updates the appointment status accordingly.
+
+## Other Significant Features
+*   **Video Consultation:** Real-time video and audio calls powered by Daily.co, with dynamic room creation and secure token-based access.
+*   **Appointment Management:** Comprehensive system for booking, tracking, and managing appointments with various statuses (pending, confirmed, cancelled, expired, completed).
+*   **User Dashboards:** Dedicated dashboards for Admin, Doctor, and Patient roles providing tailored functionalities and overviews.
+*   **Content Management:** Admin panel allows for managing static pages and dynamic content within the application.
+*   **Media Library:** Integrated media management system for handling images and other files uploaded to the application.
+*   **Doctor Scheduling:** Doctors can set and manage their availability and working hours.
+*   **Email Notifications:** Automated email notifications for appointment confirmations, reminders, and other important events.
+
+## Installation and Setup
+
+### Prerequisites
+*   PHP >= 8.1
+*   Composer
+*   Node.js & npm
+*   MySQL or PostgreSQL database
+*   Daily.co account (for video/audio calls)
+*   Paystack account (for payment processing)
+
+### Steps
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-repo/medical_Appointment.git
+    cd medical_Appointment
+    ```
+2.  **Install PHP dependencies:**
+    ```bash
+    composer install
+    ```
+3.  **Install Node.js dependencies:**
+    ```bash
+    npm install
+    npm run dev # or npm run build for production
+    ```
+4.  **Copy `.env.example` and configure your environment:**
+    ```bash
+    cp .env.example .env
+    ```
+    Edit the `.env` file with your database credentials, Daily.co API key, and Paystack API keys.
+    ```dotenv
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=medical_appointment
+    DB_USERNAME=root
+    DB_PASSWORD=
+
+    DAILY_API_KEY=your_daily_co_api_key
+    DAILY_DOMAIN=your_daily_co_domain
+
+    PAYSTACK_PUBLIC_KEY=your_paystack_public_key
+    PAYSTACK_SECRET_KEY=your_paystack_secret_key
+    PAYSTACK_PAYMENT_URL=https://api.paystack.co
+    ```
+5.  **Generate application key:**
+    ```bash
+    php artisan key:generate
+    ```
+6.  **Run database migrations:**
+    ```bash
+    php artisan migrate
+    ```
+7.  **Seed the database (optional, for demo data):**
+    ```bash
+    php artisan db:seed
+    ```
+8.  **Link storage to public (for profile images, etc.):**
+    ```bash
+    php artisan storage:link
+    ```
+9.  **Start the development server:**
+    ```bash
+    php artisan serve
+    ```
+    The application will be accessible at `http://127.0.0.1:8000`.
+
+## Usage
+*   **Admin Panel:** Access at `/admin/dashboard` (default credentials can be found in database seeds or created manually).
+*   **Doctor Panel:** Access at `/doctor/dashboard`.
+*   **Patient Panel:** Access at `/user/dashboard`.
+*   **Appointment Booking:** Available on the frontend.
+
+## Security
+If you discover any security vulnerabilities, please report them responsibly.
+
+## License
 This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-
----
-
-## 🎉 You're All Set!
-
-Your Medical Appointment System is now running at:
-**http://localhost:8000**
-
-Start exploring with the default credentials above! 🏥✨

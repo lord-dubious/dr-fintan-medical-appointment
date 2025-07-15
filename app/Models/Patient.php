@@ -15,17 +15,22 @@ class Patient extends Model
      *
      * @var array
      */
-   // app/Models/Patient.php
+    // app/Models/Patient.php
 
-protected $fillable = [
-    'name',
-    'mobile',
-    'email',
-    'image',
-    'user_id'
-];
-
-
+    protected $fillable = [
+        'name',
+        'mobile',
+        'email',
+        'image',
+        'user_id',
+        'emergency_contact',
+        'medical_history',
+        'insurance_info',
+        'preferences',
+        'blood_type',
+        'allergies',
+        'current_medications',
+    ];
 
     /**
      * Define the relationship with the User model.
@@ -42,46 +47,58 @@ protected $fillable = [
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-  // Relationship with appointments
-            public function appointments()
-            {
-                return $this->hasMany(Appointment::class);
-            }
+    // Relationship with appointments
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
 
-            // Get the latest appointment (for backward compatibility)
-            public function latestAppointment()
-            {
-                return $this->hasOne(Appointment::class)->latestOfMany();
-            }
+    // Get the latest appointment (for backward compatibility)
+    public function latestAppointment()
+    {
+        return $this->hasOne(Appointment::class)->latestOfMany();
+    }
 
-            public function totalAppointments()
-        {
-            return $this->appointments()->count();
-        }
+    public function totalAppointments()
+    {
+        return $this->appointments()->count();
+    }
 
-        public function activeAppointments()
-        {
-            return $this->appointments()
-                ->where('status', 'confirmed')
-                ->whereDate('appointment_date', '>=', now()->toDateString())
-                ->count();
-        }
+    public function activeAppointments()
+    {
+        return $this->appointments()
+            ->where('status', 'confirmed')
+            ->whereDate('appointment_date', '>=', now()->toDateString())
+            ->count();
+    }
 
-        public function expiredAppointments()
-        {
-            return $this->appointments()
-                ->where(function($query) {
-                    $query->where('status', 'confirmed')
-                        ->whereDate('appointment_date', '<', now()->toDateString());
-                })
-                ->orWhere('status', 'cancelled')
-                ->count();
-        }
+    public function expiredAppointments()
+    {
+        return $this->appointments()
+            ->where(function ($query) {
+                $query->where('status', 'confirmed')
+                    ->whereDate('appointment_date', '<', now()->toDateString());
+            })
+            ->orWhere('status', 'cancelled')
+            ->count();
+    }
 
-        public function todaysAppointments()
-        {
-            return $this->appointments()
-                ->whereDate('appointment_date', now()->toDateString())
-                ->count();
-        }
+    public function todaysAppointments()
+    {
+        return $this->appointments()
+            ->whereDate('appointment_date', now()->toDateString())
+            ->count();
+    }
+
+    /**
+     * The attributes that should be cast to native types.
+     */
+    protected $casts = [
+        'emergency_contact' => 'array',
+        'medical_history' => 'array',
+        'insurance_info' => 'array',
+        'preferences' => 'array',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 }

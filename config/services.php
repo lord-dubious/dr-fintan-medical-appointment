@@ -44,8 +44,8 @@ return [
     'paystack' => [
         'public_key' => env('PAYSTACK_PUBLIC_KEY'),
         'secret_key' => env('PAYSTACK_SECRET_KEY'),
-        'callback_url' => env('PAYSTACK_CALLBACK_URL', env('APP_URL') . '/appointment/payment/callback'),
-        'webhook_url' => env('PAYSTACK_WEBHOOK_URL', env('APP_URL') . '/paystack/webhook'),
+        'callback_url' => env('PAYSTACK_CALLBACK_URL', env('APP_URL').'/appointment/payment/callback'),
+        'webhook_url' => env('PAYSTACK_WEBHOOK_URL', env('APP_URL').'/paystack/webhook'),
     ],
 
 ];

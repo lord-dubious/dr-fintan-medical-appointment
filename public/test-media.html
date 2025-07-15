@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Device Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">Media Device Test</h1>
+        
+        <!-- Status Display -->
+        <div id="status" class="mb-6 p-4 bg-blue-100 rounded-lg">
+            <h2 class="font-semibold">Status:</h2>
+            <div id="status-content">Ready to test</div>
+        </div>
+        
+        <!-- Microphone Test -->
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+            <h2 class="text-xl font-semibold mb-4">Microphone Test</h2>
+            <button id="test-mic" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Test Microphone
+            </button>
+            <button id="stop-mic" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 ml-2" disabled>
+                Stop Microphone
+            </button>
+            
+            <!-- Audio Level Display -->
+            <div id="audio-level" class="mt-4 hidden">
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm">Audio Level:</span>
+                    <div class="flex-1 bg-gray-200 rounded-full h-4">
+                        <div id="level-bar" class="bg-green-500 h-4 rounded-full transition-all duration-100" style="width: 0%"></div>
+                    </div>
+                    <span id="level-text" class="text-sm">0%</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Speaker Test -->
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+            <h2 class="text-xl font-semibold mb-4">Speaker Test</h2>
+            <button id="test-speaker" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                Test Speaker
+            </button>
+            <button id="test-beep" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 ml-2">
+                Test Beep (Web Audio)
+            </button>
+        </div>
+        
+        <!-- Device List -->
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Available Devices</h2>
+            <div id="device-list">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        let micStream = null;
+        let audioContext = null;
+        let analyser = null;
+        let animationFrame = null;
+
+        function updateStatus(message, type = 'info') {
+            const statusContent = document.getElementById('status-content');
+            const statusDiv = document.getElementById('status');
+            
+            statusContent.textContent = message;
+            
+            // Update color based on type
+            statusDiv.className = `mb-6 p-4 rounded-lg ${
+                type === 'error' ? 'bg-red-100' :
+                type === 'success' ? 'bg-green-100' :
+                type === 'warning' ? 'bg-yellow-100' :
+                'bg-blue-100'
+            }`;
+            
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        async function testMicrophone() {
+            try {
+                updateStatus('Requesting microphone access...', 'info');
+                
+                // Request microphone access
+                micStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }, 
+                    video: false 
+                });
+                
+                updateStatus('Microphone access granted! Setting up audio analysis...', 'success');
+                
+                // Enable stop button, disable test button
+                document.getElementById('test-mic').disabled = true;
+                document.getElementById('stop-mic').disabled = false;
+                
+                // Show audio level indicator
+                document.getElementById('audio-level').classList.remove('hidden');
+                
+                // Set up audio analysis
+                await setupAudioAnalysis();
+                
+            } catch (error) {
+                updateStatus(`Microphone test failed: ${error.message}`, 'error');
+                console.error('Microphone error:', error);
+            }
+        }
+
+        async function setupAudioAnalysis() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                if (audioContext.state === 'suspended') {
+                    await audioContext.resume();
+                }
+                
+                analyser = audioContext.createAnalyser();
+                const source = audioContext.createMediaStreamSource(micStream);
+                
+                analyser.fftSize = 256;
+                analyser.smoothingTimeConstant = 0.8;
+                source.connect(analyser);
+                
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                
+                function updateLevel() {
+                    if (!analyser) {
+                        console.warn('Analyser is null, stopping updates');
+                        return;
+                    }
+
+                    try {
+                        analyser.getByteFrequencyData(dataArray);
+                        const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+                        const percentage = Math.min(Math.round((average / 128) * 100), 100);
+                    
+                    const levelBar = document.getElementById('level-bar');
+                    const levelText = document.getElementById('level-text');
+                    
+                    levelBar.style.width = `${percentage}%`;
+                    levelText.textContent = `${percentage}%`;
+                    
+                    // Change color based on level
+                    if (percentage > 70) {
+                        levelBar.className = 'bg-red-500 h-4 rounded-full transition-all duration-100';
+                    } else if (percentage > 30) {
+                        levelBar.className = 'bg-green-500 h-4 rounded-full transition-all duration-100';
+                    } else {
+                        levelBar.className = 'bg-yellow-500 h-4 rounded-full transition-all duration-100';
+                    }
+
+                        animationFrame = requestAnimationFrame(updateLevel);
+                    } catch (error) {
+                        console.error('Error in updateLevel:', error);
+                        if (animationFrame) {
+                            cancelAnimationFrame(animationFrame);
+                            animationFrame = null;
+                        }
+                    }
+                }
+                
+                updateLevel();
+                updateStatus('Audio analysis active. Speak into your microphone!', 'success');
+                
+            } catch (error) {
+                updateStatus(`Audio analysis setup failed: ${error.message}`, 'error');
+            }
+        }
+
+        function stopMicrophone() {
+            if (micStream) {
+                micStream.getTracks().forEach(track => track.stop());
+                micStream = null;
+            }
+            
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
+            }
+            
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+            
+            analyser = null;
+            
+            // Reset UI
+            document.getElementById('test-mic').disabled = false;
+            document.getElementById('stop-mic').disabled = true;
+            document.getElementById('audio-level').classList.add('hidden');
+            
+            updateStatus('Microphone stopped', 'info');
+        }
+
+        async function testSpeaker() {
+            try {
+                updateStatus('Testing speaker with generated WAV audio...', 'info');
+
+                // Create a simple WAV file programmatically
+                const createSimpleWav = () => {
+                    const sampleRate = 44100;
+                    const duration = 0.5;
+                    const frequency = 800;
+                    const samples = sampleRate * duration;
+
+                    const buffer = new ArrayBuffer(44 + samples * 2);
+                    const view = new DataView(buffer);
+
+                    // WAV header
+                    const writeString = (offset, string) => {
+                        for (let i = 0; i < string.length; i++) {
+                            view.setUint8(offset + i, string.charCodeAt(i));
+                        }
+                    };
+
+                    writeString(0, 'RIFF');
+                    view.setUint32(4, 36 + samples * 2, true);
+                    writeString(8, 'WAVE');
+                    writeString(12, 'fmt ');
+                    view.setUint32(16, 16, true);
+                    view.setUint16(20, 1, true);
+                    view.setUint16(22, 1, true);
+                    view.setUint32(24, sampleRate, true);
+                    view.setUint32(28, sampleRate * 2, true);
+                    view.setUint16(32, 2, true);
+                    view.setUint16(34, 16, true);
+                    writeString(36, 'data');
+                    view.setUint32(40, samples * 2, true);
+
+                    // Generate sine wave
+                    for (let i = 0; i < samples; i++) {
+                        const sample = Math.sin(2 * Math.PI * frequency * i / sampleRate) * 0.3;
+                        view.setInt16(44 + i * 2, sample * 32767, true);
+                    }
+
+                    return new Blob([buffer], { type: 'audio/wav' });
+                };
+
+                const wavBlob = createSimpleWav();
+                const audioUrl = URL.createObjectURL(wavBlob);
+                const audio = new Audio(audioUrl);
+
+                audio.volume = 0.3;
+                await audio.play();
+
+                // Clean up
+                audio.onended = () => URL.revokeObjectURL(audioUrl);
+                setTimeout(() => URL.revokeObjectURL(audioUrl), 2000);
+
+                updateStatus('HTML5 Audio test completed. Did you hear the sound?', 'success');
+
+            } catch (error) {
+                updateStatus(`Speaker test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBeep() {
+            try {
+                updateStatus('Testing speaker with Web Audio API beep...', 'info');
+                
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                if (audioCtx.state === 'suspended') {
+                    await audioCtx.resume();
+                }
+                
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + 0.5);
+                
+                updateStatus('Web Audio API beep test completed. Did you hear the beep?', 'success');
+                
+            } catch (error) {
+                updateStatus(`Beep test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function listDevices() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const deviceList = document.getElementById('device-list');
+                
+                let html = '';
+                devices.forEach((device, index) => {
+                    html += `<div class="mb-2 p-2 bg-gray-50 rounded">
+                        <strong>${device.kind}:</strong> ${device.label || `Device ${index + 1}`}
+                        <br><small class="text-gray-600">ID: ${device.deviceId}</small>
+                    </div>`;
+                });
+                
+                deviceList.innerHTML = html || 'No devices found';
+                
+            } catch (error) {
+                document.getElementById('device-list').innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        // Event listeners
+        document.getElementById('test-mic').addEventListener('click', testMicrophone);
+        document.getElementById('stop-mic').addEventListener('click', stopMicrophone);
+        document.getElementById('test-speaker').addEventListener('click', testSpeaker);
+        document.getElementById('test-beep').addEventListener('click', testBeep);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            listDevices();
+            updateStatus('Page loaded. Click buttons to test media devices.', 'info');
+        });
+    </script>
+</body>
+</html>

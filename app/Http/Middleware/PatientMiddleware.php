@@ -2,10 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use Auth;
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Auth;
+
 class PatientMiddleware
 {
     /**
@@ -18,7 +18,7 @@ class PatientMiddleware
         if (Auth::check() && Auth::user()->role === 'patient') {
             return $next($request);
         }
-    
+
         return redirect('/')->with('error', 'Access denied.');
     }
 }

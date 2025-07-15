@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Log;
 class PaystackService
 {
     private $secretKey;
+
     private $publicKey;
+
     private $baseUrl = 'https://api.paystack.co';
 
     public function __construct()
@@ -24,9 +26,9 @@ class PaystackService
     {
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->secretKey,
+                'Authorization' => 'Bearer '.$this->secretKey,
                 'Content-Type' => 'application/json',
-            ])->post($this->baseUrl . '/transaction/initialize', [
+            ])->post($this->baseUrl.'/transaction/initialize', [
                 'email' => $data['email'],
                 'amount' => $data['amount'] * 100, // Convert to kobo
                 'reference' => $data['reference'],
@@ -39,22 +41,23 @@ class PaystackService
                 return [
                     'status' => true,
                     'data' => $response->json()['data'],
-                    'message' => 'Payment initialized successfully'
+                    'message' => 'Payment initialized successfully',
                 ];
             }
 
             return [
                 'status' => false,
                 'message' => $response->json()['message'] ?? 'Payment initialization failed',
-                'data' => null
+                'data' => null,
             ];
 
         } catch (\Exception $e) {
-            Log::error('Paystack initialization error: ' . $e->getMessage());
+            Log::error('Paystack initialization error: '.$e->getMessage());
+
             return [
                 'status' => false,
                 'message' => 'Payment service unavailable',
-                'data' => null
+                'data' => null,
             ];
         }
     }
@@ -66,30 +69,32 @@ class PaystackService
     {
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->secretKey,
-            ])->get($this->baseUrl . '/transaction/verify/' . $reference);
+                'Authorization' => 'Bearer '.$this->secretKey,
+            ])->get($this->baseUrl.'/transaction/verify/'.$reference);
 
             if ($response->successful()) {
                 $data = $response->json()['data'];
+
                 return [
                     'status' => true,
                     'data' => $data,
-                    'message' => 'Payment verification successful'
+                    'message' => 'Payment verification successful',
                 ];
             }
 
             return [
                 'status' => false,
                 'message' => $response->json()['message'] ?? 'Payment verification failed',
-                'data' => null
+                'data' => null,
             ];
 
         } catch (\Exception $e) {
-            Log::error('Paystack verification error: ' . $e->getMessage());
+            Log::error('Paystack verification error: '.$e->getMessage());
+
             return [
                 'status' => false,
                 'message' => 'Payment verification failed',
-                'data' => null
+                'data' => null,
             ];
         }
     }
@@ -110,10 +115,10 @@ class PaystackService
                     [
                         'display_name' => 'Appointment Type',
                         'variable_name' => 'appointment_type',
-                        'value' => 'Medical Consultation'
-                    ]
-                ]
-            ]
+                        'value' => 'Medical Consultation',
+                    ],
+                ],
+            ],
         ]);
 
         if ($result['status']) {
@@ -129,6 +134,7 @@ class PaystackService
     public function validateWebhook($payload, $signature)
     {
         $computedSignature = hash_hmac('sha512', $payload, $this->secretKey);
+
         return hash_equals($signature, $computedSignature);
     }
 
@@ -147,13 +153,13 @@ class PaystackService
     {
         switch ($currency) {
             case 'NGN':
-                return '₦' . number_format($amount, 2);
+                return '₦'.number_format($amount, 2);
             case 'USD':
-                return '$' . number_format($amount, 2);
+                return '$'.number_format($amount, 2);
             case 'GHS':
-                return 'GH₵' . number_format($amount, 2);
+                return 'GH₵'.number_format($amount, 2);
             default:
-                return $currency . ' ' . number_format($amount, 2);
+                return $currency.' '.number_format($amount, 2);
         }
     }
 
@@ -162,6 +168,6 @@ class PaystackService
      */
     public static function generateReference($prefix = 'PAY')
     {
-        return $prefix . '_' . time() . '_' . strtoupper(substr(md5(uniqid()), 0, 8));
+        return $prefix.'_'.time().'_'.strtoupper(substr(md5(uniqid()), 0, 8));
     }
 }

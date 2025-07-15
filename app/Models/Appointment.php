@@ -29,9 +29,8 @@ class Appointment extends Model
         'amount',
         'currency',
         'payment_metadata',
-        'payment_completed_at'
+        'payment_completed_at',
     ];
-
 
     protected $casts = [
         'appointment_date' => 'date',  // Casts to Carbon instance
@@ -44,15 +43,14 @@ class Appointment extends Model
         'payment_completed_at' => 'datetime',
         'amount' => 'decimal:2',
     ];
-    
+
     public function patient()
     {
         return $this->belongsTo(Patient::class);
     }
-    
+
     public function doctor()
     {
         return $this->belongsTo(Doctor::class);
     }
-
 }

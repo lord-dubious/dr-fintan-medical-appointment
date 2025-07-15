@@ -29,8 +29,9 @@ class CleanupExpiredRooms extends Command
         $this->info('Starting Daily.co room cleanup...');
 
         // Verify DailyService is properly configured
-        if (!$dailyService->isConfigured()) {
+        if (! $dailyService->isConfigured()) {
             $this->error('DailyService is not properly configured. Please check your Daily.co API key.');
+
             return 1;
         }
 
@@ -40,7 +41,7 @@ class CleanupExpiredRooms extends Command
 
                 $expiredRooms = $dailyService->getExpiredRooms();
                 if (count($expiredRooms) > 0) {
-                    $this->info('Would delete ' . count($expiredRooms) . ' expired room(s):');
+                    $this->info('Would delete '.count($expiredRooms).' expired room(s):');
                     foreach ($expiredRooms as $room) {
                         $this->line("  - {$room['name']} (appointment #{$room['appointment_id']})");
                     }
@@ -62,7 +63,8 @@ class CleanupExpiredRooms extends Command
 
             return 0;
         } catch (\Exception $e) {
-            $this->error('Failed to cleanup rooms: ' . $e->getMessage());
+            $this->error('Failed to cleanup rooms: '.$e->getMessage());
+
             return 1;
         }
     }

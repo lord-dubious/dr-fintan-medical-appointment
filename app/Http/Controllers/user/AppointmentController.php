@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\user;
 
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
+use App\Models\Doctor;
+use App\Models\Patient;
+use App\Models\User;
+use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\{User,Patient, Doctor, Appointment};
-use Auth;
 
 class AppointmentController extends Controller
 {
@@ -15,38 +18,37 @@ class AppointmentController extends Controller
     {
         // Get the authenticated user
         $user = Auth::user();
-    
+
         // Get the patient with their appointments and related doctor/department info
-        $patient = $user->patient()->with(['appointments' => function($query) {
-            $query->with(['doctor' => function($q) {
+        $patient = $user->patient()->with(['appointments' => function ($query) {
+            $query->with(['doctor' => function ($q) {
                 $q->select('id', 'name', 'department'); // Only select needed fields
             }])
-            ->orderBy('appointment_date', 'desc'); // Show most recent first
+                ->orderBy('appointment_date', 'desc'); // Show most recent first
         }])->first();
-    
+
         // Check if patient exists
-        if (!$patient) {
+        if (! $patient) {
             return redirect()->back()->with('error', 'Patient record not found.');
         }
-    
+
         // Log the patient data for debugging (remove in production)
         \Log::info('Patient Appointments:', [
             'patient' => $patient->toArray(),
-            'appointments' => $patient->appointments->toArray()
+            'appointments' => $patient->appointments->toArray(),
         ]);
-    
+
         return view('user.appointment', compact('user', 'patient'));
     }
 
-
     public function book_appointment()
     {
-            // Get the authenticated user
+        // Get the authenticated user
         $user = Auth::user();
 
         // Get the patient details associated with the user
-            $patient = $user->patient;
-            $doctors = Doctor::all();
+        $patient = $user->patient;
+        $doctors = Doctor::all();
 
         // Pass the data to the view
         return view('user.book_appointment', compact('doctors', 'patient'));
@@ -70,18 +72,18 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-         // 🛡️ Check if doctor is available
-         $doctorIsTaken = Appointment::where('doctor_id', $request->doctor)
-         ->where('appointment_date', $request->date)
-         ->where('appointment_time', $request->time)
-         ->exists();
+        // 🛡️ Check if doctor is available
+        $doctorIsTaken = Appointment::where('doctor_id', $request->doctor)
+            ->where('appointment_date', $request->date)
+            ->where('appointment_time', $request->time)
+            ->exists();
 
-     if ($doctorIsTaken) {
-         return response()->json([
-             'success' => false,
-             'message' => 'The selected doctor is not available at this time. Please choose another time.',
-         ], 409); // 409 Conflict
-     }
+        if ($doctorIsTaken) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The selected doctor is not available at this time. Please choose another time.',
+            ], 409); // 409 Conflict
+        }
 
         // Start a database transaction
         DB::beginTransaction();
@@ -111,7 +113,7 @@ class AppointmentController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Error booking appointment: ' . $e->getMessage());
+            \Log::error('Error booking appointment: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,

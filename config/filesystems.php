@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('FILESYSTEM_DISK', 'local'),
+    'default' => env('FILESYSTEM_DRIVER', 'r2'),
 
     /*
     |--------------------------------------------------------------------------
@@ -60,6 +60,30 @@ return [
             'report' => false,
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | Cloudflare R2 Disk
+        |--------------------------------------------------------------------------
+        |
+        | Required .env variables:
+        | R2_ACCESS_KEY_ID
+        | R2_SECRET_ACCESS_KEY
+        | R2_REGION
+        | R2_BUCKET
+        | R2_ENDPOINT
+        | R2_URL
+        |
+        */
+        'r2' => [
+            'driver' => 's3',
+            'key' => env('R2_ACCESS_KEY_ID'),
+            'secret' => env('R2_SECRET_ACCESS_KEY'),
+            'region' => env('R2_REGION'),
+            'bucket' => env('R2_BUCKET'),
+            'endpoint' => env('R2_ENDPOINT'),
+            'url' => env('R2_URL'),
+            'use_path_style_endpoint' => true,
+        ],
     ],
 
     /*

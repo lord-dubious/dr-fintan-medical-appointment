@@ -20,7 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id'); // Link to users table
             $table->timestamps();
             $table->softDeletes();
-            
+
             // Foreign key constraint
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });

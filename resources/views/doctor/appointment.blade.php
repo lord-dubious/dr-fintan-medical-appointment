@@ -446,8 +446,8 @@ document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
     // Simplified video consultation function
     function startVideoConsultation(appointmentId) {
         // Navigate to prejoin page first for device testing
-        const prejoinUrl = `/video-call/prejoin/${appointmentId}`;
-        window.location.href = prejoinUrl;
+        const consultationUrl = `/video-call/${appointmentId}`;
+        window.location.href = consultationUrl;
     }
 
     // Legacy video call function for doctors (keeping for compatibility)

@@ -35,7 +35,7 @@ return new class extends Migration
                 'amount',
                 'currency',
                 'payment_metadata',
-                'payment_completed_at'
+                'payment_completed_at',
             ]);
         });
     }

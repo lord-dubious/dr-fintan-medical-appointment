@@ -55,7 +55,7 @@
                                                         <i class="fas fa-chart-bar"></i> Stats
                                                     </button>
 
-                                                    <form action="{{ route('admin.login-as-doctor', $doctor->id) }}"
+                                                    <form action="{{ route('admin.doctors.login-as-doctor', $doctor->id) }}"
                                                           method="POST"
                                                           class="d-inline">
                                                         @csrf

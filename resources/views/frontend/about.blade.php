@@ -55,26 +55,19 @@
                                 </p>
                                 
                                 <div class="space-y-4 text-gray-600 dark:text-gray-300">
-                                    <p class="leading-relaxed">
-                                        Dr. Ekochin Fintan is one of two generations of the EKOCHIN Family of Doctors. He largely grew up in 
-                                        Nigeria with some years of childhood spent in Austria, where he added German to his Igbo and English 
-                                        language proficiency.
-                                    </p>
-                                    
-                                    <p class="leading-relaxed">
-                                        After completing Primary and Secondary schools in Enugu and Nsukka, he earned an MBBS from the premier 
-                                        University of Nigeria, College of Medicine. Post graduation activities were first in the Paklose 
-                                        Specialist Hospital before going to do House training in Internal Medicine at the University Teaching 
-                                        Hospital both in New Delhi (2011).
-                                    </p>
-                                </div>
+                                                                    {!! $content['about_intro']['text'] ?? '' !!}
+                                                                </div>
                                 
+                                    @php
+                                        $specialties = json_decode($content['specialties']['items'] ?? '[]', true);
+                                    @endphp
+                                    @if(!empty($specialties))
                                 <div class="flex flex-wrap gap-2 mt-6">
-                                    <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-sm rounded-full font-medium">Fellow WACP</span>
-                                    <span class="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-sm rounded-full font-medium">Integrative Medicine</span>
-                                    <span class="px-3 py-1 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 text-sm rounded-full font-medium">Lifestyle Medicine</span>
-                                    <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-sm rounded-full font-medium">Former Health Commissioner</span>
+                                    @foreach($specialties as $specialty)
+                                        <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-sm rounded-full font-medium">{{ $specialty }}</span>
+                                    @endforeach
                                 </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -95,39 +88,37 @@
                     <!-- Education -->
                     <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-8">
                         <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Education</h3>
-                        <div class="space-y-4">
-                            <div class="border-l-4 border-blue-600 pl-4">
-                                <h4 class="font-semibold text-gray-900 dark:text-gray-100">MBBS</h4>
-                                <p class="text-gray-600 dark:text-gray-300">University of Nigeria, College of Medicine</p>
+                        @php
+                            $educationItems = json_decode($content['education']['items'] ?? '[]', true);
+                        @endphp
+                        @if(!empty($educationItems))
+                            <div class="space-y-4">
+                                @foreach($educationItems as $item)
+                                    <div class="border-l-4 border-blue-600 pl-4">
+                                        <h4 class="font-semibold text-gray-900 dark:text-gray-100">{{ $item['title'] }}</h4>
+                                        <p class="text-gray-600 dark:text-gray-300">{{ $item['description'] }}</p>
+                                    </div>
+                                @endforeach
                             </div>
-                            <div class="border-l-4 border-indigo-600 pl-4">
-                                <h4 class="font-semibold text-gray-900 dark:text-gray-100">Fellowship WACP</h4>
-                                <p class="text-gray-600 dark:text-gray-300">West African College of Physicians</p>
-                            </div>
-                            <div class="border-l-4 border-green-600 pl-4">
-                                <h4 class="font-semibold text-gray-900 dark:text-gray-100">Neurology Residency</h4>
-                                <p class="text-gray-600 dark:text-gray-300">India and USA</p>
-                            </div>
-                        </div>
+                        @endif
                     </div>
                     
                     <!-- Experience -->
                     <div class="bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-2xl p-8">
                         <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Experience</h3>
-                        <div class="space-y-4">
-                            <div class="border-l-4 border-green-600 pl-4">
-                                <h4 class="font-semibold text-gray-900 dark:text-gray-100">Head of Neurology</h4>
-                                <p class="text-gray-600 dark:text-gray-300">ESUT Teaching Hospital Enugu</p>
+                        @php
+                            $experienceItems = json_decode($content['experience']['items'] ?? '[]', true);
+                        @endphp
+                        @if(!empty($experienceItems))
+                            <div class="space-y-4">
+                                @foreach($experienceItems as $item)
+                                    <div class="border-l-4 border-green-600 pl-4">
+                                        <h4 class="font-semibold text-gray-900 dark:text-gray-100">{{ $item['title'] }}</h4>
+                                        <p class="text-gray-600 dark:text-gray-300">{{ $item['description'] }}</p>
+                                    </div>
+                                @endforeach
                             </div>
-                            <div class="border-l-4 border-blue-600 pl-4">
-                                <h4 class="font-semibold text-gray-900 dark:text-gray-100">Senior Lecturer</h4>
-                                <p class="text-gray-600 dark:text-gray-300">Neurophysiology, Godfrey Okoye University</p>
-                            </div>
-                            <div class="border-l-4 border-purple-600 pl-4">
-                                <h4 class="font-semibold text-gray-900 dark:text-gray-100">Commissioner for Health</h4>
-                                <p class="text-gray-600 dark:text-gray-300">Enugu State (2017-2019)</p>
-                            </div>
-                        </div>
+                        @endif
                     </div>
                 </div>
             </div>

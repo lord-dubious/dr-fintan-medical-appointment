@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Doctor extends Model
 {
     use HasFactory, SoftDeletes;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -21,6 +22,15 @@ class Doctor extends Model
         'department',
         'availability',
         'user_id',
+        'specializations',
+        'qualifications',
+        'experience_years',
+        'bio',
+        'consultation_fee',
+        'languages',
+        'license_number',
+        'working_hours',
+        'is_verified',
     ];
 
     /**
@@ -34,49 +44,60 @@ class Doctor extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-        public function patients()
-        {
-            return $this->hasMany(Patient::class, 'doctor_id');
-        }
+    public function patients()
+    {
+        return $this->hasMany(Patient::class, 'doctor_id');
+    }
 
-        public function user()
-        {
-            return $this->belongsTo(User::class);
-            
-        }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
 
-       public function appointments()
-        {
-            return $this->hasMany(Appointment::class, 'doctor_id');
-        }
+    }
 
-        public function activeAppointments()
-        {
-            return $this->appointments()
-                ->where('status', 'confirmed')
-                ->whereDate('appointment_date', '>=', now()->toDateString())
-                ->count();
-        }
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class, 'doctor_id');
+    }
 
-        public function expiredAppointments()
-        {
-            return $this->appointments()
-                ->where(function($query) {
-                    $query->where('status', 'confirmed')
-                        ->whereDate('appointment_date', '<', now()->toDateString());
-                })
-                ->orWhere('status', 'cancelled')
-                ->count();
-        }
+    public function activeAppointments()
+    {
+        return $this->appointments()
+            ->where('status', 'confirmed')
+            ->whereDate('appointment_date', '>=', now()->toDateString())
+            ->count();
+    }
 
-        public function todaysAppointments()
-        {
-            return $this->appointments()
-                ->whereDate('appointment_date', now()->toDateString())
-                ->count();
-        }
+    public function expiredAppointments()
+    {
+        return $this->appointments()
+            ->where(function ($query) {
+                $query->where('status', 'confirmed')
+                    ->whereDate('appointment_date', '<', now()->toDateString());
+            })
+            ->orWhere('status', 'cancelled')
+            ->count();
+    }
 
-        protected $casts = [
+    public function todaysAppointments()
+    {
+        return $this->appointments()
+            ->whereDate('appointment_date', now()->toDateString())
+            ->count();
+    }
+
+    /**
+     * The attributes that should be cast to native types.
+     */
+    protected $casts = [
         'availability' => 'string',
-        ];
+        'specializations' => 'array',
+        'qualifications' => 'array',
+        'languages' => 'array',
+        'working_hours' => 'array',
+        'consultation_fee' => 'decimal:2',
+        'is_verified' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 }

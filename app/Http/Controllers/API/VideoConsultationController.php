@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Services\DailyService;
 use App\Models\Appointment;
-use Illuminate\Http\Request;
+use App\Services\DailyService;
+use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
 class VideoConsultationController extends Controller
 {
@@ -26,6 +26,7 @@ class VideoConsultationController extends Controller
     private function isAuthorizedForAppointment(Appointment $appointment): bool
     {
         $user = Auth::user();
+
         return ($user->role === 'doctor' && $user->doctor && $user->doctor->id === $appointment->doctor_id) ||
                ($user->role === 'patient' && $user->patient && $user->patient->id === $appointment->patient_id);
     }
@@ -42,7 +43,7 @@ class VideoConsultationController extends Controller
 
             $appointment = Appointment::with(['doctor', 'patient.user'])->findOrFail($request->appointment_id);
 
-            if (!$this->isAuthorizedForAppointment($appointment)) {
+            if (! $this->isAuthorizedForAppointment($appointment)) {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 
@@ -74,14 +75,15 @@ class VideoConsultationController extends Controller
                     'id' => $appointment->id,
                     'doctor_name' => $appointment->doctor->name,
                     'patient_name' => $patientName,
-                ]
+                ],
             ]);
 
         } catch (Exception $e) {
-            Log::error('Video consultation room creation failed: ' . $e->getMessage());
+            Log::error('Video consultation room creation failed: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'error' => 'Failed to create consultation room'
+                'error' => 'Failed to create consultation room',
             ], 500);
         }
     }
@@ -99,7 +101,7 @@ class VideoConsultationController extends Controller
 
             $appointment = Appointment::with(['doctor', 'patient.user'])->findOrFail($request->appointment_id);
 
-            if (!$this->isAuthorizedForAppointment($appointment)) {
+            if (! $this->isAuthorizedForAppointment($appointment)) {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 
@@ -125,10 +127,11 @@ class VideoConsultationController extends Controller
             ]);
 
         } catch (Exception $e) {
-            Log::error('Get consultation room failed: ' . $e->getMessage());
+            Log::error('Get consultation room failed: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'error' => 'Failed to get consultation room'
+                'error' => 'Failed to get consultation room',
             ], 500);
         }
     }
@@ -145,12 +148,12 @@ class VideoConsultationController extends Controller
 
             $appointment = Appointment::with(['doctor', 'patient.user'])->findOrFail($request->appointment_id);
 
-            if (!$this->isAuthorizedForAppointment($appointment)) {
+            if (! $this->isAuthorizedForAppointment($appointment)) {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 
-            $roomName = "audio-consultation-{$appointment->id}-" . time();
-            
+            $roomName = "audio-consultation-{$appointment->id}-".time();
+
             // Create audio-only room
             $properties = [
                 'properties' => [
@@ -160,7 +163,7 @@ class VideoConsultationController extends Controller
                     'start_video_off' => true, // Audio only
                     'start_audio_off' => false,
                     'exp' => time() + (60 * 60 * 3), // 3 hours
-                ]
+                ],
             ];
 
             $room = $this->dailyService->createRoom($roomName, $properties);
@@ -187,14 +190,15 @@ class VideoConsultationController extends Controller
                     'id' => $appointment->id,
                     'doctor_name' => $appointment->doctor->name,
                     'patient_name' => $patientName,
-                ]
+                ],
             ]);
 
         } catch (Exception $e) {
-            Log::error('Audio consultation creation failed: ' . $e->getMessage());
+            Log::error('Audio consultation creation failed: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'error' => 'Failed to create audio consultation'
+                'error' => 'Failed to create audio consultation',
             ], 500);
         }
     }
@@ -212,7 +216,7 @@ class VideoConsultationController extends Controller
 
             $appointment = Appointment::findOrFail($request->appointment_id);
 
-            if (!$this->isAuthorizedForAppointment($appointment)) {
+            if (! $this->isAuthorizedForAppointment($appointment)) {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 
@@ -221,14 +225,15 @@ class VideoConsultationController extends Controller
 
             return response()->json([
                 'success' => $deleted,
-                'message' => $deleted ? 'Consultation ended successfully' : 'Failed to end consultation'
+                'message' => $deleted ? 'Consultation ended successfully' : 'Failed to end consultation',
             ]);
 
         } catch (Exception $e) {
-            Log::error('End consultation failed: ' . $e->getMessage());
+            Log::error('End consultation failed: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'error' => 'Failed to end consultation'
+                'error' => 'Failed to end consultation',
             ], 500);
         }
     }

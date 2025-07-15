@@ -13,11 +13,10 @@ return new class extends Migration
     {
         Schema::table('doctors', function (Blueprint $table) {
             $table->enum('availability', ['available', 'unavailable', 'on_leave'])
-                  ->default('available')
-                  ->after('department'); // Or wherever you want it positioned
+                ->default('available')
+                ->after('department'); // Or wherever you want it positioned
         });
     }
-
 
     /**
      * Reverse the migrations.

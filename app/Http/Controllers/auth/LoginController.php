@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\{User,Patient, Doctor, Department};
+use App\Models\User;
 use Auth;
+use Illuminate\Http\Request;
 
 class LoginController extends Controller
 {
-    
-    public function index(){
-         
+    public function index()
+    {
+
         return view('auth.login');
     }
 
@@ -47,8 +47,7 @@ class LoginController extends Controller
                     'message' => 'Login successful!',
                     'redirect' => route('admin.dashboard'),
                 ]);
-            }
-            elseif ($user->role === 'doctor') {
+            } elseif ($user->role === 'doctor') {
                 return response()->json([
                     'success' => true,
                     'message' => 'Login successful!',
@@ -71,7 +70,7 @@ class LoginController extends Controller
         return view('auth.register');
     }
 
-    //Logout function
+    // Logout function
     public function logout(Request $request)
     {
         Auth::logout(); // Log the user out

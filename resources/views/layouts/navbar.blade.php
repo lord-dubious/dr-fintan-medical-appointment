@@ -34,8 +34,8 @@
             @if($isAuthenticated)
                 <!-- Authenticated User Menu -->
                 <div class="flex items-center space-x-3 border-r border-gray-200 dark:border-gray-700 pr-4">
-                    <div class="relative group">
-                        <button class="flex items-center px-4 py-2 text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 font-medium rounded-md transition-all duration-200">
+                    <div class="relative" id="user-menu-container">
+                        <button id="user-menu-button" class="flex items-center px-4 py-2 text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 font-medium rounded-md transition-all duration-200">
                             <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm mr-2">
                                 {{ strtoupper(substr($currentUser->email, 0, 1)) }}
                             </div>
@@ -44,7 +44,7 @@
                         </button>
 
                         <!-- Dropdown Menu -->
-                        <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <div id="user-menu-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-200 z-50">
                             <div class="py-2">
                                 @if($currentUser->role === 'patient')
                                     <a href="{{ route('patient.dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700">
@@ -71,7 +71,7 @@
                 <!-- Guest User Buttons -->
                 <div class="flex items-center space-x-3 border-r border-gray-200 dark:border-gray-700 pr-4">
                     <a href="{{ route('login') }}"
-                       class="flex items-center px-4 py-2 text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 font-medium rounded-md transition-all duration-200">
+                       class="flex items-center px-4 py-2 text-gray-700 hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 font-medium rounded-md transition-all duration-200 border border-gray-300 dark:border-gray-600 hover:border-blue-600 dark:hover:border-blue-400">
                         <i class="fas fa-sign-in-alt mr-2"></i>
                         Login
                     </a>
@@ -163,12 +163,12 @@
                 <!-- Guest Mobile Menu -->
                 <div class="flex flex-col space-y-3">
                     <a href="{{ route('login') }}"
-                       class="w-full flex items-center justify-center py-3 px-4 border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-400 dark:hover:text-white rounded-md font-medium transition-all duration-200">
+                       class="w-full flex items-center justify-center py-3 px-4 border-2 border-gray-400 text-gray-700 hover:bg-gray-400 hover:text-white dark:border-gray-500 dark:text-gray-200 dark:hover:bg-gray-500 dark:hover:text-white rounded-md font-medium transition-all duration-200">
                         <i class="fas fa-sign-in-alt mr-2"></i>
                         Login
                     </a>
                     <a href="{{ route('register') }}"
-                       class="w-full flex items-center justify-center py-3 px-4 border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-md font-medium transition-all duration-200">
+                       class="w-full flex items-center justify-center py-3 px-4 border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-400 dark:hover:text-white rounded-md font-medium transition-all duration-200">
                         <i class="fas fa-user-plus mr-2"></i>
                         Sign Up
                     </a>
@@ -182,6 +182,22 @@
         </div>
     </div>
 </nav>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('user-menu-button');
+    const dropdown = document.getElementById('user-menu-dropdown');
+    const container = document.getElementById('user-menu-container');
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dropdown.classList.toggle('hidden');
+    });
+    document.addEventListener('click', function(e) {
+        if (!container.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+});
+</script>
 
 <script>
 function toggleMobileMenu() {

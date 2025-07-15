@@ -2,24 +2,16 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use App\Facades\Daily;
 use App\Models\Appointment;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class DailyService
 {
-    private string $apiKey;
-    private string $baseUrl;
-    private string $domain;
-
     public function __construct()
     {
-        $this->apiKey = config('services.daily.api_key');
-        $this->domain = config('services.daily.domain');
-        $this->baseUrl = 'https://api.daily.co/v1';
-
-        if (!$this->apiKey) {
+        if (! config('daily.token')) {
             throw new \Exception('Daily.co API key not configured');
         }
     }
@@ -30,7 +22,7 @@ class DailyService
     public function createConsultationRoom(int $appointmentId, string $consultationType = 'video'): array
     {
         try {
-            $roomName = "consultation-{$appointmentId}-" . time();
+            $roomName = "consultation-{$appointmentId}-".time();
 
             // Configure room based on consultation type
             $isVideoCall = $consultationType === 'video';
@@ -42,7 +34,7 @@ class DailyService
                     'max_participants' => 2,
                     'enable_chat' => true,
                     'enable_screenshare' => $isVideoCall, // Only for video calls
-                    'start_video_off' => !$isVideoCall, // Video off for audio-only
+                    'start_video_off' => ! $isVideoCall, // Video off for audio-only
                     'start_audio_off' => false,
                     'enable_recording' => false,
                     'enable_dialin' => false,
@@ -52,37 +44,29 @@ class DailyService
                     'enable_network_ui' => true,
                     'enable_people_ui' => true,
                     'exp' => time() + (60 * 60 * 3), // 3 hours expiry
-                ]
+                ],
             ];
 
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
-                'Content-Type' => 'application/json',
-            ])->post($this->baseUrl . '/rooms', $roomData);
+            // Use the Daily SDK to create the room
+            $roomResponse = Daily::createRoom($roomData);
 
-            if ($response->successful()) {
-                $roomData = $response->json();
+            // Generate meeting tokens for doctor and patient
+            $doctorToken = $this->createMeetingToken($roomResponse['name'], 'doctor', true);
+            $patientToken = $this->createMeetingToken($roomResponse['name'], 'patient', false);
 
-                // Generate meeting tokens for doctor and patient
-                $doctorToken = $this->createMeetingToken($roomData['name'], 'doctor', true);
-                $patientToken = $this->createMeetingToken($roomData['name'], 'patient', false);
-
-                return [
-                    'success' => true,
-                    'room' => $roomData,
-                    'room_url' => $roomData['url'],
-                    'room_name' => $roomData['name'],
-                    'consultation_type' => $consultationType,
-                    'tokens' => [
-                        'doctor' => $doctorToken,
-                        'patient' => $patientToken
-                    ]
-                ];
-            }
-
-            throw new Exception('Failed to create Daily room: ' . $response->body());
+            return [
+                'success' => true,
+                'room' => $roomResponse,
+                'room_url' => $roomResponse['url'],
+                'room_name' => $roomResponse['name'],
+                'consultation_type' => $consultationType,
+                'tokens' => [
+                    'doctor' => $doctorToken,
+                    'patient' => $patientToken,
+                ],
+            ];
         } catch (Exception $e) {
-            Log::error('Daily room creation failed: ' . $e->getMessage());
+            Log::error('Daily room creation failed: '.$e->getMessage());
             throw $e;
         }
     }
@@ -93,22 +77,12 @@ class DailyService
     public function getRoom(string $roomName): array
     {
         try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
-            ])->get($this->baseUrl . '/rooms/' . $roomName);
-
-            if ($response->successful()) {
-                return $response->json();
-            }
-
-            throw new Exception('Failed to get Daily room: ' . $response->body());
+            return Daily::room($roomName);
         } catch (Exception $e) {
-            Log::error('Daily room retrieval failed: ' . $e->getMessage());
+            Log::error('Daily room retrieval failed: '.$e->getMessage());
             throw $e;
         }
     }
-
-
 
     /**
      * Delete a room
@@ -116,18 +90,15 @@ class DailyService
     public function deleteRoom(string $roomName): bool
     {
         try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
-            ])->delete($this->baseUrl . '/rooms/' . $roomName);
+            Daily::deleteRoom($roomName);
 
-            return $response->successful();
+            return true;
         } catch (Exception $e) {
-            Log::error('Daily room deletion failed: ' . $e->getMessage());
+            Log::error('Daily room deletion failed: '.$e->getMessage());
+
             return false;
         }
     }
-
-
 
     /**
      * Create tokens for doctor and patient
@@ -156,7 +127,7 @@ class DailyService
         return [
             'doctor_token' => $doctorToken['token'],
             'patient_token' => $patientToken['token'],
-            'room_url' => "https://" . config('services.daily.domain') . "/{$roomName}",
+            'room_url' => 'https://'.config('services.daily.domain')."/{$roomName}",
         ];
     }
 
@@ -172,23 +143,15 @@ class DailyService
                     'user_name' => ucfirst($userRole),
                     'is_owner' => $isOwner,
                     'exp' => time() + (60 * 60 * 4), // 4 hours
-                ]
+                ],
             ];
 
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
-                'Content-Type' => 'application/json',
-            ])->post($this->baseUrl . '/meeting-tokens', $tokenData);
+            $response = Daily::createMeetingToken($tokenData);
 
-            if ($response->successful()) {
-                $data = $response->json();
-                return $data['token'] ?? null;
-            }
-
-            Log::error('Failed to create meeting token: ' . $response->body());
-            return null;
+            return $response['token'] ?? null;
         } catch (Exception $e) {
-            Log::error('Meeting token creation failed: ' . $e->getMessage());
+            Log::error('Meeting token creation failed: '.$e->getMessage());
+
             return null;
         }
     }
@@ -212,16 +175,11 @@ class DailyService
 
         foreach ($completedAppointments as $appointment) {
             try {
-                $response = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . $this->apiKey,
-                ])->delete($this->baseUrl . '/rooms/' . $appointment->video_room_name);
-
-                if ($response->successful()) {
-                    $appointment->update(['video_room_name' => null]);
-                    $deletedCount++;
-                }
+                Daily::deleteRoom($appointment->video_room_name);
+                $appointment->update(['video_room_name' => null]);
+                $deletedCount++;
             } catch (Exception $e) {
-                Log::warning("Failed to delete room {$appointment->video_room_name}: " . $e->getMessage());
+                Log::warning("Failed to delete room {$appointment->video_room_name}: ".$e->getMessage());
             }
         }
 
@@ -238,10 +196,10 @@ class DailyService
             ->where('video_call_ended_at', '<', now()->subHours(1))
             ->select('id', 'video_room_name')
             ->get()
-            ->map(function($appointment) {
+            ->map(function ($appointment) {
                 return [
                     'name' => $appointment->video_room_name,
-                    'appointment_id' => $appointment->id
+                    'appointment_id' => $appointment->id,
                 ];
             })
             ->toArray();
@@ -254,6 +212,6 @@ class DailyService
      */
     public function isConfigured(): bool
     {
-        return !empty($this->apiKey) && !empty($this->baseUrl);
+        return ! empty(config('daily.token')) && ! empty(config('daily.domain'));
     }
 }

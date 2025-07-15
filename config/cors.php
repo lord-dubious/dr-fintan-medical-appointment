@@ -21,12 +21,7 @@ return [
 
     'allowed_origins' => ['*'],
 
-    'allowed_origins_patterns' => [
-        '*',
-        '*.trycloudflare.com',
-        'localhost:*',
-        '127.0.0.1:*',
-    ],
+    'allowed_origins_patterns' => ['*'],
 
     'allowed_headers' => ['*'],
 

@@ -3,17 +3,20 @@
 namespace App\Http\Controllers\auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
+use App\Models\Doctor;
+use App\Models\Patient;
+use App\Models\User;
+use App\Services\PaystackService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use App\Models\{User, Patient, Doctor, Appointment};
-use App\Services\PaystackService;
-
 
 class AppointmentController extends Controller
 {
     //
-    public function index() {
+    public function index()
+    {
         // Fetch all departments and doctors from the database
         $doctors = Doctor::all();
 
@@ -21,27 +24,28 @@ class AppointmentController extends Controller
         return view('auth.appointment', compact('doctors'));
     }
 
-    //Check Doctor`s availability
+    // Check Doctor`s availability
     public function checkAvailability(Request $request)
-{
-    $doctorId = $request->query('doctor_id');
-    $date = $request->query('date');
-    $time = $request->query('time');
+    {
+        $doctorId = $request->query('doctor_id');
+        $date = $request->query('date');
+        $time = $request->query('time');
 
-    $exists = Appointment::where('doctor_id', $doctorId)
-        ->where('appointment_date', $date)
-        ->where('appointment_time', $time)
-        ->exists();
+        $exists = Appointment::where('doctor_id', $doctorId)
+            ->where('appointment_date', $date)
+            ->where('appointment_time', $time)
+            ->exists();
 
-    if ($exists) {
-        return response()->json([
-            'available' => false,
-            'message' => 'The selected doctor is not available at that time. Please choose another time.',
-        ]);
+        if ($exists) {
+            return response()->json([
+                'available' => false,
+                'message' => 'The selected doctor is not available at that time. Please choose another time.',
+            ]);
+        }
+
+        return response()->json(['available' => true]);
     }
 
-    return response()->json(['available' => true]);
-}
     public function store(Request $request)
     {
         // Validate the request
@@ -93,7 +97,7 @@ class AppointmentController extends Controller
             $imageName = null;
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
-                $imageName = time() . '_' . $image->getClientOriginalName();
+                $imageName = time().'_'.$image->getClientOriginalName();
                 $image->storeAs('public/images', $imageName);
             }
 
@@ -126,7 +130,7 @@ class AppointmentController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Error booking appointment: ' . $e->getMessage());
+            \Log::error('Error booking appointment: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -188,24 +192,24 @@ class AppointmentController extends Controller
                     'consultation_type' => $request->consultation_type,
                     'amount' => $amount,
                     'reference' => $reference,
-                    'image' => $request->hasFile('image') ? $request->file('image') : null
-                ]
+                    'image' => $request->hasFile('image') ? $request->file('image') : null,
+                ],
             ]);
 
             // Initialize payment with Paystack
-            $paystackService = new PaystackService();
+            $paystackService = new PaystackService;
             $paymentUrl = $paystackService->getPaymentUrl($reference, $amount, $request->email);
 
             if ($paymentUrl) {
                 return response()->json([
                     'success' => true,
                     'payment_url' => $paymentUrl,
-                    'reference' => $reference
+                    'reference' => $reference,
                 ]);
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Unable to initialize payment. Please try again.'
+                    'message' => 'Unable to initialize payment. Please try again.',
                 ], 500);
             }
 
@@ -216,7 +220,8 @@ class AppointmentController extends Controller
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Payment initialization error: ' . $e->getMessage());
+            \Log::error('Payment initialization error: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while initializing payment. Please try again.',
@@ -231,18 +236,18 @@ class AppointmentController extends Controller
     {
         $reference = $request->query('reference');
 
-        if (!$reference) {
+        if (! $reference) {
             return redirect()->route('appointment')->with('error', 'Invalid payment reference.');
         }
 
-        $paystackService = new PaystackService();
+        $paystackService = new PaystackService;
         $verification = $paystackService->verifyPayment($reference);
 
         if ($verification['status'] && $verification['data']['status'] === 'success') {
             // Payment successful, create appointment
             $appointmentData = session('appointment_data');
 
-            if (!$appointmentData || $appointmentData['reference'] !== $reference) {
+            if (! $appointmentData || $appointmentData['reference'] !== $reference) {
                 return redirect()->route('appointment')->with('error', 'Invalid session data.');
             }
 
@@ -259,7 +264,7 @@ class AppointmentController extends Controller
                 $imageName = null;
                 if (isset($appointmentData['image']) && $appointmentData['image']) {
                     $image = $appointmentData['image'];
-                    $imageName = time() . '_' . $image->getClientOriginalName();
+                    $imageName = time().'_'.$image->getClientOriginalName();
                     $image->storeAs('public/images', $imageName);
                 }
 
@@ -298,7 +303,8 @@ class AppointmentController extends Controller
 
             } catch (\Exception $e) {
                 DB::rollBack();
-                \Log::error('Appointment creation error after payment: ' . $e->getMessage());
+                \Log::error('Appointment creation error after payment: '.$e->getMessage());
+
                 return redirect()->route('appointment')->with('error', 'Payment successful but appointment creation failed. Please contact support.');
             }
         } else {
@@ -311,11 +317,11 @@ class AppointmentController extends Controller
      */
     public function paystackWebhook(Request $request)
     {
-        $paystackService = new PaystackService();
+        $paystackService = new PaystackService;
         $signature = $request->header('X-Paystack-Signature');
         $payload = $request->getContent();
 
-        if (!$paystackService->validateWebhook($payload, $signature)) {
+        if (! $paystackService->validateWebhook($payload, $signature)) {
             return response('Invalid signature', 400);
         }
 
@@ -330,12 +336,11 @@ class AppointmentController extends Controller
                 $appointment->update([
                     'payment_status' => 'paid',
                     'payment_completed_at' => now(),
-                    'payment_metadata' => $event['data']
+                    'payment_metadata' => $event['data'],
                 ]);
             }
         }
 
         return response('OK', 200);
     }
-
 }

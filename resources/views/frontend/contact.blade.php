@@ -46,7 +46,7 @@
                                 </div>
                                 <div>
                                     <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-1">Email</h4>
-                                    <p class="text-gray-600 dark:text-gray-300 mb-1">dr.fintan@medical.com</p>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-1">{{ $settings['contact_email'] ?? '' }}</p>
                                     <p class="text-sm text-gray-500 dark:text-gray-400">
                                         For consultations and general inquiries
                                     </p>
@@ -60,7 +60,7 @@
                                 </div>
                                 <div>
                                     <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-1">Phone</h4>
-                                    <p class="text-gray-600 dark:text-gray-300 mb-1">+1 (555) 123-4567</p>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-1">{{ $settings['contact_phone'] ?? '' }}</p>
                                     <p class="text-sm text-gray-500 dark:text-gray-400">
                                         Monday to Friday, 9am - 5pm (EST)
                                     </p>
@@ -73,14 +73,8 @@
                                     <i class="fas fa-map-marker-alt text-purple-600 dark:text-purple-400 text-lg"></i>
                                 </div>
                                 <div>
-                                    <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-1">Virtual Practice</h4>
-                                    <p class="text-gray-600 dark:text-gray-300 mb-1">
-                                        Available Worldwide<br />
-                                        Online Consultations
-                                    </p>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                                        Virtual consultations available globally
-                                    </p>
+                                    <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-1">Address</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-1">{{ $settings['contact_address'] ?? '' }}</p>
                                 </div>
                             </div>
                             
@@ -91,12 +85,27 @@
                                 </div>
                                 <div>
                                     <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-1">Consultation Hours</h4>
-                                    <div class="text-gray-600 dark:text-gray-300 space-y-1">
-                                        <p>Monday - Friday: 9am - 5pm</p>
-                                        <p>Saturday: 10am - 2pm</p>
-                                        <p>Sunday: Closed</p>
-                                    </div>
+                                    @if(isset($content['contact_hours']))
+                                        <div class="text-gray-600 dark:text-gray-300 space-y-1">
+                                            @foreach($content['contact_hours'] as $hour)
+                                                <p>{{ $hour }}</p>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <div class="text-gray-600 dark:text-gray-300 space-y-1">
+                                            <p>Monday - Friday: 9am - 5pm</p>
+                                            <p>Saturday: 10am - 2pm</p>
+                                            <p>Sunday: Closed</p>
+                                        </div>
+                                    @endif
                                 </div>
+                                @if(isset($content['consultation_details']['text']))
+                                    <div class="mt-6 space-y-4 text-gray-600 dark:text-gray-300">
+                                        {!! $content['consultation_details']['text'] !!}
+                                    </div>
+                                @endif
+                                
+                                {{-- Google Maps embed removed per user request --}}
                             </div>
                         </div>
                     </div>

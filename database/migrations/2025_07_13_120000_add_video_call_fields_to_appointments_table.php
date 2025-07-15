@@ -31,7 +31,7 @@ return new class extends Migration
                 'video_call_started_at',
                 'video_call_ended_at',
                 'video_call_metadata',
-                'recording_id'
+                'recording_id',
             ]);
         });
     }

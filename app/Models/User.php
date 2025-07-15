@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\SoftDeletes; // Import SoftDeletes trait
+use Illuminate\Notifications\Notifiable; // Import SoftDeletes trait
 
 class User extends Authenticatable // Extend Authenticatable
 {
@@ -17,9 +17,15 @@ class User extends Authenticatable // Extend Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'name',
         'email',
         'password',
         'role',
+        'phone',
+        'address',
+        'date_of_birth',
+        'profile_image',
+        'bio',
     ];
 
     /**
@@ -39,6 +45,9 @@ class User extends Authenticatable // Extend Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'date_of_birth' => 'date',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**
@@ -53,6 +62,6 @@ class User extends Authenticatable // Extend Authenticatable
 
     public function doctor()
     {
-     return $this->hasOne(Doctor::class, 'user_id', 'id');
+        return $this->hasOne(Doctor::class, 'user_id', 'id');
     }
 }
