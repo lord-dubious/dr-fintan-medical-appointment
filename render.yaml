@@ -1,0 +1,99 @@
+# Render Blueprint for Dr. Fintan Medical Appointment System
+# This file defines the infrastructure and deployment configuration for Render
+
+services:
+  # Web Service - Main Laravel Application
+  - type: web
+    name: dr-fintan-medical-app
+    env: php
+    plan: starter
+    buildCommand: |
+      # Install PHP dependencies
+      composer install --no-dev --optimize-autoloader
+      
+      # Install Node.js dependencies
+      npm ci
+      
+      # Build frontend assets
+      npm run build
+      
+      # Generate application key if not set
+      php artisan key:generate --force
+      
+      # Clear and cache configuration
+      php artisan config:cache
+      php artisan route:cache
+      php artisan view:cache
+      
+      # Create storage link
+      php artisan storage:link
+      
+      # Set proper permissions
+      chmod -R 775 storage bootstrap/cache
+    startCommand: |
+      # Run database migrations
+      php artisan migrate --force
+      
+      # Seed database if needed (only on first deploy)
+      php artisan db:seed --force
+      
+      # Start the web server
+      php artisan serve --host=0.0.0.0 --port=$PORT
+    healthCheckPath: /health-check
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: info
+      - key: SESSION_DRIVER
+        value: redis
+      - key: CACHE_STORE
+        value: redis
+      - key: QUEUE_CONNECTION
+        value: redis
+      - key: FILESYSTEM_DISK
+        value: local
+      # Database and Redis URLs will be automatically injected by Render
+      # when you connect external services
+    
+  # Background Worker Service - For Queue Processing
+  - type: worker
+    name: dr-fintan-queue-worker
+    env: php
+    plan: starter
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+      npm ci
+      npm run build
+    startCommand: |
+      # Start queue worker with proper configuration
+      php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600 --timeout=60
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: QUEUE_CONNECTION
+        value: redis
+
+# Optional: Cron Jobs Service (if needed for scheduled tasks)
+  - type: cron
+    name: dr-fintan-scheduler
+    env: php
+    plan: starter
+    schedule: "* * * * *"
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+    startCommand: php artisan schedule:run
+    envVars:
+      - key: APP_ENV
+        value: production
+
+# Database and Redis services would be added separately in Render dashboard
+# as external services and connected to the web service
