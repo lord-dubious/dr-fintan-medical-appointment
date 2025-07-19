@@ -3,14 +3,21 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "production": "npm run build",
+        "postinstall": "npm run build"
     },
     "devDependencies": {
+        "@stagewise-plugins/vue": "^0.6.0",
+        "@stagewise/toolbar": "^0.6.0",
+        "@stagewise/toolbar-vue": "^0.6.0",
         "@tailwindcss/vite": "^4.0.0",
+        "@vitejs/plugin-vue": "^6.0.0",
         "axios": "^1.8.2",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^1.2.0",
         "tailwindcss": "^4.0.0",
-        "vite": "^6.0.11"
+        "vite": "^6.0.11",
+        "vue": "^3.5.17"
     }
 }

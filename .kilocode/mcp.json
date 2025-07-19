@@ -13,6 +13,13 @@
         "resolve-library-id",
         "get-library-docs"
       ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--vision"
+      ]
     }
   }
 }

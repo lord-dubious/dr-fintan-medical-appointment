@@ -44,6 +44,12 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Define route URLs
+            const routes = {
+                upload: '{{ route("admin.media.upload") }}',
+                bulkDelete: '{{ route("admin.media.bulk-delete") }}'
+            };
+            
             axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
             const uploadBtn = document.getElementById('upload-btn');
@@ -60,7 +66,7 @@
                 }
                 const formData = new FormData();
                 Array.from(files).forEach(file => formData.append('files[]', file));
-                axios.post('{{ route('admin.media.upload') }}', formData)
+                axios.post(routes.upload, formData)
                     .then(response => {
                         alert(response.data.message);
                         location.reload();
@@ -111,7 +117,7 @@
                     return;
                 }
                 if (!confirm('Delete selected items?')) return;
-                axios.post('{{ route('admin.media.bulk-delete') }}', { ids: selected })
+                axios.post(routes.bulkDelete, { ids: selected })
                     .then(response => {
                         alert(response.data.message);
                         selected.forEach(id => {
