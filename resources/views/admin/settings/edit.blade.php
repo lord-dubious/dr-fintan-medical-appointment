@@ -34,67 +34,91 @@
         </div>
     </section>
 
+    @if($setting->type === 'rich_text')
     <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    @endif
+    
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            @if($setting->type === 'rich_text')
+            // Initialize TinyMCE for rich text fields
+            const settingType = '{{ $setting->type }}';
+            const settingKey = '{{ $setting->key }}';
+            
+            if (settingType === 'rich_text') {
                 tinymce.init({
-                    selector: '#setting_{{ $setting->key }}',
+                    selector: '#setting_' + settingKey,
                     plugins: 'link image code lists',
                     toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image | code',
                     height: 300
                 });
-            @endif
+            }
 
+            // Set CSRF token for axios
             axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').content;
 
-            @if($setting->type === 'image')
-                document.getElementById('image_input_{{ $setting->key }}').addEventListener('change', function (e) {
-                    const file = e.target.files[0];
-                    const key = e.target.dataset.key;
-                    const formData = new FormData();
-                    formData.append('image', file);
-                    formData.append('setting_key', key);
+            if (settingType === 'image') {
+                // Image upload handler
+                const imageInput = document.getElementById('image_input_' + settingKey);
+                if (imageInput) {
+                    imageInput.addEventListener('change', function (e) {
+                        const file = e.target.files[0];
+                        const key = e.target.dataset.key;
+                        const formData = new FormData();
+                        formData.append('image', file);
+                        formData.append('setting_key', key);
 
-                    axios.post("{{ route('admin.settings.upload-image') }}", formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+                        axios.post('{{ route("admin.settings.upload-image") }}', formData, {
+                            headers: { 'Content-Type': 'multipart/form-data' }
+                        })
                         .then(response => {
                             const preview = document.getElementById('preview_' + key);
-                            if (preview.tagName === 'IMG') {
+                            if (preview && preview.tagName === 'IMG') {
                                 preview.src = response.data.image_url;
                             }
                             document.getElementById('alert-success').classList.remove('hidden');
                         })
                         .catch(error => {
                             if (error.response && error.response.data.errors && error.response.data.errors.image) {
-                                document.getElementById('error_' + key).textContent = error.response.data.errors.image[0];
+                                const errorEl = document.getElementById('error_' + key);
+                                if (errorEl) {
+                                    errorEl.textContent = error.response.data.errors.image[0];
+                                }
                             }
                         });
-                });
-            @else
-                document.getElementById('settings-form').addEventListener('submit', function (e) {
-                    e.preventDefault();
-                    @if($setting->type === 'rich_text')
-                        tinymce.triggerSave();
-                    @endif
-                    const formData = new FormData(this);
+                    });
+                }
+            } else {
+                // Form submission handler for non-image settings
+                const settingsForm = document.getElementById('settings-form');
+                if (settingsForm) {
+                    settingsForm.addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        
+                        // Trigger TinyMCE save if it's a rich text field
+                        if (settingType === 'rich_text' && typeof tinymce !== 'undefined') {
+                            tinymce.triggerSave();
+                        }
+                        
+                        const formData = new FormData(this);
 
-                    axios.post("{{ route('admin.settings.update') }}", formData)
-                        .then(response => {
-                            document.getElementById('alert-success').classList.remove('hidden');
-                        })
-                        .catch(error => {
-                            if (error.response && error.response.data.errors) {
-                                Object.keys(error.response.data.errors).forEach(function(fieldName) {
-                                    const key = fieldName.replace('settings.', '');
-                                    const el = document.getElementById('error_' + key);
-                                    if (el) {
-                                        el.textContent = error.response.data.errors[fieldName][0];
-                                    }
-                                });
-                            }
-                        });
-                });
-            @endif
+                        axios.post('{{ route("admin.settings.update") }}', formData)
+                            .then(response => {
+                                document.getElementById('alert-success').classList.remove('hidden');
+                            })
+                            .catch(error => {
+                                if (error.response && error.response.data.errors) {
+                                    Object.keys(error.response.data.errors).forEach(function(fieldName) {
+                                        const key = fieldName.replace('settings.', '');
+                                        const el = document.getElementById('error_' + key);
+                                        if (el) {
+                                            el.textContent = error.response.data.errors[fieldName][0];
+                                        }
+                                    });
+                                }
+                            });
+                    });
+                }
+            }
         });
     </script>
 </body>

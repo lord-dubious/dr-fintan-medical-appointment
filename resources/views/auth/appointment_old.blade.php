@@ -375,6 +375,7 @@ document.getElementById('appointmentForm').addEventListener('submit', function (
             showAlert('Something went wrong. Please try again later.', 'error');
         }
     });
+});
 </script>
 </body>
 </html>
