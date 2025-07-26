@@ -140,4 +140,19 @@ class ProfileController extends Controller
             'profile_image_url' => $user->profile_image ? asset('storage/'.$user->profile_image) : null,
         ]);
     }
+
+    public function mobileIndex()
+    {
+        $user = Auth::user();
+        $doctor = $user->doctor;
+        
+        // Get basic stats for mobile view
+        $stats = [
+            'total_appointments' => $doctor->appointments()->count(),
+            'completed_appointments' => $doctor->appointments()->where('status', 'completed')->count(),
+            'pending_appointments' => $doctor->appointments()->where('status', 'pending')->count(),
+        ];
+
+        return view('mobile.doctor.profile', compact('user', 'doctor', 'stats'));
+    }
 }

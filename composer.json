@@ -11,8 +11,11 @@
         "laravel/fortify": "^1.27",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
+        "notificationapi/notificationapi-php-server-sdk": "^1.0",
         "predis/predis": "^3.0",
+        "spatie/laravel-markdown": "^2.7",
         "spatie/laravel-medialibrary": "^11.13",
+        "spatie/laravel-tags": "^4.10",
         "tinymce/tinymce": "^7.9"
     },
     "require-dev": {

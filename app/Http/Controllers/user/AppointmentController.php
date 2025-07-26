@@ -121,4 +121,30 @@ class AppointmentController extends Controller
             ], 500);
         }
     }
+
+    public function mobileIndex()
+    {
+        $user = Auth::user();
+        $patient = $user->patient()->with(['appointments' => function ($query) {
+            $query->with(['doctor' => function ($q) {
+                $q->select('id', 'name', 'department');
+            }])
+                ->orderBy('appointment_date', 'desc');
+        }])->first();
+
+        if (!$patient) {
+            return redirect()->back()->with('error', 'Patient record not found.');
+        }
+
+        return view('mobile.user.appointments', compact('user', 'patient'));
+    }
+
+    public function mobileBookAppointment()
+    {
+        $user = Auth::user();
+        $patient = $user->patient;
+        $doctors = Doctor::all();
+
+        return view('mobile.auth.appointment', compact('doctors', 'patient', 'user'));
+    }
 }

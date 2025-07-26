@@ -91,4 +91,15 @@ class ContentController extends Controller
             'message' => 'Content deleted successfully!',
         ]);
     }
+
+    public function mobileIndex()
+    {
+        $pages = [
+            'home' => 'Landing Page',
+            'about' => 'About Page',
+            'contact' => 'Contact Page',
+        ];
+
+        return view('mobile.admin.content', compact('pages'));
+    }
 }

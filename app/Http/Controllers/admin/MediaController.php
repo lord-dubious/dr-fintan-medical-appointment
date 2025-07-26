@@ -101,4 +101,28 @@ class MediaController extends Controller
             'message' => 'Media deleted successfully!',
         ]);
     }
+
+    public function mobileIndex(Request $request)
+    {
+        $category = $request->get('category', 'all');
+        $search = $request->get('search');
+
+        $query = MediaLibrary::with('uploader');
+
+        if ($category !== 'all') {
+            $query->where('category', $category);
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('original_name', 'like', "%{$search}%")
+                    ->orWhere('alt_text', 'like', "%{$search}%");
+            });
+        }
+
+        $media = $query->orderBy('created_at', 'desc')->paginate(12);
+        $categories = MediaLibrary::distinct()->pluck('category')->filter();
+
+        return view('mobile.admin.media', compact('media', 'categories', 'category', 'search'));
+    }
 }

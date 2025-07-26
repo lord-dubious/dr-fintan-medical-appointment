@@ -39,4 +39,48 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', compact('stats', 'pendingAppointments'));
     }
+
+    public function mobileIndex()
+    {
+        // Get all important statistics
+        $stats = [
+            'total_appointments' => Appointment::count(),
+            'pending_appointments' => Appointment::where('status', 'pending')->count(),
+            'active_appointments' => Appointment::where('status', 'confirmed')
+                ->whereDate('appointment_date', '>=', Carbon::today())
+                ->count(),
+            'total_doctors' => Doctor::count(),
+            'total_patients' => Patient::count(),
+            'expired_appointments' => Appointment::where(function ($query) {
+                $query->where('status', 'confirmed')
+                    ->whereDate('appointment_date', '<', Carbon::today());
+            })->orWhere('status', 'cancelled')
+                ->count(),
+            'today_appointments' => Appointment::whereDate('appointment_date', Carbon::today())->count(),
+        ];
+
+        // Get pending appointments for the mobile view
+        $pendingAppointments = Appointment::with(['patient', 'doctor'])
+            ->where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        return view('mobile.admin.dashboard', compact('stats', 'pendingAppointments'));
+    }
+
+    public function getMobileStats()
+    {
+        $stats = [
+            'todayAppointments' => Appointment::whereDate('appointment_date', Carbon::today())->count(),
+            'totalPatients' => Patient::count(),
+            'totalDoctors' => Doctor::count(),
+            'pendingAppointments' => Appointment::where('status', 'pending')->count(),
+            'revenue' => Appointment::where('status', 'confirmed')
+                ->where('payment_status', 'paid')
+                ->sum('amount') ?? 0
+        ];
+
+        return response()->json($stats);
+    }
 }

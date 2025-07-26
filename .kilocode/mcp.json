@@ -19,6 +19,9 @@
       "args": [
         "@playwright/mcp@latest",
         "--vision"
+      ],
+      "alwaysAllow": [
+        "browser_evaluate"
       ]
     }
   }

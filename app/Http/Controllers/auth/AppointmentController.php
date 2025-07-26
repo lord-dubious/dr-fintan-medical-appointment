@@ -24,6 +24,46 @@ class AppointmentController extends Controller
         return view('auth.appointment', compact('doctors'));
     }
 
+    public function mobileIndex()
+    {
+        // Fetch all departments and doctors from the database
+        $doctors = Doctor::all();
+
+        // Pass the data to the mobile view
+        return view('mobile.auth.appointment', compact('doctors'));
+    }
+
+    public function getAvailableSlots($doctorId, $date)
+    {
+        // Get doctor's schedule for the given date
+        $doctor = Doctor::find($doctorId);
+        if (!$doctor) {
+            return response()->json(['error' => 'Doctor not found'], 404);
+        }
+
+        // Get existing appointments for the date
+        $existingAppointments = Appointment::where('doctor_id', $doctorId)
+            ->whereDate('appointment_date', $date)
+            ->pluck('appointment_time')
+            ->toArray();
+
+        // Generate available time slots (9 AM to 5 PM, 30-minute intervals)
+        $allSlots = [];
+        for ($hour = 9; $hour < 17; $hour++) {
+            $allSlots[] = sprintf('%02d:00', $hour);
+            $allSlots[] = sprintf('%02d:30', $hour);
+        }
+
+        // Remove booked slots
+        $availableSlots = array_diff($allSlots, $existingAppointments);
+
+        return response()->json([
+            'slots' => array_values($availableSlots),
+            'doctor' => $doctor->name,
+            'date' => $date
+        ]);
+    }
+
     // Check Doctor`s availability
     public function checkAvailability(Request $request)
     {

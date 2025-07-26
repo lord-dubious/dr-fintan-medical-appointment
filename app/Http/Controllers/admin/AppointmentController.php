@@ -93,4 +93,21 @@ class AppointmentController extends Controller
             'status_badge' => view('components.status-badge', ['status' => $appointment->status])->render(),
         ]);
     }
+
+    public function mobileIndex()
+    {
+        $appointments = Appointment::with(['patient', 'doctor'])
+            ->orderBy('appointment_date', 'desc')
+            ->paginate(8);
+
+        // Transform the items while maintaining pagination
+        $transformedItems = $appointments->getCollection()->map(function ($appointment) {
+            $appointment->computed_status = $this->computeStatus($appointment);
+            return $appointment;
+        });
+
+        $appointments->setCollection($transformedItems);
+
+        return view('mobile.admin.appointments', compact('appointments'));
+    }
 }

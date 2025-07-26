@@ -6,7 +6,10 @@ export default {
     "./resources/views/**/*.blade.php",
     "./resources/js/**/*.js",
     "./resources/js/**/*.vue",
+    "./node_modules/flowbite/**/*.js",
+    "./node_modules/preline/dist/*.js",
   ],
+  darkMode: 'class', // Enable class-based dark mode
   theme: {
     extend: {
       fontFamily: {
@@ -97,8 +100,9 @@ export default {
     },
   },
   plugins: [
-    // Add any additional Tailwind plugins here if needed
-    // require('@tailwindcss/forms'),
-    // require('@tailwindcss/typography'),
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
+    require('flowbite/plugin'),
+    require('preline/plugin'),
   ],
 }

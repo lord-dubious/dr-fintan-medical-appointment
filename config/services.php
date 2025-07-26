@@ -48,4 +48,9 @@ return [
         'webhook_url' => env('PAYSTACK_WEBHOOK_URL', env('APP_URL').'/paystack/webhook'),
     ],
 
+    'notificationapi' => [
+        'client_id' => env('NOTIFICATION_API_CLIENT_ID'),
+        'client_secret' => env('NOTIFICATION_API_CLIENT_SECRET'),
+    ],
+
 ];
