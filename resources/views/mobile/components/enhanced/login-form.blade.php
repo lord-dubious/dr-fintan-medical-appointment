@@ -94,7 +94,10 @@ function loginForm() {
                 
                 const response = await fetch('{{ route("login.auth") }}', {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
                 });
                 
                 const result = await response.json();

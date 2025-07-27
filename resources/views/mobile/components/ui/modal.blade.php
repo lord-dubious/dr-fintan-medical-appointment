@@ -103,7 +103,8 @@ $contentClasses = collect([
 
 <script>
 // Modal control functions
-window.openModal = function(modalId) {
+if (typeof window.openModal === 'undefined') {
+    window.openModal = function(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.classList.remove('hidden');
@@ -112,7 +113,7 @@ window.openModal = function(modalId) {
     }
 }
 
-window.closeModal = function(modalId) {
+    window.closeModal = function(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.__x.$data.open = false;
