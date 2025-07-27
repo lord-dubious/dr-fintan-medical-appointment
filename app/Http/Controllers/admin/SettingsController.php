@@ -136,4 +136,23 @@ class SettingsController extends Controller
             'message' => 'Default settings initialized successfully!',
         ]);
     }
+
+    public function mobileIndex()
+    {
+        $settingGroups = [
+            'general' => 'General Settings',
+            'contact' => 'Contact Information',
+            'social' => 'Social Media',
+            'appearance' => 'Appearance',
+            'seo' => 'SEO Settings',
+        ];
+
+        $settings = SiteSetting::where('is_active', true)
+            ->orderBy('group_name')
+            ->orderBy('sort_order')
+            ->get()
+            ->groupBy('group_name');
+
+        return view('mobile.admin.settings', compact('settingGroups', 'settings'));
+    }
 }

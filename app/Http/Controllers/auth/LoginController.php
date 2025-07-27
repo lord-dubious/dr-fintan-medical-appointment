@@ -70,6 +70,16 @@ class LoginController extends Controller
         return view('auth.register');
     }
 
+    public function mobileLogin()
+    {
+        return view('mobile.auth.login');
+    }
+
+    public function mobileRegister()
+    {
+        return view('mobile.auth.register');
+    }
+
     // Logout function
     public function logout(Request $request)
     {

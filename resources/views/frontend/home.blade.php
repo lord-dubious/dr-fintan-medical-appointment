@@ -29,8 +29,7 @@
                                     />
                                 @endif
                                 <div
-                                    class="fallback-avatar absolute inset-0 bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-blue-800 dark:to-indigo-900 flex items-center justify-center text-6xl font-bold text-blue-600 dark:text-blue-300"
-                                    style="{{ empty($settings['doctor_profile_image']) ? 'display: flex;' : 'display: none;' }}"
+                                    class="fallback-avatar absolute inset-0 bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-blue-800 dark:to-indigo-900 flex items-center justify-center text-6xl font-bold text-blue-600 dark:text-blue-300 {{ empty($settings['doctor_profile_image']) ? '' : 'hidden' }}"
                                 >
                                     FE
                                 </div>

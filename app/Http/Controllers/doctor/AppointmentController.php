@@ -55,4 +55,16 @@ class AppointmentController extends Controller
             'status_badge' => view('components.status-badge', ['status' => $appointment->status])->render(),
         ]);
     }
+
+    public function mobileIndex()
+    {
+        $user = Auth::user();
+        $doctor = $user->doctor()->with(['appointments.patient'])->first();
+
+        if (!$doctor) {
+            return redirect()->back()->with('error', 'Doctor record not found.');
+        }
+
+        return view('mobile.doctor.appointments', compact('user', 'doctor'));
+    }
 }

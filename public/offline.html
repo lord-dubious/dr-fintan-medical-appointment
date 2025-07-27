@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Dr. Fintan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+        }
+        
+        .offline-container {
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        .offline-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 32px;
+        }
+        
+        .offline-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+        
+        .offline-message {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.5;
+            margin-bottom: 32px;
+        }
+        
+        .offline-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #3b82f6;
+        }
+        
+        .btn-primary:hover {
+            background: #f8fafc;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .offline-features {
+            margin-top: 40px;
+            text-align: left;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 10px;
+        }
+        
+        @media (max-width: 480px) {
+            .offline-title {
+                font-size: 24px;
+            }
+            
+            .offline-message {
+                font-size: 14px;
+            }
+            
+            .btn {
+                padding: 14px 20px;
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: none;
+        }
+        
+        .connection-status.online {
+            background: #10b981;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connectionStatus">
+        🟢 Back online! Refreshing...
+    </div>
+    
+    <div class="offline-container">
+        <div class="offline-icon pulse">
+            📱
+        </div>
+        
+        <h1 class="offline-title">You're Offline</h1>
+        
+        <p class="offline-message">
+            No internet connection detected. Don't worry, you can still access some features of Dr. Fintan while offline.
+        </p>
+        
+        <div class="offline-actions">
+            <button class="btn btn-primary" onclick="tryReconnect()">
+                Try Again
+            </button>
+            
+            <a href="/" class="btn btn-secondary">
+                Go to Homepage
+            </a>
+        </div>
+        
+        <div class="offline-features">
+            <h3 style="margin-bottom: 16px; font-size: 18px;">Available Offline:</h3>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <div class="feature-icon">📅</div>
+                    View cached appointments
+                </li>
+                <li class="feature-item">
+                    <div class="feature-icon">👥</div>
+                    Browse patient information
+                </li>
+                <li class="feature-item">
+                    <div class="feature-icon">📋</div>
+                    Access medical forms
+                </li>
+                <li class="feature-item">
+                    <div class="feature-icon">💾</div>
+                    Save data for later sync
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Check for online status
+        function checkOnlineStatus() {
+            if (navigator.onLine) {
+                document.getElementById('connectionStatus').classList.add('online');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            }
+        }
+        
+        // Try to reconnect
+        function tryReconnect() {
+            const btn = event.target;
+            const originalText = btn.textContent;
+            
+            btn.textContent = 'Checking...';
+            btn.disabled = true;
+            
+            // Simple connectivity check
+            fetch('/', { method: 'HEAD', cache: 'no-cache' })
+                .then(() => {
+                    btn.textContent = 'Connected! Redirecting...';
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                })
+                .catch(() => {
+                    btn.textContent = 'Still Offline';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                    }, 2000);
+                });
+        }
+        
+        // Listen for online/offline events
+        window.addEventListener('online', checkOnlineStatus);
+        window.addEventListener('offline', () => {
+            document.getElementById('connectionStatus').classList.remove('online');
+        });
+        
+        // Check status on load
+        checkOnlineStatus();
+        
+        // Periodic connectivity check
+        setInterval(checkOnlineStatus, 30000);
+        
+        // Service worker communication
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', (event) => {
+                if (event.data.type === 'CONNECTIVITY_RESTORED') {
+                    checkOnlineStatus();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -71,4 +71,26 @@ class PatientController extends Controller
 
         return redirect()->route('admin.patients.index')->with('success', 'Patient and their appointments deleted successfully!');
     }
+
+    public function mobileIndex()
+    {
+        $patients = Patient::withCount(['appointments as total_appointments',
+            'appointments as pending_appointments' => function ($query) {
+                $query->where('status', 'pending');
+            },
+            'appointments as active_appointments' => function ($query) {
+                $query->where('status', 'confirmed')
+                    ->where('appointment_date', '>=', Carbon::today());
+            },
+            'appointments as expired_appointments' => function ($query) {
+                $query->where(function ($q) {
+                    $q->where('status', 'confirmed')
+                        ->where('appointment_date', '<', Carbon::today());
+                })->orWhere('status', 'expired');
+            }])
+            ->latest()
+            ->paginate(8);
+
+        return view('mobile.admin.patients', compact('patients'));
+    }
 }

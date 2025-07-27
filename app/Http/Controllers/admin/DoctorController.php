@@ -115,4 +115,27 @@ class DoctorController extends Controller
 
         return redirect()->route('doctor.dashboard');
     }
+
+    public function mobileIndex()
+    {
+        $doctors = Doctor::withCount(['appointments as total_appointments',
+            'appointments as pending_appointments' => function ($query) {
+                $query->where('status', 'pending');
+            },
+            'appointments as active_appointments' => function ($query) {
+                $query->where('status', 'confirmed')
+                    ->where('appointment_date', '>=', now()->format('Y-m-d'));
+            },
+            'appointments as expired_appointments' => function ($query) {
+                $query->where(function ($q) {
+                    $q->where('status', 'confirmed')
+                        ->where('appointment_date', '<', now()->format('Y-m-d'))
+                        ->orWhere('status', 'expired');
+                });
+            }])
+            ->latest()
+            ->paginate(8);
+
+        return view('mobile.admin.doctors', compact('doctors'));
+    }
 }
