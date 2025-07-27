@@ -260,3 +260,4 @@ echo ""
 echo "📖 For detailed deployment instructions, see DEPLOYMENT.md"
 echo ""
 echo -e "${GREEN}🎉 Your Dr. Fintan Medical Appointment System is ready for Render deployment!${NC}"
+

@@ -34,7 +34,7 @@
                                         src="{{ asset('fintan/Drekochin portrait.png') }}" 
                                         alt="Dr. Fintan Ekochin" 
                                         class="w-full h-96 object-cover object-center rounded-2xl shadow-lg"
-                                        onError="this.style.display='none'; this.parentElement.querySelector('.fallback-avatar').style.display='flex';"
+                                        onError="this.classList.add('hidden'); this.parentElement.querySelector('.fallback-avatar').classList.remove('hidden');"
                                     />
                                     <div 
                                         class="fallback-avatar absolute inset-0 bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-blue-800 dark:to-indigo-900 flex items-center justify-center text-6xl font-bold text-blue-600 dark:text-blue-300 rounded-2xl"

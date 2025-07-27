@@ -25,7 +25,7 @@
                                         alt="Dr. Fintan Ekochin"
                                         class="w-full h-full object-cover object-center"
                                         style="display: block;"
-                                        onError="this.style.display='none'; this.parentElement.querySelector('.fallback-avatar').style.display='flex';"
+                                        onError="this.classList.add('hidden'); this.parentElement.querySelector('.fallback-avatar').classList.remove('hidden');"
                                     />
                                 @endif
                                 <div
