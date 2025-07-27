@@ -222,6 +222,7 @@ function realTimeCalendar() {
                 }
             } catch (error) {
                 console.error('Error fetching availability:', error);
+                this.showToast('Failed to load availability data', 'error');
             }
         },
         
@@ -245,6 +246,7 @@ function realTimeCalendar() {
             } catch (error) {
                 console.error('Error fetching slots:', error);
                 this.availableSlots = [];
+                this.showToast('Failed to load available time slots', 'error');
             } finally {
                 this.loadingSlots = false;
             }
