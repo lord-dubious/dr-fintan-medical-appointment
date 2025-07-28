@@ -19,6 +19,9 @@ return new class extends Migration
             $table->unsignedInteger('reserved_at')->nullable();
             $table->unsignedInteger('available_at');
             $table->unsignedInteger('created_at');
+
+            // Add composite index for queue processing optimization
+            $table->index(['queue', 'available_at']);
         });
     }
 
