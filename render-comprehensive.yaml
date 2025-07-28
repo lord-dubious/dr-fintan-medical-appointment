@@ -166,6 +166,7 @@ services:
       # Clean up expired rooms and failed jobs
       php artisan cleanup:expired-rooms
       php artisan queue:prune-failed --hours=48
+      php artisan telescope:prune --hours=48
     envVars:
       - key: APP_ENV
         value: production
@@ -186,6 +187,38 @@ services:
       php artisan config:cache
       php artisan route:cache
       php artisan view:cache
+      # Clean up old log files
+      find storage/logs -name "*.log" -mtime +7 -delete
+    envVars:
+      - key: APP_ENV
+        value: production
+
+  # Database Backup Service (Optional)
+  - type: cron
+    name: database-backup
+    env: php
+    plan: starter
+    schedule: "0 4 * * *"  # Daily at 4 AM UTC
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+    startCommand: |
+      # Create database backup (implement your backup strategy)
+      php artisan backup:run --only-db
+    envVars:
+      - key: APP_ENV
+        value: production
+
+  # Health Check Service
+  - type: cron
+    name: health-monitor
+    env: php
+    plan: starter
+    schedule: "*/5 * * * *"  # Every 5 minutes
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+    startCommand: |
+      # Monitor application health
+      php artisan health:check
     envVars:
       - key: APP_ENV
         value: production
@@ -197,4 +230,27 @@ databases:
     user: dr_fintan_user
     plan: starter
 
-
+# Environment Variables Documentation
+# Set these in your Render dashboard:
+#
+# Required API Keys:
+# - NOTIFICATION_API_CLIENT_ID: Your NotificationAPI client ID
+# - NOTIFICATION_API_CLIENT_SECRET: Your NotificationAPI client secret
+# - DAILY_API_KEY: Your Daily.co API key for video calls
+# - DAILY_DOMAIN: Your Daily.co domain
+# - PAYSTACK_PUBLIC_KEY: Paystack public key for payments
+# - PAYSTACK_SECRET_KEY: Paystack secret key for payments
+#
+# Mail Configuration:
+# - MAIL_HOST: SMTP server hostname
+# - MAIL_USERNAME: SMTP username
+# - MAIL_PASSWORD: SMTP password
+# - MAIL_FROM_ADDRESS: Default from email address
+#
+# Push Notifications:
+# - VAPID_PUBLIC_KEY: VAPID public key for push notifications
+# - VAPID_PRIVATE_KEY: VAPID private key for push notifications
+#
+# Optional:
+# - APP_KEY: Will be auto-generated if not set
+# - DATABASE_URL: Auto-injected by Render when database is connected
