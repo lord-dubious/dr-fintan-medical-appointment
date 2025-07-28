@@ -1,0 +1,18 @@
+# Laravel Scheduler
+* * * * * www-data cd /var/www/html && php artisan schedule:run >> /dev/null 2>&1
+
+# Appointment Reminders (every 2 hours)
+0 */2 * * * www-data cd /var/www/html && php artisan appointments:schedule-reminders >> /dev/null 2>&1
+
+# Daily Cleanup (2 AM UTC)
+0 2 * * * www-data cd /var/www/html && php artisan cleanup:expired-rooms >> /dev/null 2>&1
+0 2 * * * www-data cd /var/www/html && php artisan queue:prune-failed --hours=48 >> /dev/null 2>&1
+
+# Weekly Maintenance (Sunday 3 AM UTC)
+0 3 * * 0 www-data cd /var/www/html && php artisan optimize:clear >> /dev/null 2>&1
+0 3 * * 0 www-data cd /var/www/html && php artisan config:cache >> /dev/null 2>&1
+0 3 * * 0 www-data cd /var/www/html && php artisan route:cache >> /dev/null 2>&1
+0 3 * * 0 www-data cd /var/www/html && php artisan view:cache >> /dev/null 2>&1
+
+# Database Backup (1 AM UTC)
+0 1 * * * www-data cd /var/www/html && php artisan backup:run --only-db >> /dev/null 2>&1
