@@ -415,7 +415,12 @@ async function processSync(item) {
     case 'book-appointment':
       await fetch('/api/appointments', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': await getCSRFToken(),
+          'Authorization': `Bearer ${await getAuthToken()}`,
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(data)
       });
       break;
@@ -423,19 +428,127 @@ async function processSync(item) {
     case 'update-appointment':
       await fetch(`/api/appointments/${data.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': await getCSRFToken(),
+          'Authorization': `Bearer ${await getAuthToken()}`,
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(data)
       });
       break;
       
     case 'cancel-appointment':
       await fetch(`/api/appointments/${data.id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': await getCSRFToken(),
+          'Authorization': `Bearer ${await getAuthToken()}`,
+          'Accept': 'application/json'
+        }
       });
       break;
       
     default:
       console.log('[SW] Unknown sync action:', action);
+  }
+}
+
+// Helper function to get CSRF token
+async function getCSRFToken() {
+  try {
+    // Try to get CSRF token from meta tag or cookie
+    const response = await fetch('/sanctum/csrf-cookie', {
+      method: 'GET',
+      credentials: 'include'
+    });
+    
+    if (response.ok) {
+      // Extract CSRF token from cookie
+      const cookies = await getCookies();
+      return cookies['XSRF-TOKEN'] || cookies['laravel_session'] || '';
+    }
+    
+    // Fallback: try to get from stored value
+    const db = await initDB();
+    const transaction = db.transaction([STORES.cache], 'readonly');
+    const store = transaction.objectStore(STORES.cache);
+    const request = store.get('csrf_token');
+    
+    return new Promise((resolve) => {
+      request.onsuccess = () => {
+        resolve(request.result?.value || '');
+      };
+      request.onerror = () => {
+        resolve('');
+      };
+    });
+  } catch (error) {
+    console.error('[SW] Error getting CSRF token:', error);
+    return '';
+  }
+}
+
+// Helper function to get authentication token
+async function getAuthToken() {
+  try {
+    // Try to get auth token from localStorage or IndexedDB
+    const db = await initDB();
+    const transaction = db.transaction([STORES.cache], 'readonly');
+    const store = transaction.objectStore(STORES.cache);
+    const request = store.get('auth_token');
+    
+    return new Promise((resolve) => {
+      request.onsuccess = () => {
+        const token = request.result?.value;
+        if (token) {
+          resolve(token);
+        } else {
+          // Fallback: try to get from cookies
+          getCookies().then(cookies => {
+            resolve(cookies['auth_token'] || cookies['laravel_token'] || '');
+          }).catch(() => {
+            resolve('');
+          });
+        }
+      };
+      request.onerror = () => {
+        resolve('');
+      };
+    });
+  } catch (error) {
+    console.error('[SW] Error getting auth token:', error);
+    return '';
+  }
+}
+
+// Helper function to parse cookies
+async function getCookies() {
+  try {
+    // Since service workers can't access document.cookie directly,
+    // we'll try to get cookies from a fetch request
+    const response = await fetch('/api/user', {
+      method: 'GET',
+      credentials: 'include'
+    });
+    
+    const cookies = {};
+    const cookieHeader = response.headers.get('set-cookie');
+    
+    if (cookieHeader) {
+      cookieHeader.split(';').forEach(cookie => {
+        const [name, value] = cookie.trim().split('=');
+        if (name && value) {
+          cookies[name] = decodeURIComponent(value);
+        }
+      });
+    }
+    
+    return cookies;
+  } catch (error) {
+    console.error('[SW] Error getting cookies:', error);
+    return {};
   }
 }
 
