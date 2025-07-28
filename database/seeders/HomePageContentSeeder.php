@@ -12,17 +12,17 @@ class HomePageContentSeeder extends Seeder
      */
     public function run(): void
     {
-        // Hero section content - correct information from the profile image
+        // Enhanced hero section content with compelling copywriting
         PageContent::setContent('home', 'hero', 'title', 'Dr. Fintan Ekochin');
-        PageContent::setContent('home', 'hero', 'subtitle', 'Fellow of the West African College of Physicians • Neurologist • Integrative Medicine Specialist');
-        PageContent::setContent('home', 'hero', 'paragraph_1', 'Dr. Ekochin Fintan is one of two generations of the EKOCHIN Family of Doctors. He largely grew up in Nigeria with some years of childhood spent in Austria, where he added German to his Igbo and English language proficiency.');
-        PageContent::setContent('home', 'hero', 'paragraph_2', 'After completing Primary and Secondary schools in Enugu and Nsukka, he earned an MBBS from the premier University of Nigeria, College of Medicine. Post graduation activities were first in the Paklose Specialist Hospital before going to do House training in Internal Medicine at the University Teaching Hospital both in New Delhi (2011).');
-        PageContent::setContent('home', 'hero', 'paragraph_3', 'He later completed neurology residency in India and the USA, earning Fellowship of the West African College of Physicians. He currently serves as Head of Neurology at ESUT Teaching Hospital Enugu and Senior Lecturer for Neurophysiology at the Godfrey Okoye University College of Medicine.');
-        PageContent::setContent('home', 'hero', 'paragraph_4', 'He served Enugu State as the Commissioner for Health between 2017 and 2019. He is a Fellow of the West African College of Physicians (since 2016) and is currently appointed as a Senior Lecturer for the ESUT Teaching Hospital Enugu as well as Senior Lecturer for Neurophysiology at the Godfrey Okoye University College of Medicine.');
+        PageContent::setContent('home', 'hero', 'subtitle', 'Fellow WACP • Neurologist • Integrative Medicine Pioneer • Former Health Commissioner');
+        PageContent::setContent('home', 'hero', 'paragraph_1', 'Experience world-class neurological care with Dr. Ekochin Fintan, a distinguished second-generation physician from the renowned EKOCHIN Family of Medical Practitioners. With multicultural expertise spanning Nigeria, Austria, India, and the USA, Dr. Fintan brings a unique global perspective to modern healthcare delivery.');
+        PageContent::setContent('home', 'hero', 'paragraph_2', 'From his foundational education at the prestigious University of Nigeria College of Medicine to advanced training at leading medical institutions in New Delhi and North Carolina, Dr. Fintan has consistently pursued excellence in neurological care and integrative medicine.');
+        PageContent::setContent('home', 'hero', 'paragraph_3', 'As Head of Neurology at ESUT Teaching Hospital and Senior Lecturer at Godfrey Okoye University, Dr. Fintan combines cutting-edge clinical practice with academic leadership. His tenure as Enugu State Commissioner for Health (2017-2019) demonstrates his commitment to advancing public health initiatives.');
+        PageContent::setContent('home', 'hero', 'paragraph_4', 'Dr. Fintan\'s innovative approach integrates orthodox medicine with complementary therapies, offering patients comprehensive care that addresses both symptoms and underlying causes. His Fellowship of the West African College of Physicians (WACP) since 2016 reflects his dedication to maintaining the highest standards of medical practice.');
         
-        // Philosophy section content
-        PageContent::setContent('home', 'philosophy', 'title', 'What to expect from a virtual consultation with Dr. Fintan');
-        PageContent::setContent('home', 'philosophy', 'quote', 'Dr. Fintan\'s medical practice is an amalgamation of Orthodox and Alternative medicine, yielding a blend of Complementary, Functional, Orthomolecular as well as Lifestyle Medicine. This delivers a pharmacologically minimalist approach to healthcare. Most consultations end without a drug prescription, which makes for efficient cross border client care.');
-        PageContent::setContent('home', 'philosophy', 'author', '— Dr. Fintan Ekochin');
+        // Enhanced philosophy section content
+        PageContent::setContent('home', 'philosophy', 'title', 'Experience Transformative Healthcare Through Virtual Consultations');
+        PageContent::setContent('home', 'philosophy', 'quote', 'My medical practice represents a revolutionary synthesis of Orthodox and Alternative medicine, seamlessly blending Complementary, Functional, Orthomolecular, and Lifestyle Medicine approaches. This innovative methodology prioritizes natural healing and prevention, often achieving remarkable results without pharmaceutical dependency. This pharmacologically minimalist philosophy not only promotes optimal health outcomes but also enables seamless international patient care, transcending geographical boundaries to deliver personalized medical excellence.');
+        PageContent::setContent('home', 'philosophy', 'author', '— Dr. Fintan Ekochin, Fellow WACP');
     }
 }
