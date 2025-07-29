@@ -2,10 +2,28 @@
 
 # Wait for database to be ready
 echo "Waiting for database connection..."
+echo "Database Host: ${DB_HOST}"
+echo "Database Name: ${DB_DATABASE}"
+
+# Test database connection with timeout
+TIMEOUT=300  # 5 minutes timeout
+ELAPSED=0
 until php /var/www/html/artisan migrate:status > /dev/null 2>&1; do
-    echo "Database not ready, waiting..."
+    if [ $ELAPSED -ge $TIMEOUT ]; then
+        echo "Database connection timeout after ${TIMEOUT} seconds"
+        echo "Please check your database environment variables:"
+        echo "DB_HOST=${DB_HOST}"
+        echo "DB_PORT=${DB_PORT}"
+        echo "DB_DATABASE=${DB_DATABASE}"
+        echo "DB_USERNAME=${DB_USERNAME}"
+        exit 1
+    fi
+    echo "Database not ready, waiting... (${ELAPSED}s/${TIMEOUT}s)"
     sleep 5
+    ELAPSED=$((ELAPSED + 5))
 done
+
+echo "Database connection successful!"
 
 # Run migrations
 echo "Running database migrations..."

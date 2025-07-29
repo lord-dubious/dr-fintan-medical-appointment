@@ -35,28 +35,19 @@ services:
         value: database
       - key: FILESYSTEM_DISK
         value: public
+      # Database Configuration - Set these in Render Dashboard
       - key: DB_CONNECTION
         value: mysql
       - key: DB_HOST
-        fromDatabase:
-          name: dr-fintan-mysql
-          property: host
+        sync: false
       - key: DB_PORT
-        fromDatabase:
-          name: dr-fintan-mysql
-          property: port
+        sync: false
       - key: DB_DATABASE
-        fromDatabase:
-          name: dr-fintan-mysql
-          property: database
+        sync: false
       - key: DB_USERNAME
-        fromDatabase:
-          name: dr-fintan-mysql
-          property: user
+        sync: false
       - key: DB_PASSWORD
-        fromDatabase:
-          name: dr-fintan-mysql
-          property: password
+        sync: false
       # API Keys (set these in Render dashboard)
       - key: NOTIFICATION_API_CLIENT_ID
         sync: false
@@ -105,10 +96,6 @@ services:
   # within the main Docker container using supervisor and cron
 
 # Database Configuration
-databases:
-  - name: dr-fintan-mysql
-    databaseName: dr_fintan_db
-    user: dr_fintan_user
-    plan: starter
+# Using remote database - no local database service needed
 
 
